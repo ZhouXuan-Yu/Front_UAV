@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <section class="relative py-24 overflow-hidden">
+  <section class="relative py-36 overflow-hidden">
     <!-- Video Background -->
     <div class="absolute inset-0 z-0">
       <video
@@ -20,13 +20,13 @@
     
     <div class="container-narrow relative z-10">
       <h2
-        class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-10 text-white"
+        class="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-12 text-white"
         data-aos="fade-up"
       >
         Mission-ready. Day or night.
       </h2>
       <p
-        class="text-lg md:text-xl text-center max-w-4xl mx-auto text-white"
+        class="text-xl md:text-2xl text-center max-w-4xl mx-auto text-white"
         data-aos="fade-up"
         data-aos-delay="100"
       >
@@ -38,9 +38,16 @@
 
 <style scoped>
 section {
-  min-height: 500px;
+  min-height: 700px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 </style>

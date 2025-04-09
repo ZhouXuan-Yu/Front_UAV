@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { gsap } from 'gsap';
 
 interface Solution {
@@ -11,60 +11,60 @@ interface Solution {
   link: string;
 }
 
-const solutions = ref([
+const solutions = ref<Solution[]>([
   {
     id: 'dfr',
-    title: 'Drone as First Responder',
-    subtitle: 'You protect us, DFR protects you',
-    description: 'Eyes on the scene in under two minutes. Instant situational awareness on any call for service. Better coordinated responses. Increased apprehension rates. All from Skydio.',
+    title: '无人机先遣系统',
+    subtitle: '我们保护您，无人机系统更保护您',
+    description: '2分钟内快速部署到现场。为任何服务请求提供即时态势感知。更好地协调响应。提高截获率。Skydio为您提供全方位保障。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
     link: '/path-planning'
   },
   {
     id: 'utilities',
-    title: 'Utilities',
-    subtitle: 'Keep the lights on',
-    description: 'Reduce your downtime and accelerate the return to service when things do go wrong. Skydio helps you stay ahead of outages and failures, all with your existing workforce.',
+    title: '公共设施',
+    subtitle: '确保电力持续供应',
+    description: '减少停机时间，在出现问题时加快服务恢复速度。Skydio帮助您提前预防停电和故障，全部通过您现有的工作人员完成。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
     link: '/person-recognition'
   },
   {
     id: 'security',
-    title: 'National Security',
-    subtitle: 'Out-see, out-think, and out-do the adversary',
-    description: "Gather data faster, smarter, and safer with survivable sUAS. With real-time situational awareness, you can adapt at the speed of combat to keep teams out of harm's way.",
+    title: '国家安全',
+    subtitle: '洞察、思考、超越对手',
+    description: '通过可靠的小型无人机系统更快、更智能、更安全地收集数据。凭借实时态势感知，您可以按照作战节奏进行调整，确保团队远离危险。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
     link: '/vehicle-monitoring'
   },
   {
     id: 'inspection',
-    title: 'Asset Inspection',
-    subtitle: 'Inspect with precision',
-    description: 'Automated inspections of critical infrastructure with unmatched precision and detail. Identify issues before they become problems.',
+    title: '资产检查',
+    subtitle: '精准检查',
+    description: '对关键基础设施进行自动化检查，精确度和细节无与伦比。在问题出现前识别隐患。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
     link: '/license-plate-recognition'
   },
   {
     id: 'public-safety',
-    title: 'Public Safety',
-    subtitle: 'Respond faster, safer',
-    description: 'Improve response times and officer safety with autonomous drone solutions designed for law enforcement.',
+    title: '公共安全',
+    subtitle: '更快、更安全地响应',
+    description: '通过为执法部门设计的自主无人机解决方案，改善响应时间和人员安全。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
     link: '/disaster-detection'
   },
   {
     id: 'mapping',
-    title: 'Surveying & Mapping',
-    subtitle: 'Map with precision',
-    description: 'Create detailed, accurate 3D maps of any area with autonomous drone technology that captures every detail.',
+    title: '测量与绘图',
+    subtitle: '精确测绘',
+    description: '通过捕捉每一个细节的自主无人机技术，创建任何区域的详细、准确的3D地图。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
     link: '/data-dashboard'
   },
   {
     id: 'site-security',
-    title: 'Site Security',
-    subtitle: 'Secure perimeters automatically',
-    description: 'Automate perimeter security with autonomous drone patrols that detect and respond to threats in real-time.',
+    title: '场地安全',
+    subtitle: '自动保护周边安全',
+    description: '通过自主无人机巡逻自动化周边安全，实时检测并响应威胁。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
     link: '/knowledge-graph'
   }
@@ -72,30 +72,52 @@ const solutions = ref([
 
 const currentIndex = ref(0);
 const isTransitioning = ref(false);
-const touchStartX = ref(0);
-const touchEndX = ref(0);
+const carouselRef = ref<HTMLElement | null>(null);
+const lastScrollY = ref(0);
+const scrollThreshold = 50; // 触发幻灯片切换所需的滚动像素数
+const wheelTimeout = ref<number | null>(null);
+const wheelCount = ref(0);
+const reachedEnd = ref(false);
 
-const state = reactive({
-  timeline: gsap.timeline({ paused: true })
-});
+// 发射事件通知父组件滚动到下一部分
+const emit = defineEmits(['scrollToNext']);
 
-const nextSlide = () => {
+const changeSlide = (direction: 'next' | 'prev'): void => {
   if (isTransitioning.value) return;
-  isTransitioning.value = true;
   
-  const nextIndex = (currentIndex.value + 1) % solutions.value.length;
+  // 如果已经到最后一张且往下滚动，则滚动到下一个部分
+  if (direction === 'next' && currentIndex.value === solutions.value.length - 1) {
+    scrollToNextSection();
+    return;
+  }
+  
+  // 如果已经是第一张且往上滚动，则不做任何操作
+  if (direction === 'prev' && currentIndex.value === 0) {
+    return;
+  }
+  
+  isTransitioning.value = true;
+  const newIndex = direction === 'next' 
+    ? currentIndex.value + 1
+    : currentIndex.value - 1;
+  
+  // Y轴过渡动画，实现垂直滚动效果
+  const yOffset = direction === 'next' ? 100 : -100;
   
   gsap.to('.slide-content', {
     opacity: 0,
-    x: -50,
+    y: -yOffset,
     duration: 0.5,
     onComplete: () => {
-      currentIndex.value = nextIndex;
+      currentIndex.value = newIndex;
+      // 检查是否到达最后一张
+      reachedEnd.value = newIndex === solutions.value.length - 1;
+      
       gsap.fromTo('.slide-content', 
-        { opacity: 0, x: 50 },
+        { opacity: 0, y: yOffset },
         { 
           opacity: 1, 
-          x: 0, 
+          y: 0, 
           duration: 0.5,
           onComplete: () => {
             isTransitioning.value = false;
@@ -105,73 +127,44 @@ const nextSlide = () => {
     }
   });
   
-  // Fade background image
-  gsap.to('.bg-image-current', {
+  // 淡出当前背景图片
+  gsap.to(`.solution-bg-${currentIndex.value}`, {
     opacity: 0,
-    duration: 1,
+    duration: 0.8,
   });
   
-  gsap.fromTo('.bg-image-next', 
-    { opacity: 0 },
-    { opacity: 1, duration: 1 }
-  );
+  // 淡入新的背景图片
+  gsap.to(`.solution-bg-${newIndex}`, {
+    opacity: 1,
+    duration: 0.8
+  });
 };
 
-const prevSlide = () => {
-  if (isTransitioning.value) return;
-  isTransitioning.value = true;
-  
-  const prevIndex = (currentIndex.value - 1 + solutions.value.length) % solutions.value.length;
-  
-  gsap.to('.slide-content', {
-    opacity: 0,
-    x: 50,
-    duration: 0.5,
-    onComplete: () => {
-      currentIndex.value = prevIndex;
-      gsap.fromTo('.slide-content', 
-        { opacity: 0, x: -50 },
-        { 
-          opacity: 1, 
-          x: 0, 
-          duration: 0.5,
-          onComplete: () => {
-            isTransitioning.value = false;
-          }
-        }
-      );
-    }
-  });
-  
-  // Fade background image
-  gsap.to('.bg-image-current', {
-    opacity: 0,
-    duration: 1,
-  });
-  
-  gsap.fromTo('.bg-image-next', 
-    { opacity: 0 },
-    { opacity: 1, duration: 1 }
-  );
-};
+const nextSlide = (): void => changeSlide('next');
+const prevSlide = (): void => changeSlide('prev');
 
-const goToSlide = (index: number) => {
+// 滚动到指定幻灯片
+const goToSlide = (index: number): void => {
   if (isTransitioning.value || index === currentIndex.value) return;
-  isTransitioning.value = true;
   
-  const direction = index > currentIndex.value ? -50 : 50;
+  isTransitioning.value = true;
+  const direction = index > currentIndex.value ? 'next' : 'prev';
+  const yOffset = direction === 'next' ? 100 : -100;
   
   gsap.to('.slide-content', {
     opacity: 0,
-    x: direction,
+    y: -yOffset,
     duration: 0.5,
     onComplete: () => {
       currentIndex.value = index;
+      // 检查是否到达最后一张
+      reachedEnd.value = index === solutions.value.length - 1;
+      
       gsap.fromTo('.slide-content', 
-        { opacity: 0, x: -direction },
+        { opacity: 0, y: yOffset },
         { 
           opacity: 1, 
-          x: 0, 
+          y: 0, 
           duration: 0.5,
           onComplete: () => {
             isTransitioning.value = false;
@@ -181,74 +174,134 @@ const goToSlide = (index: number) => {
     }
   });
   
-  // Fade background image
-  gsap.to('.bg-image-current', {
-    opacity: 0,
-    duration: 1,
+  // 淡出所有背景，只保留目标背景
+  solutions.value.forEach((_, idx) => {
+    const opacity = idx === index ? 1 : 0;
+    gsap.to(`.solution-bg-${idx}`, {
+      opacity,
+      duration: 0.8
+    });
   });
+};
+
+// 滚动到下一个部分
+const scrollToNextSection = (): void => {
+  emit('scrollToNext');
   
-  gsap.fromTo('.bg-image-next', 
-    { opacity: 0 },
-    { opacity: 1, duration: 1 }
-  );
+  // 从视觉上表示正在离开轮播区域
+  gsap.to('.slide-content', {
+    opacity: 0,
+    y: -100,
+    duration: 0.5
+  });
 };
 
-const handleTouchStart = (e: TouchEvent) => {
-  touchStartX.value = e.touches[0].clientX;
+// 处理鼠标滚轮事件
+const handleWheel = (e: WheelEvent): void => {
+  e.preventDefault();
+  
+  // 防抖滚轮事件
+  if (wheelTimeout.value) {
+    clearTimeout(wheelTimeout.value);
+    wheelCount.value += 1;
+  } else {
+    wheelCount.value = 1;
+  }
+  
+  wheelTimeout.value = window.setTimeout(() => {
+    if (wheelCount.value > 2) { // 确保是有意的滚动
+      if (e.deltaY > 0) {
+        // 向下滚动
+        if (reachedEnd.value) {
+          scrollToNextSection();
+        } else {
+          nextSlide();
+        }
+      } else {
+        // 向上滚动
+        prevSlide();
+      }
+    }
+    wheelCount.value = 0;
+    wheelTimeout.value = null;
+  }, 50);
 };
 
-const handleTouchEnd = (e: TouchEvent) => {
-  touchEndX.value = e.changedTouches[0].clientX;
-  handleSwipe();
+// 处理触摸开始事件
+const handleTouchStart = (e: TouchEvent): void => {
+  lastScrollY.value = e.touches[0].clientY;
 };
 
-const handleSwipe = () => {
-  const SWIPE_THRESHOLD = 50;
-  if (touchStartX.value - touchEndX.value > SWIPE_THRESHOLD) {
-    nextSlide();
-  } else if (touchEndX.value - touchStartX.value > SWIPE_THRESHOLD) {
-    prevSlide();
+// 处理触摸移动事件
+const handleTouchMove = (e: TouchEvent): void => {
+  e.preventDefault(); // 防止默认滚动
+  const currentY = e.touches[0].clientY;
+  const diffY = currentY - lastScrollY.value;
+  
+  if (Math.abs(diffY) > scrollThreshold) {
+    if (diffY < 0) {
+      // 向上滑动 (往下翻页)
+      if (reachedEnd.value) {
+        scrollToNextSection();
+      } else {
+        nextSlide();
+      }
+    } else {
+      // 向下滑动 (往上翻页)
+      prevSlide();
+    }
+    lastScrollY.value = currentY;
   }
 };
 
-const startAutoPlay = () => {
-  return setInterval(() => {
-    if (!isTransitioning.value) {
-      nextSlide();
-    }
-  }, 7000); // Change slide every 7 seconds
-};
-
-let autoPlayInterval: number | null = null;
-
 onMounted(() => {
-  autoPlayInterval = startAutoPlay();
+  const carousel = carouselRef.value;
+  if (carousel) {
+    carousel.addEventListener('wheel', handleWheel, { passive: false });
+  }
   
-  // Clear interval when component is unmounted
-  return () => {
-    if (autoPlayInterval) {
-      clearInterval(autoPlayInterval);
+  // 键盘导航
+  const handleKeyDown = (e: KeyboardEvent): void => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+      if (reachedEnd.value) {
+        scrollToNextSection();
+      } else {
+        nextSlide();
+      }
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      prevSlide();
     }
   };
+  
+  window.addEventListener('keydown', handleKeyDown);
+  
+  // 清理函数
+  onUnmounted(() => {
+    if (carousel) {
+      carousel.removeEventListener('wheel', handleWheel);
+    }
+    window.removeEventListener('keydown', handleKeyDown);
+    if (wheelTimeout.value) {
+      clearTimeout(wheelTimeout.value);
+    }
+  });
 });
 </script>
 
 <template>
   <section 
+    ref="carouselRef"
     class="relative h-screen overflow-hidden"
     @touchstart="handleTouchStart"
-    @touchend="handleTouchEnd"
+    @touchmove="handleTouchMove"
   >
-    <!-- Background Images -->
+    <!-- 背景图片 -->
     <div class="absolute inset-0 w-full h-full">
       <div 
         v-for="(solution, index) in solutions" 
         :key="`bg-${solution.id}`"
-        class="absolute inset-0 w-full h-full transition-opacity duration-1000"
-        :class="{ 
-          'opacity-100 z-10': index === currentIndex,
-          'opacity-0 z-0': index !== currentIndex
-        }"
+        :class="`solution-bg-${index} absolute inset-0 w-full h-full transition-opacity duration-1000`"
+        :style="{ opacity: index === currentIndex ? 1 : 0, zIndex: index === currentIndex ? 10 : 0 }"
       >
         <img 
           :src="solution.image" 
@@ -259,7 +312,7 @@ onMounted(() => {
       </div>
     </div>
     
-    <!-- Content -->
+    <!-- 内容 -->
     <div class="relative z-20 flex flex-col justify-center h-full px-4 md:px-8 lg:px-16">
       <div class="container mx-auto">
         <div class="max-w-2xl slide-content">
@@ -279,7 +332,7 @@ onMounted(() => {
             :to="solutions[currentIndex].link"
             class="inline-flex items-center px-6 py-3 bg-skydio-blue text-white rounded hover:bg-opacity-90 transition-colors"
           >
-            Learn more
+            了解更多
             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
             </svg>
@@ -288,48 +341,59 @@ onMounted(() => {
       </div>
     </div>
     
-    <!-- Navigation Controls -->
-    <div class="absolute bottom-10 left-0 right-0 z-20">
-      <div class="container mx-auto px-4 flex justify-center">
-        <!-- Indicators -->
-        <div class="flex space-x-2">
-          <button
-            v-for="(solution, index) in solutions"
-            :key="`indicator-${solution.id}`"
-            @click="goToSlide(index)"
-            class="w-3 h-3 rounded-full transition-all duration-300 focus:outline-none"
-            :class="index === currentIndex ? 'bg-white scale-125' : 'bg-white bg-opacity-50 hover:bg-opacity-75'"
-            :aria-label="`Go to slide ${index + 1}`"
-          ></button>
-        </div>
+    <!-- 导航控件 - 垂直滚动指示器 -->
+    <div class="absolute bottom-10 right-10 z-20">
+      <div class="flex flex-col space-y-2">
+        <button
+          v-for="(solution, index) in solutions"
+          :key="`indicator-${solution.id}`"
+          @click="goToSlide(index)"
+          class="w-3 h-3 rounded-full transition-all duration-300 focus:outline-none"
+          :class="index === currentIndex ? 'bg-white scale-125' : 'bg-white bg-opacity-50 hover:bg-opacity-75'"
+          :aria-label="`前往幻灯片 ${index + 1}`"
+        ></button>
       </div>
     </div>
     
-    <!-- Arrow Navigation -->
-    <button 
-      @click="prevSlide"
-      class="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 text-white p-2 rounded-full bg-black bg-opacity-30 hover:bg-opacity-50 transition-all focus:outline-none"
-      aria-label="Previous slide"
-    >
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-      </svg>
-    </button>
+    <!-- 滚动指示器 -->
+    <div class="absolute left-1/2 transform -translate-x-1/2 bottom-10 z-20 flex flex-col items-center">
+      <span class="text-white text-sm mb-2">滚动探索更多</span>
+      <div class="w-6 h-10 border-2 border-white rounded-full flex justify-center p-1">
+        <div 
+          class="w-1 h-2 bg-white rounded-full animate-bounce-slow" 
+          style="animation-duration: 1.5s;"
+        ></div>
+      </div>
+    </div>
     
-    <button 
-      @click="nextSlide"
-      class="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 text-white p-2 rounded-full bg-black bg-opacity-30 hover:bg-opacity-50 transition-all focus:outline-none"
-      aria-label="Next slide"
+    <!-- 下一页指示器 -->
+    <div 
+      v-if="reachedEnd" 
+      class="absolute left-1/2 transform -translate-x-1/2 bottom-4 z-20 text-white text-center"
     >
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      <p class="text-sm mb-1">继续滚动查看下一部分</p>
+      <svg class="w-6 h-6 mx-auto animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
       </svg>
-    </button>
+    </div>
   </section>
 </template>
 
 <style scoped>
 .slide-content {
   transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 1.5s infinite;
 }
 </style> 

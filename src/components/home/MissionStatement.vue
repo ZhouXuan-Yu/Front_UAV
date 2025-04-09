@@ -15,18 +15,18 @@
         <source src="@/assets/videos/file.mp4" type="video/mp4" />
       </video>
       <!-- Overlay -->
-      <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-white/80 to-white/90"></div>
     </div>
     
     <div class="container-narrow relative z-10">
       <h2
-        class="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-12 text-white"
+        class="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-12 text-gray-800"
         data-aos="fade-up"
       >
         Mission-ready. Day or night.
       </h2>
       <p
-        class="text-xl md:text-2xl text-center max-w-4xl mx-auto text-white"
+        class="text-xl md:text-2xl text-center max-w-4xl mx-auto text-gray-600"
         data-aos="fade-up"
         data-aos-delay="100"
       >
@@ -42,6 +42,7 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #f7fafc;
 }
 
 .container-narrow {

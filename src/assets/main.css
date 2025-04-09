@@ -19,13 +19,43 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-['Case'];
   }
 
   body {
     @apply font-sans text-skydio-dark bg-skydio-light;
+    margin: 0;
+    padding: 0;
   }
+}
+
+/* 全屏滑动幻灯片相关样式 */
+.fullscreen-slide {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-skydio-dark {
+  background-color: #0f172a;
+}
+
+.bg-skydio-light {
+  background-color: #f8fafc;
+}
+
+.text-skydio-dark {
+  color: #0f172a;
+}
+
+.text-skydio-blue {
+  color: #3b82f6;
 }
 
 @layer components {

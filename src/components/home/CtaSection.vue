@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import Logo from '../common/Logo.vue';
 
 const partners = ref([
   { id: 1, image: 'https://ext.same-assets.com/913537297/1124492884.jpeg', alt: 'New York Police Department' },
@@ -98,7 +99,7 @@ const socialLinks = ref([
           <!-- Logo and Newsletter -->
           <div class="lg:col-span-1">
             <router-link to="/" class="inline-block mb-6">
-              <div class="text-white font-bold text-xl">Skydio</div>
+              <Logo variant="dark" />
             </router-link>
             
             <p class="text-sm text-white/80 mb-4">Get our latest news:</p>
@@ -226,4 +227,6 @@ const socialLinks = ref([
   background-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
 }
+
+/* 删除不再需要的Logo样式，已由Logo组件管理 */
 </style>

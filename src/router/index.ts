@@ -39,6 +39,11 @@ const router = createRouter({
       component: () => import('../views/DataDashboardView.vue')
     },
     {
+      path: '/data-dashboard-detail',
+      name: 'data-dashboard-detail',
+      component: () => import('../views/DataDashboardDetailView.vue')
+    },
+    {
       path: '/knowledge-graph',
       name: 'knowledge-graph',
       component: () => import('../views/KnowledgeGraphView.vue')

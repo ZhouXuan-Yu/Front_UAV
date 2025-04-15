@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高德地图MCP客户端</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=206278d547a0c6408987f2a0002e2243"></script>
+    <style>
+        #container {
+            width: 100%;
+            height: 500px;
+        }
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        .result-panel {
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div class="control-panel">
+        <h3>高德地图MCP客户端</h3>
+        <div class="input-item">
+            <label>连接状态：</label>
+            <span id="connection-status">未连接</span>
+        </div>
+        <div class="input-item">
+            <select id="request-type">
+                <option value="search_poi">POI搜索</option>
+                <option value="route_planning">路线规划</option>
+                <option value="weather">天气查询</option>
+                <option value="geocode">地理编码</option>
+                <option value="regeocode">逆地理编码</option>
+                <option value="district">行政区域查询</option>
+                <option value="traffic_status">交通态势</option>
+            </select>
+        </div>
+        <div id="params-container">
+            <!-- 动态生成参数输入框 -->
+        </div>
+        <div class="input-item">
+            <button id="send-request">发送请求</button>
+            <button id="connect-ws">连接服务器</button>
+        </div>
+        <div class="result-panel" id="result-panel">
+            <!-- 结果显示区域 -->
+        </div>
+    </div>
+
+    <script>
+        // 初始化WebSocket连接
+        let ws = null;
+        let map = null;
+        let markers = [];
+        let clientId = null;
+        
+        // 初始化地图
+        function initMap() {
+            map = new AMap.Map('container', {
+                zoom: 11,
+                center: [116.397428, 39.90923]
+            });
+        }
+        
+        // 连接到WebSocket服务器
+        function connectToServer() {
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsHost = window.location.hostname || 'localhost';
+            const wsPort = 6789;
+            const wsUrl = `${wsProtocol}//${wsHost}:${wsPort}`;
+            
+            try {
+                document.getElementById('connection-status').textContent = `正在连接 ${wsUrl}...`;
+                document.getElementById('connection-status').style.color = 'orange';
+                
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = function() {
+                    document.getElementById('connection-status').textContent = `已连接到 ${wsUrl}`;
+                    document.getElementById('connection-status').style.color = 'green';
+                    document.getElementById('connect-ws').textContent = '重新连接';
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const message = JSON.parse(event.data);
+                        
+                        if (message.type === 'connection_established') {
+                            clientId = message.client_id;
+                            console.log('已连接到服务器，客户端ID：', clientId);
+                        } else if (message.type === 'response') {
+                            handleResponse(message);
+                        } else if (message.type === 'error') {
+                            showResult(`错误: ${message.message}`);
+                        }
+                    } catch (e) {
+                        console.error('处理消息时出错:', e);
+                        showResult('处理服务器消息时出错');
+                    }
+                };
+                
+                ws.onclose = function(event) {
+                    document.getElementById('connection-status').textContent = '已断开连接';
+                    document.getElementById('connection-status').style.color = 'red';
+                    document.getElementById('connect-ws').textContent = '连接服务器';
+                    
+                    // 显示更多信息
+                    if (event.code !== 1000) {
+                        console.log('WebSocket意外断开，代码:', event.code, '原因:', event.reason);
+                    }
+                };
+                
+                ws.onerror = function(error) {
+                    console.error('WebSocket错误:', error);
+                    showResult('WebSocket连接错误');
+                    document.getElementById('connection-status').textContent = '连接错误';
+                    document.getElementById('connection-status').style.color = 'red';
+                };
+            } catch (e) {
+                console.error('创建WebSocket时出错:', e);
+                document.getElementById('connection-status').textContent = '连接失败';
+                document.getElementById('connection-status').style.color = 'red';
+                showResult('无法创建WebSocket连接，请检查网络');
+            }
+        }
+        
+        // 处理MCP服务器响应
+        function handleResponse(response) {
+            const resultData = response.data;
+            let resultHtml = `<h4>${getRequestTypeName(response.request_type)}结果:</h4>`;
+            
+            if (resultData.status === '1') {
+                // 根据不同的请求类型处理结果
+                switch (response.request_type) {
+                    case 'search_poi':
+                        resultHtml += handlePoiResult(resultData);
+                        break;
+                    case 'route_planning':
+                        resultHtml += handleRouteResult(resultData);
+                        break;
+                    case 'weather':
+                        resultHtml += handleWeatherResult(resultData);
+                        break;
+                    case 'geocode':
+                        resultHtml += handleGeocodeResult(resultData);
+                        break;
+                    case 'regeocode':
+                        resultHtml += handleRegeocodeResult(resultData);
+                        break;
+                    case 'district':
+                        resultHtml += handleDistrictResult(resultData);
+                        break;
+                    case 'traffic_status':
+                        resultHtml += handleTrafficResult(resultData);
+                        break;
+                    default:
+                        resultHtml += `<pre>${JSON.stringify(resultData, null, 2)}</pre>`;
+                }
+            } else {
+                resultHtml += `<p class="error">请求失败: ${resultData.info || '未知错误'}</p>`;
+            }
+            
+            showResult(resultHtml);
+        }
+        
+        // 处理POI搜索结果
+        function handlePoiResult(data) {
+            clearMarkers();
+            
+            let html = `<p>找到 ${data.count} 个结果</p>`;
+            
+            if (data.pois && data.pois.length > 0) {
+                html += '<ul>';
+                data.pois.forEach(poi => {
+                    html += `<li><strong>${poi.name}</strong> - ${poi.address || '无地址'}</li>`;
+                    
+                    // 在地图上添加标记
+                    if (poi.location) {
+                        const location = poi.location.split(',');
+                        const marker = new AMap.Marker({
+                            position: new AMap.LngLat(location[0], location[1]),
+                            title: poi.name
+                        });
+                        markers.push(marker);
+                        map.add(marker);
+                    }
+                });
+                html += '</ul>';
+                
+                // 如果有增强信息，显示
+                if (data.enhanced_info) {
+                    html += `<div class="enhanced-info">
+                        <h4>AI分析:</h4>
+                        <p>${data.enhanced_info}</p>
+                    </div>`;
+                }
+                
+                // 调整地图视野以包含所有标记
+                if (markers.length > 0) {
+                    map.setFitView(markers);
+                }
+            }
+            
+            return html;
+        }
+        
+        // 处理路线规划结果
+        function handleRouteResult(data) {
+            clearMarkers();
+            
+            let html = '';
+            
+            if (data.status === '1' && data.route && data.route.paths && data.route.paths.length > 0) {
+                const path = data.route.paths[0];
+                html += `<p>距离: ${(path.distance / 1000).toFixed(2)}公里</p>`;
+                html += `<p>预计用时: ${(path.duration / 60).toFixed(0)}分钟</p>`;
+                
+                // 显示路线
+                if (path.steps && path.steps.length > 0) {
+                    const pathArray = [];
+                    path.steps.forEach(step => {
+                        if (step.polyline) {
+                            const polyline = step.polyline.split(';');
+                            polyline.forEach(pos => {
+                                const lnglat = pos.split(',');
+                                pathArray.push(new AMap.LngLat(lnglat[0], lnglat[1]));
+                            });
+                        }
+                    });
+                    
+                    // 绘制路线
+                    const route = new AMap.Polyline({
+                        path: pathArray,
+                        strokeColor: '#3366FF',
+                        strokeWeight: 6,
+                        strokeOpacity: 0.8
+                    });
+                    markers.push(route);
+                    map.add(route);
+                    map.setFitView(markers);
+                }
+                
+                // 如果有路线分析，显示
+                if (data.route_analysis) {
+                    html += `<div class="enhanced-info">
+                        <h4>路线分析:</h4>
+                        <p>${data.route_analysis}</p>
+                    </div>`;
+                }
+            } else {
+                html += `<p class="error">路线规划失败: ${data.info || '未知错误'}</p>`;
+                if (data.info && data.info.includes('转换为坐标')) {
+                    html += `<p>请确保输入有效的城市名称或正确格式的经纬度坐标。</p>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // 处理天气查询结果
+        function handleWeatherResult(data) {
+            let html = '';
+            
+            if (data.lives && data.lives.length > 0) {
+                const weather = data.lives[0];
+                html += `<p><strong>${weather.city}</strong> - ${weather.reporttime}</p>`;
+                html += `<p>天气: ${weather.weather}</p>`;
+                html += `<p>温度: ${weather.temperature}°C</p>`;
+                html += `<p>风向: ${weather.winddirection}</p>`;
+                html += `<p>风力: ${weather.windpower}</p>`;
+                html += `<p>湿度: ${weather.humidity}%</p>`;
+                
+                // 如果有天气建议，显示
+                if (data.weather_advice) {
+                    html += `<div class="enhanced-info">
+                        <h4>出行建议:</h4>
+                        <p>${data.weather_advice}</p>
+                    </div>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // 处理地理编码结果
+        function handleGeocodeResult(data) {
+            clearMarkers();
+            
+            let html = '';
+            
+            if (data.geocodes && data.geocodes.length > 0) {
+                html += '<ul>';
+                data.geocodes.forEach(geocode => {
+                    html += `<li><strong>${geocode.formatted_address}</strong></li>`;
+                    
+                    // 在地图上添加标记
+                    if (geocode.location) {
+                        const location = geocode.location.split(',');
+                        const marker = new AMap.Marker({
+                            position: new AMap.LngLat(location[0], location[1]),
+                            title: geocode.formatted_address
+                        });
+                        markers.push(marker);
+                        map.add(marker);
+                    }
+                });
+                html += '</ul>';
+                
+                // 调整地图视野
+                if (markers.length > 0) {
+                    map.setFitView(markers);
+                }
+            }
+            
+            return html;
+        }
+        
+        // 处理逆地理编码结果
+        function handleRegeocodeResult(data) {
+            clearMarkers();
+            
+            let html = '';
+            
+            if (data.regeocode) {
+                const regeo = data.regeocode;
+                html += `<p><strong>${regeo.formatted_address}</strong></p>`;
+                
+                // 在地图上添加标记
+                if (data.location) {
+                    const location = data.location.split(',');
+                    const marker = new AMap.Marker({
+                        position: new AMap.LngLat(location[0], location[1]),
+                        title: regeo.formatted_address
+                    });
+                    markers.push(marker);
+                    map.add(marker);
+                    map.setCenter([location[0], location[1]]);
+                }
+                
+                // 显示POI信息
+                if (regeo.pois && regeo.pois.length > 0) {
+                    html += '<h4>周边POI:</h4><ul>';
+                    regeo.pois.slice(0, 5).forEach(poi => {
+                        html += `<li>${poi.name} (${poi.type}) - ${poi.distance}米</li>`;
+                    });
+                    html += '</ul>';
+                }
+            }
+            
+            return html;
+        }
+        
+        // 处理行政区域查询结果
+        function handleDistrictResult(data) {
+            let html = '';
+            
+            if (data.districts && data.districts.length > 0) {
+                html += '<ul>';
+                data.districts.forEach(district => {
+                    html += `<li><strong>${district.name}</strong> (${district.level})</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            return html;
+        }
+        
+        // 处理交通态势结果
+        function handleTrafficResult(data) {
+            let html = '';
+            
+            if (data.trafficinfo) {
+                const info = data.trafficinfo;
+                html += `<p>交通状况描述: ${info.description || '无'}</p>`;
+                html += `<p>交通指数: ${info.evaluation.expedite || '无'}</p>`;
+                
+                // 如果有交通分析，显示
+                if (data.traffic_analysis) {
+                    html += `<div class="enhanced-info">
+                        <h4>交通分析:</h4>
+                        <p>${data.traffic_analysis}</p>
+                    </div>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // 清除地图上的标记
+        function clearMarkers() {
+            if (markers.length > 0) {
+                map.remove(markers);
+                markers = [];
+            }
+        }
+        
+        // 显示结果
+        function showResult(html) {
+            document.getElementById('result-panel').innerHTML = html;
+        }
+        
+        // 获取请求类型名称
+        function getRequestTypeName(type) {
+            const typeNames = {
+                'search_poi': 'POI搜索',
+                'route_planning': '路线规划',
+                'weather': '天气查询',
+                'geocode': '地理编码',
+                'regeocode': '逆地理编码',
+                'district': '行政区域查询',
+                'traffic_status': '交通态势'
+            };
+            return typeNames[type] || type;
+        }
+        // 根据选择的请求类型动态生成参数输入框
+function generateParamsForm() {
+    const requestType = document.getElementById('request-type').value;
+    const container = document.getElementById('params-container');
+    container.innerHTML = '';
+    
+    // 根据不同请求类型生成不同的参数输入字段
+    switch (requestType) {
+        case 'search_poi':
+            container.innerHTML = `
+                <div class="input-item">
+                    <label>关键词:</label>
+                    <input type="text" id="param-keywords" placeholder="例如：银行、餐厅">
+                </div>
+                <div class="input-item">
+                    <label>城市:</label>
+                    <input type="text" id="param-city" placeholder="例如：北京">
+                </div>
+                <div class="input-item">
+                    <label>每页数量:</label>
+                    <input type="number" id="param-offset" value="10">
+                </div>
+            `;
+            break;
+        case 'route_planning':
+            container.innerHTML = `
+                <div class="input-item">
+                    <label>起点:</label>
+                    <input type="text" id="param-origin" placeholder="城市名或经纬度 例如：北京 或 116.434307,39.90909">
+                </div>
+                <div class="input-item">
+                    <label>终点:</label>
+                    <input type="text" id="param-destination" placeholder="城市名或经纬度 例如：上海 或 116.434446,39.90816">
+                </div>
+            `;
+            break;
+        case 'weather':
+            container.innerHTML = `
+                <div class="input-item">
+                    <label>城市编码:</label>
+                    <input type="text" id="param-city" placeholder="例如：110000">
+                </div>
+                <div class="input-item">
+                    <label>扩展:</label>
+                    <select id="param-extensions">
+                        <option value="base">基础</option>
+                        <option value="all">全部</option>
+                    </select>
+                </div>
+            `;
+            break;
+        case 'geocode':
+            container.innerHTML = `
+                <div class="input-item">
+                    <label>地址:</label>
+                    <input type="text" id="param-address" placeholder="例如：北京市朝阳区阜通东大街6号">
+                </div>
+                <div class="input-item">
+                    <label>城市:</label>
+                    <input type="text" id="param-city" placeholder="例如：北京">
+                </div>
+            `;
+            break;
+        case 'regeocode':
+            container.innerHTML = `
+                <div class="input-item">
+                    <label>坐标:</label>
+                    <input type="text" id="param-location" placeholder="经度,纬度 例如：116.481488,39.990464">
+                </div>
+                <div class="input-item">
+                    <label>扩展:</label>
+                    <select id="param-extensions">
+                        <option value="base">基础</option>
+                        <option value="all">全部</option>
+                    </select>
+                </div>
+            `;
+            break;
+        case 'district':
+            container.innerHTML = `
+                <div class="input-item">
+                    <label>关键词:</label>
+                    <input type="text" id="param-keywords" placeholder="例如：北京">
+                </div>
+                <div class="input-item">
+                    <label>子级行政区:</label>
+                    <select id="param-subdistrict">
+                        <option value="1">返回下一级</option>
+                        <option value="2">返回下两级</option>
+                        <option value="3">返回下三级</option>
+                    </select>
+                </div>
+            `;
+            break;
+        case 'traffic_status':
+            container.innerHTML = `
+                <div class="input-item">
+                    <label>矩形区域:</label>
+                    <input type="text" id="param-rectangle" placeholder="左下右上坐标 例如：116.351147,39.966309;116.357134,39.968727">
+                </div>
+            `;
+            break;
+        default:
+            container.innerHTML = '<p>暂不支持该请求类型</p>';
+    }
+}
+
+// 收集参数
+function collectParams() {
+    const requestType = document.getElementById('request-type').value;
+    const params = {};
+    
+    // 获取所有param-开头的输入框
+    const inputs = document.querySelectorAll('[id^="param-"]');
+    inputs.forEach(input => {
+        const paramName = input.id.replace('param-', '');
+        params[paramName] = input.value;
+    });
+    
+    return params;
+}
+
+// 发送请求到服务器
+function sendRequest() {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('WebSocket未连接，请先连接到服务器');
+        return;
+    }
+    
+    try {
+        const requestType = document.getElementById('request-type').value;
+        const params = collectParams();
+        
+        // 验证必填参数
+        const missingParams = validateParams(requestType, params);
+        if (missingParams.length > 0) {
+            alert(`请填写以下必填参数: ${missingParams.join(', ')}`);
+            return;
+        }
+        
+        // 生成请求ID
+        const requestId = Date.now().toString();
+        
+        // 发送WebSocket消息
+        const message = {
+            type: requestType,
+            params: params,
+            request_id: requestId
+        };
+        
+        ws.send(JSON.stringify(message));
+        showResult('<p>正在处理请求...</p>');
+        
+        // 设置请求超时
+        setTimeout(() => {
+            const resultPanel = document.getElementById('result-panel');
+            if (resultPanel.innerHTML.includes('正在处理请求')) {
+                showResult('<p>请求超时，服务器未及时响应</p>');
+            }
+        }, 30000); // 30秒超时
+    } catch (e) {
+        console.error('发送请求时出错:', e);
+        showResult('<p>发送请求时发生错误</p>');
+    }
+}
+
+// 验证参数
+function validateParams(requestType, params) {
+    const missingParams = [];
+    
+    switch (requestType) {
+        case 'search_poi':
+            if (!params.keywords) missingParams.push('关键词');
+            if (!params.city) missingParams.push('城市');
+            break;
+        case 'route_planning':
+            if (!params.origin) missingParams.push('起点');
+            if (!params.destination) missingParams.push('终点');
+            break;
+        case 'weather':
+            if (!params.city) missingParams.push('城市编码');
+            break;
+        case 'geocode':
+            if (!params.address) missingParams.push('地址');
+            break;
+        case 'regeocode':
+            if (!params.location) missingParams.push('坐标');
+            break;
+        case 'district':
+            if (!params.keywords) missingParams.push('关键词');
+            break;
+        case 'traffic_status':
+            if (!params.rectangle) missingParams.push('矩形区域');
+            break;
+    }
+    
+    return missingParams;
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化地图
+    initMap();
+    
+    // 生成默认参数表单
+    generateParamsForm();
+    
+    // 监听请求类型变化
+    document.getElementById('request-type').addEventListener('change', generateParamsForm);
+    
+    // 监听连接按钮点击
+    document.getElementById('connect-ws').addEventListener('click', connectToServer);
+    
+    // 监听发送请求按钮点击
+    document.getElementById('send-request').addEventListener('click', sendRequest);
+});
+</script>
+</body>
+</html>

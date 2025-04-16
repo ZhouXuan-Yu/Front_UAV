@@ -52,6 +52,11 @@ const router = createRouter({
       path: '/contact',
       name: 'contact',
       component: () => import('../views/ContactView.vue')
+    },
+    {
+      path: '/element-demo',
+      name: 'element-demo',
+      component: () => import('../components/ElementDemo.vue')
     }
   ],
   scrollBehavior() {

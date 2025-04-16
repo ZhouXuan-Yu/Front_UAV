@@ -5,6 +5,7 @@ import DroneStatusComponent from '@/components/dashboard/DroneStatusComponent.vu
 import MapComponent from '@/components/dashboard/MapComponent.vue';
 import DataChartsComponent from '@/components/dashboard/DataChartsComponent.vue';
 import VideoMonitoringComponent from '@/components/dashboard/VideoMonitoringComponent.vue';
+import GeoApiDashboard from '@/components/dashboard/GeoApiDashboard.vue';
 
 const loading = ref(true);
 const activeTab = ref('overview');
@@ -73,6 +74,13 @@ const switchTab = (tab: string) => {
               @click="switchTab('map')"
             >
               地图追踪
+            </button>
+            <button 
+              class="tab-button" 
+              :class="{ active: activeTab === 'geo-api' }" 
+              @click="switchTab('geo-api')"
+            >
+              地理服务
             </button>
           </div>
         </div>
@@ -239,6 +247,11 @@ const switchTab = (tab: string) => {
               <MapComponent style="height: 100%;" />
             </div>
           </div>
+        </section>
+
+        <!-- 地理服务标签页 -->
+        <section v-if="activeTab === 'geo-api'" class="tab-content">
+          <GeoApiDashboard style="height: 800px;" />
         </section>
       </main>
       

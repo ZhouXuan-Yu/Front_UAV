@@ -1,3 +1,4 @@
+<!-- 导航栏页面，do you konw ，look my eyes -->
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

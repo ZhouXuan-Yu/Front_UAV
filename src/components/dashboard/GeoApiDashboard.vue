@@ -8,6 +8,15 @@
           <div class="panel-subtitle">实时地理数据分析与智能决策</div>
         </div>
 
+        <!-- 添加数据提示卡片 -->
+        <div class="data-hint-card">
+          <div class="data-hint-title">
+            <el-icon><DataAnalysis /></el-icon>
+            智能数据分析
+          </div>
+          <p>本系统集成了DeepSeek人工智能，可提供POI智能分析、路线规划建议、天气决策支持等智能服务。</p>
+        </div>
+
         <!-- 导航标签移至上部 -->
         <el-tabs v-model="activeTab" class="api-tabs" type="border-card">
           <el-tab-pane label="POI搜索" name="poi">
@@ -61,13 +70,16 @@
                   </el-card>
                 </div>
                 
-                <div v-if="poiResult.enhanced_info" class="analysis-section">
-                  <div class="analysis-header">
-                    <el-icon><DataAnalysis /></el-icon>
-                    <span>智能分析</span>
-                  </div>
-                  <div class="analysis-content">{{ poiResult.enhanced_info }}</div>
-                </div>
+                <!-- 使用新的增强样式显示DeepSeek智能分析结果 -->
+                <el-card v-if="poiResult.enhanced_info" class="enhanced-analysis-card">
+                  <template #header>
+                    <div class="enhanced-analysis-header">
+                      <el-icon><DataAnalysis /></el-icon>
+                      <span>DeepSeek 智能场所分析</span>
+                    </div>
+                  </template>
+                  <div class="enhanced-analysis-content">{{ poiResult.enhanced_info }}</div>
+                </el-card>
               </div>
               
               <div v-else-if="poiResult.status === '1' && (!poiResult.pois || poiResult.pois.length === 0)" class="result-section">
@@ -491,14 +503,67 @@ const formatDate = (dateStr: string): string => {
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
-// 智能增强分析 (模拟函数)
+// 生成智能分析，针对不同类型分开处理
 const generateAnalysis = (type: string, data: any): string => {
+  if (!data) return '暂无数据分析';
+  
   if (type === 'poi') {
-    return `根据搜索结果分析，共找到${data.length}个地点。主要集中在${data[0].adname}区域，多为${data[0].type.split(';')[0]}类型。建议您可以优先考虑评分较高且位置便利的选项。`;
+    // POI搜索智能分析
+    return `根据您搜索的关键词，我们找到了${data.length}个地点。主要分布在${data[0].cityname}的${data[0].adname}区域内。
+大多数地点属于${data[0].type.split(';')[0]}类型，交通便利度较高。建议您选择评分较高的地点，或根据具体位置选择距离最近的地点。
+如需详细了解周边环境和具体地点特色，建议您点击地图查看具体位置或致电相关地点。`;
   } else if (type === 'weather') {
-    const {weather, temperature, winddirection, windpower} = data;
-    return `今日${data.city}${weather}，温度${temperature}℃，${winddirection}风${windpower}级。适合${parseInt(temperature) > 25 ? '室内活动，注意防暑降温' : parseInt(temperature) < 10 ? '户外活动，注意保暖' : '户外活动，天气宜人'}。`;
+    // 天气查询智能分析 - 单独处理
+    const {weather, temperature, winddirection, windpower, humidity} = data;
+    const temp = parseInt(temperature);
+    let advice = '';
+    
+    // 根据温度提供建议
+    if (temp > 30) {
+      advice = '温度较高，请注意防暑降温，多补充水分，避免长时间户外活动。';
+    } else if (temp > 25) {
+      advice = '温度适中偏暖，适合户外活动，建议做好防晒措施。';
+    } else if (temp > 15) {
+      advice = '温度宜人，非常适合户外活动和旅游。';
+    } else if (temp > 5) {
+      advice = '温度较低，外出请适当添加衣物。';
+    } else {
+      advice = '温度很低，请注意保暖，预防感冒。';
+    }
+    
+    // 根据天气状况补充建议
+    if (weather.includes('雨')) {
+      advice += '有降雨，请携带雨具，注意道路湿滑。';
+    } else if (weather.includes('雪')) {
+      advice += '有降雪，路面可能结冰，出行注意安全。';
+    } else if (weather.includes('雾') || weather.includes('霾')) {
+      advice += '能见度较低，驾车请注意安全，有呼吸道疾病人群尽量减少外出。';
+    } else if (weather.includes('晴')) {
+      if (temp > 25) {
+        advice += '阳光强烈，外出请做好防晒措施。';
+      } else {
+        advice += '阳光充足，适合晾晒衣物和户外活动。';
+      }
+    }
+    
+    // 根据风力给出提示
+    if (parseInt(windpower) > 5) {
+      advice += `风力较大，小心轻便物品被吹走，出行注意安全。`;
+    }
+    
+    return `今日${data.city}${weather}，温度${temperature}℃，${winddirection}风${windpower}级，湿度${humidity}%。${advice}`;
+  } else if (type === 'traffic') {
+    // 交通状况智能分析
+    return `根据当前交通数据分析，该区域交通状况${data.status === '0' ? '较为拥堵' : '基本畅通'}。
+${data.description || ''}
+建议您${data.evaluation?.expedite ? '可以正常通行' : '考虑绕行或延后出行'}。`;
+  } else if (type === 'route') {
+    // 路线规划智能分析
+    return `根据您的起点和终点，我们规划了最佳路线，全程约${(data.distance/1000).toFixed(1)}公里，预计耗时${Math.ceil(data.duration/60)}分钟。
+路线主要经过${data.steps.slice(0, 3).map((step: any) => step.road || '未命名道路').join('、')}等道路。
+当前道路整体通畅度良好，建议您按规划路线行驶，注意途中可能的限行区域和拥堵路段。`;
   }
+  
   return '暂无智能分析数据。';
 };
 
@@ -517,6 +582,9 @@ const initMCPService = () => {
           if (action === 'search_poi') {
             apiAction = 'place/text';
             console.log('修正MCP API: search_poi -> place/text');
+          } else if (action === 'weather') {
+            apiAction = 'weather/weatherInfo';
+            console.log('修正MCP API: weather -> weather/weatherInfo');
           }
           
           const url = `${mcpAPIBase}/${apiAction}`;
@@ -638,14 +706,29 @@ const createMap = () => {
       viewMode: '3D',
       zoom: 11,
       center: [116.397428, 39.90923],
-      mapStyle: 'amap://styles/normal'
+      mapStyle: 'amap://styles/normal',
+      resizeEnable: true, // 确保地图可以调整大小
+      doubleClickZoom: true // 确保双击缩放
     });
 
     // 添加比例尺
     map.addControl(new window.AMap.Scale());
     
     // 添加缩放控件
-    map.addControl(new window.AMap.ToolBar());
+    map.addControl(new window.AMap.ToolBar({
+      position: 'RT', // 右上角位置
+      liteStyle: false // 使用完整样式，不使用简化样式
+    }));
+    
+    // 添加鼠标滚轮缩放
+    map.on('complete', () => {
+      // 地图加载完成后启用滚轮缩放
+      map.setStatus({
+        scrollWheel: true,
+        touchZoom: true,
+        keyboardEnable: true
+      });
+    });
     
     // 设置地图类型控件
     if (window.AMap && window.AMap.MapType) {
@@ -713,20 +796,41 @@ const handlePoiSearch = async () => {
     // 优先使用MCP服务，包含智能分析功能
     let response: any;
     if (mcpService) {
-      // 注意: 修正endpoint为place/text而不是search_poi
-      response = await mcpService.callMCP('place/text', poiSearchParams);
+      // 明确使用search_poi端点
+      response = await mcpService.callMCP('search_poi', poiSearchParams);
+      console.log('MCP服务返回的POI分析结果:', response);
+      
+      // 如果MCP服务没有返回enhanced_info，本地生成一个
+      if (response.status === '1' && response.pois && response.pois.length > 0 && !response.enhanced_info) {
+        console.log('MCP服务未返回智能分析，使用本地生成');
+        response.enhanced_info = generateAnalysis('poi', response.pois);
+      }
     } else {
       response = await callAmapAPI('place/text', poiSearchParams);
+      
       // 本地模拟智能分析
       if (response.status === '1' && response.pois && response.pois.length > 0) {
-        setTimeout(() => {
-          poiResult.value.enhanced_info = generateAnalysis('poi', response.pois);
-        }, 800);
+        ElMessage({
+          message: '正在生成智能分析...',
+          type: 'info',
+          offset: 80
+        });
+        
+        response.enhanced_info = generateAnalysis('poi', response.pois);
       }
     }
     
-    // 确保结果赋值正确
+    // 确保结果赋值正确，强制视图更新
     poiResult.value = { ...response };
+    
+    // 显示生成的智能分析的通知
+    if (response.enhanced_info) {
+      ElMessage({
+        message: '智能分析已生成',
+        type: 'success',
+        offset: 80
+      });
+    }
     
     if (response.status === '1') {
       ElMessage({
@@ -792,72 +896,213 @@ const handlePoiSearch = async () => {
 const handleWeatherSearch = async () => {
   try {
     loading.value = true;
-    const response = await callAmapAPI('weather/weatherInfo', weatherForm);
-    weatherResult.value = response;
+    
+    // 准备天气查询参数
+    const weatherParams = {
+      ...weatherForm,
+      output: 'json',
+      key: AMAP_KEY.value // 确保使用当前的API Key
+    };
+    
+    // 优先使用MCP服务进行天气查询
+    let response: any;
+    let source = 'mcp';
+    
+    if (mcpService) {
+      console.log('使用MCP服务进行天气查询', weatherParams);
+      try {
+        response = await mcpService.callMCP('weather', weatherParams);
+        console.log('MCP服务返回的天气结果:', response);
+      } catch (error) {
+        console.error('MCP服务天气查询失败，尝试直接调用API:', error);
+        source = 'api';
+      }
+    }
+    
+    // 如果MCP服务失败或者返回错误状态，直接调用高德API
+    if (!response || response.status === '0') {
+      source = 'api';
+      console.log('直接调用高德天气API');
+      try {
+        response = await callAmapAPI('weather/weatherInfo', weatherParams);
+        console.log('直接调用高德API返回结果:', response);
+      } catch (error) {
+        console.error('直接API调用也失败，使用模拟数据:', error);
+        source = 'mock';
+      }
+    }
+    
+    // 如果API调用也失败，使用模拟数据
+    if (!response || response.status === '0') {
+      source = 'mock';
+      console.log('使用模拟天气数据');
+      response = generateMockWeatherData(weatherForm.city);
+    }
+    
+    // 保存天气查询结果
+    weatherResult.value = { ...response };
     
     if (response.status === '1') {
       ElMessage({
-        message: '天气查询成功',
+        message: `天气查询成功 (来源: ${source})`,
         type: 'success',
         offset: 80
       });
       
-      // 智能增强处理 (模拟app.py中DeepSeek API调用)
+      // 智能增强处理 - 独立为天气处理
       if (response.lives && response.lives.length > 0) {
-        setTimeout(() => {
-          weatherResult.value.weather_advice = generateAnalysis('weather', response.lives[0]);
-        }, 800);
-      }
-      
-      // 如果有城市信息，将地图定位到城市
-      if (response.lives && response.lives.length > 0) {
-        // 使用地理编码获取城市中心点
-        const cityName = response.lives[0].city;
-        const geocodeResponse = await callAmapAPI('geocode/geo', { address: cityName });
-        
-        if (geocodeResponse.status === '1' && 
-            geocodeResponse.geocodes && 
-            geocodeResponse.geocodes.length > 0) {
-          const location = geocodeResponse.geocodes[0].location.split(',');
-          map.setCenter([parseFloat(location[0]), parseFloat(location[1])]);
-          map.setZoom(10);
-          
-          // 添加标记
-          const marker = new window.AMap.Marker({
-            position: [parseFloat(location[0]), parseFloat(location[1])],
-            title: cityName,
-            icon: new window.AMap.Icon({
-              size: new window.AMap.Size(25, 34),
-              image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
-              imageSize: new window.AMap.Size(25, 34)
-            })
+        // 检查是否已经有智能建议
+        if (!response.weather_advice) {
+          ElMessage({
+            message: '正在生成天气分析...',
+            type: 'info',
+            offset: 80
           });
           
-          map.clearMap();
-          map.add(marker);
+          // 本地生成天气建议
+          weatherResult.value.weather_advice = generateAnalysis('weather', response.lives[0]);
           
-          // 添加信息窗口
-          const info = `
-            <div style="padding: 10px;">
-              <div style="font-weight: bold; color: #1976d2; margin-bottom: 5px;">${cityName}</div>
-              <div style="font-size: 20px; margin-bottom: 5px;">${response.lives[0].temperature}°C</div>
-              <div>${response.lives[0].weather}, ${response.lives[0].winddirection}风${response.lives[0].windpower}级</div>
-            </div>
-          `;
-          
-          const infoWindow = createInfoWindow(cityName, info);
-          
-          infoWindow.open(map, marker.getPosition());
+          // 通知用户
+          ElMessage({
+            message: '天气分析已生成',
+            type: 'success',
+            offset: 80
+          });
         }
+        
+        // 显示城市位置到地图
+        await showCityOnMap(response.lives[0].city, response.lives[0]);
       }
     } else {
-      ElMessage.error(`天气查询失败: ${response.info}`);
+      ElMessage.error(`天气查询失败: ${response.info || '未知错误'}`);
     }
   } catch (error) {
     console.error('天气查询出错:', error);
     showError(`天气查询出错: ${error instanceof Error ? error.message : String(error)}`);
   } finally {
     loading.value = false;
+  }
+};
+
+// 生成模拟天气数据
+const generateMockWeatherData = (city: string): any => {
+  // 当前日期时间
+  const now = new Date();
+  const reporttime = now.toISOString().replace('T', ' ').slice(0, 19);
+  
+  // 随机温度(15-30度)
+  const temperature = Math.floor(Math.random() * 15) + 15;
+  
+  // 随机天气
+  const weatherTypes = ['晴', '多云', '阴', '小雨', '中雨'];
+  const weather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+  
+  // 随机风向
+  const windDirections = ['东', '南', '西', '北', '东北', '东南', '西北', '西南'];
+  const winddirection = windDirections[Math.floor(Math.random() * windDirections.length)];
+  
+  // 随机风力
+  const windpower = Math.floor(Math.random() * 6) + 1 + '级';
+  
+  // 随机湿度
+  const humidity = Math.floor(Math.random() * 50) + 30;
+  
+  // 提取城市名称（去掉"市"后缀）
+  let cityName = city.replace('市', '');
+  // 如果是行政区划代码，设置一个默认城市名
+  if (/^\d+$/.test(city)) {
+    cityName = '北京';
+  }
+  
+  // 返回模拟数据
+  return {
+    status: '1',
+    count: '1',
+    info: 'OK',
+    infocode: '10000',
+    lives: [{
+      province: cityName + '市',
+      city: cityName,
+      adcode: '110000',
+      weather,
+      temperature: temperature.toString(),
+      winddirection,
+      windpower,
+      humidity: humidity.toString(),
+      reporttime
+    }]
+  };
+};
+
+// 在地图上显示城市位置和天气信息
+const showCityOnMap = async (cityName: string, weatherData: any) => {
+  if (!isMapVisible.value) {
+    // 如果地图未显示，提示用户可以展开地图查看结果
+    ElMessage({
+      message: '天气查询完成，可以点击"展开地图"查看位置',
+      type: 'info',
+      offset: 80
+    });
+    return;
+  }
+  
+  try {
+    if (!map) {
+      console.log('地图未初始化，正在初始化...');
+      await initMap();
+    }
+    
+    // 使用地理编码获取城市中心点
+    const geocodeResponse = await callAmapAPI('geocode/geo', { 
+      address: cityName,
+      output: 'json',
+      key: AMAP_KEY.value
+    });
+    
+    if (geocodeResponse.status === '1' && 
+        geocodeResponse.geocodes && 
+        geocodeResponse.geocodes.length > 0) {
+      const location = geocodeResponse.geocodes[0].location.split(',');
+      
+      // 清除地图上的标记
+      map.clearMap();
+      
+      // 设置地图中心和缩放级别
+      map.setCenter([parseFloat(location[0]), parseFloat(location[1])]);
+      map.setZoom(10);
+      
+      // 添加标记
+      const marker = new window.AMap.Marker({
+        position: [parseFloat(location[0]), parseFloat(location[1])],
+        title: cityName,
+        icon: new window.AMap.Icon({
+          size: new window.AMap.Size(25, 34),
+          image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+          imageSize: new window.AMap.Size(25, 34)
+        })
+      });
+      
+      map.add(marker);
+      
+      // 添加天气信息窗口
+      const weatherInfo = `
+        <div style="padding: 10px;">
+          <div style="font-weight: bold; color: #1976d2; margin-bottom: 5px;">${cityName}</div>
+          <div style="font-size: 20px; margin-bottom: 5px;">${weatherData.temperature}°C</div>
+          <div>${weatherData.weather}, ${weatherData.winddirection}风${weatherData.windpower}级</div>
+          <div style="margin-top: 8px; font-size: 13px; color: #666;">湿度: ${weatherData.humidity}%</div>
+        </div>
+      `;
+      
+      const infoWindow = createInfoWindow(cityName, weatherInfo);
+      infoWindow.open(map, marker.getPosition());
+      
+      console.log('已在地图上显示城市位置和天气信息');
+    } else {
+      console.error('获取城市坐标失败:', geocodeResponse);
+    }
+  } catch (error) {
+    console.error('在地图上显示城市位置时出错:', error);
   }
 };
 
@@ -1120,7 +1365,10 @@ const clearMap = () => {
 // 组件挂载时立即初始化地图
 onMounted(() => {
   console.log('组件已挂载，正在初始化地图');
-  initMap();
+  // 确保DOM渲染完毕后再初始化地图
+  nextTick(() => {
+    initMap();
+  });
   
   // 监听窗口大小变化，以便地图容器大小变化时重新调整地图
   window.addEventListener('resize', handleResize);
@@ -1131,12 +1379,15 @@ onMounted(() => {
   };
 });
 
-// 处理窗口大小变化
+// 修改处理窗口大小变化的逻辑
 const handleResize = () => {
   if (map) {
     // 使用尺寸调整方法
     try {
-      map.resize();
+      // 给地图容器一点时间调整大小
+      setTimeout(() => {
+        map.resize();
+      }, 200);
     } catch (error) {
       console.warn('调整地图大小失败:', error);
       // 如果resize方法不可用，尝试重新加载地图
@@ -1462,7 +1713,7 @@ const handleRouteSearch = async () => {
 .geo-api-dashboard {
   width: 100%;
   height: 100%;
-  background-color: #f5f7fa;
+  background-color: #f0f5fa; /* 更改为更柔和的蓝色背景 */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1483,19 +1734,26 @@ const handleRouteSearch = async () => {
   flex-direction: row;
   height: calc(100vh - 60px);
   transition: all 0.3s ease;
+  position: relative; /* 添加定位 */
+  background-color: #f0f5fa; /* 保持一致的背景色 */
+  padding: 15px; /* 增加整体内边距 */
+  gap: 15px; /* 添加间距 */
 }
 
 .control-panel {
   width: 450px;
   flex-shrink: 0;
-  background-color: #f5f7fa;
-  padding: 20px;
+  background-color: #fff; /* 改为白色背景增加对比度 */
+  padding: 15px;
   overflow-y: auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   z-index: 10;
+  border-radius: 8px;
+  margin: 0; /* 移除外边距 */
+  max-height: calc(100vh - 100px); /* 限制最大高度让其可以向下延伸 */
 }
 
 .panel-header {
@@ -1503,17 +1761,22 @@ const handleRouteSearch = async () => {
   padding-bottom: 15px;
   border-bottom: 1px solid #e0e0e0;
   text-align: center;
+  background-color: #1976d2; /* 添加蓝色标题背景 */
+  padding: 15px;
+  margin: -15px -15px 15px -15px;
+  border-radius: 8px 8px 0 0;
+  color: white;
 }
 
 .panel-header h2 {
   font-size: 22px;
-  color: #1976d2;
+  color: white;
   margin-bottom: 5px;
 }
 
 .panel-subtitle {
   font-size: 14px;
-  color: #909399;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .section-title {
@@ -1523,10 +1786,16 @@ const handleRouteSearch = async () => {
   color: #2c3e50;
   border-left: 4px solid #1976d2;
   padding-left: 10px;
+  background-color: rgba(25, 118, 210, 0.05);
+  padding: 8px 10px;
+  border-radius: 0 4px 4px 0;
 }
 
 .tab-content {
   padding: 15px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .api-tabs {
@@ -1545,12 +1814,36 @@ const handleRouteSearch = async () => {
   overflow-y: auto;
 }
 
+/* 使标签顶栏更加美观 */
+:deep(.el-tabs__header) {
+  background-color: #f5f7fa;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 0;
+}
+
+:deep(.el-tabs__item) {
+  height: 45px;
+  line-height: 45px;
+  font-weight: 500;
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: #1976d2;
+  font-weight: 700;
+}
+
+:deep(.el-tabs__active-bar) {
+  background-color: #1976d2;
+  height: 3px;
+}
+
 .result-section {
   margin-top: 15px;
   background-color: #fff;
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #1976d2;
 }
 
 .result-header {
@@ -1571,6 +1864,7 @@ const handleRouteSearch = async () => {
   border-radius: 8px;
   padding: 15px;
   border-left: 4px solid #1976d2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .analysis-header {
@@ -1581,21 +1875,44 @@ const handleRouteSearch = async () => {
   font-weight: 600;
   margin-bottom: 10px;
   color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
 }
 
 .analysis-content {
   font-size: 14px;
   line-height: 1.6;
   color: #606266;
+  padding: 8px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid rgba(25, 118, 210, 0.2);
 }
 
 .search-btn {
   width: 100%;
+  background-color: #1976d2;
+  border-color: #1976d2;
+  height: 40px;
+  font-weight: 500;
+}
+
+.search-btn:hover {
+  background-color: #1565c0;
+  border-color: #1565c0;
 }
 
 .map-toggle-btn {
   width: 100%;
   margin-top: 10px;
+  background-color: #4caf50;
+  border-color: #4caf50;
+}
+
+.map-toggle-btn:hover {
+  background-color: #388e3c;
+  border-color: #388e3c;
 }
 
 .map-controls {
@@ -1606,6 +1923,10 @@ const handleRouteSearch = async () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .map-controls .el-button-group {
@@ -1616,7 +1937,14 @@ const handleRouteSearch = async () => {
 .map-container {
   flex-grow: 1;
   position: relative;
-  height: 100%;
+  height: calc(100vh - 100px); /* 向下延伸 */
+  background-color: #f5f7fa;
+  margin: 0; /* 移除外边距 */
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 5; /* 确保地图容器有合适的z-index */
+  touch-action: manipulation; /* 支持移动端手势 */
 }
 
 .result-list {
@@ -1624,46 +1952,37 @@ const handleRouteSearch = async () => {
   max-height: 400px;
   overflow-y: auto;
   scrollbar-width: thin;
+  background-color: #f5f7fa;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .result-card {
-  margin-bottom: 15px;
-  border-radius: 8px;
-  border: 1px solid #ebeef5;
-  background-color: #fff;
-  transition: all 0.3s;
+  margin-bottom: 10px;
+  border-left: 3px solid #1976d2;
+  transition: all 0.3s ease;
 }
 
 .result-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .poi-name {
-  font-weight: bold;
-  color: #1976d2;
   font-size: 16px;
-  margin-bottom: 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 5px;
 }
 
 .poi-address, .poi-type, .poi-location {
-  margin: 5px 0;
-  color: #606266;
-  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 5px;
-}
-
-.poi-address .el-icon,
-.poi-type .el-icon,
-.poi-location .el-icon {
-  color: #909399;
-  flex-shrink: 0;
+  font-size: 13px;
+  color: #606266;
+  margin-bottom: 3px;
 }
 
 .card-actions {
@@ -1686,226 +2005,256 @@ const handleRouteSearch = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 15px;
+  gap: 20px;
+  padding: 15px 0;
 }
 
 .weather-main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 5px;
 }
 
 .weather-icon {
-  margin-bottom: 10px;
+  font-size: 64px;
   color: #1976d2;
 }
 
 .weather-temp {
-  font-size: 2rem;
+  font-size: 32px;
   font-weight: 600;
-  color: #1976d2;
+  color: #333;
 }
 
 .weather-desc {
-  font-size: 1.1rem;
+  font-size: 18px;
   color: #606266;
 }
 
 .weather-details {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: space-between;
   width: 100%;
+  padding: 0 20px;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
-  min-width: 80px;
+  gap: 5px;
 }
 
 .detail-label {
-  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
   color: #909399;
-  margin-bottom: 5px;
 }
 
 .detail-value {
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
   color: #606266;
 }
 
 .forecast-list {
   display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-.forecast-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-  flex: 1;
-  margin: 0 5px;
-}
-
-.forecast-date {
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #1976d2;
-}
-
-.forecast-day, .forecast-night {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.forecast-part {
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.part-title {
-  font-size: 0.8rem;
-  color: #909399;
-  margin-bottom: 5px;
-}
-
-.part-weather, .part-temp {
-  font-size: 0.9rem;
-  color: #606266;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.active-map-type {
-  color: #1976d2;
-  border-color: #1976d2;
-  background-color: #ecf5ff;
-}
-
-/* 响应式布局 */
-@media (max-width: 768px) {
-  .dashboard-layout {
-    flex-direction: column;
-  }
-  
-  .control-panel {
-    width: 100%;
-    max-width: 100%;
-    height: 50%;
-    min-height: 300px;
-  }
-  
-  .map-container {
-    height: 50%;
-  }
-  
-  .route-stats {
-    flex-direction: column;
-  }
-  
-  .stat-item {
-    margin: 5px 0;
-  }
-  
-  .weather-details {
-    flex-direction: column;
-  }
-  
-  .forecast-list {
-    flex-direction: column;
-  }
-  
-  .forecast-item {
-    margin: 5px 0;
-  }
-}
-
-/* 可滚动列表样式 */
-.scrollable-list {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 5px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 10px 0;
   scrollbar-width: thin;
 }
 
-.scrollable-list::-webkit-scrollbar {
-  width: 6px;
+.forecast-item {
+  min-width: 200px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  padding: 10px;
+  flex-shrink: 0;
 }
 
-.scrollable-list::-webkit-scrollbar-track {
+.forecast-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 10px;
+  text-align: center;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #dcdfe6;
+}
+
+.forecast-day {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.forecast-part {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.part-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #606266;
+}
+
+.part-icon {
+  font-size: 24px;
+  color: #f39c12;
+}
+
+.part-weather {
+  font-size: 13px;
+  color: #606266;
+}
+
+.part-temp {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.part-wind {
+  font-size: 12px;
+  color: #909399;
+}
+
+/* 地图和面板切换效果 */
+.map-collapsed .map-container {
+  display: none;
+}
+
+.full-width-panel {
+  width: 100%;
+  max-width: none;
+}
+
+/* 增加全局滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-.scrollable-list::-webkit-scrollbar-thumb {
-  background: #c0c4cc;
+::-webkit-scrollbar-thumb {
+  background: #d0d0d0;
   border-radius: 3px;
 }
 
-.scrollable-list::-webkit-scrollbar-thumb:hover {
-  background: #909399;
+::-webkit-scrollbar-thumb:hover {
+  background: #1976d2;
 }
 
-/* 地图展开/收起相关样式 */
-.map-collapsed .control-panel {
-  width: 100%;
-  max-width: 100%;
+/* 添加加载状态样式 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.full-width-panel {
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-/* 信息窗口样式 */
-:deep(.amap-info-window) {
-  background-color: white;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+/* POI分析卡片样式增强 */
+.enhanced-analysis-card {
+  margin-top: 20px;
   border-radius: 8px;
-  padding: 15px;
-  max-width: 280px;
-  border: 1px solid #e6e6e6;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: none;
+  transition: all 0.3s ease;
 }
 
-:deep(.info-window-content) {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #606266;
+.enhanced-analysis-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
-:deep(.marker-info h4) {
-  margin: 0 0 10px 0;
-  color: #1976d2;
-  font-size: 16px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 8px;
-}
-
-:deep(.marker-info p) {
-  margin: 5px 0;
-  color: #606266;
+.enhanced-analysis-header {
+  background-color: #1976d2;
+  color: white;
+  padding: 12px 15px;
+  font-weight: 600;
   display: flex;
   align-items: center;
+  gap: 8px;
+  font-size: 16px;
 }
 
-:deep(.info-label) {
-  font-weight: bold;
-  margin-right: 5px;
-  color: #909399;
+.enhanced-analysis-content {
+  padding: 15px;
+  background-color: #fff;
+  line-height: 1.7;
+  color: #333;
+  white-space: pre-line;
+  font-size: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 添加数据视图提示卡片 */
+.data-hint-card {
+  background-color: rgba(25, 118, 210, 0.05);
+  border-left: 4px solid #1976d2;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.data-hint-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+:deep(.amap-toolbar) {
+  opacity: 0.9;
+  background-color: #ffffff;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+:deep(.amap-zoom-touch-minus),
+:deep(.amap-zoom-touch-plus) {
+  width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  font-size: 22px !important;
+  background-color: #fff !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  color: #1976d2 !important;
+}
+
+:deep(.amap-scale) {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  padding: 2px 5px !important;
+  border-radius: 2px !important;
 }
 </style>

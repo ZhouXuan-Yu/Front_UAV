@@ -561,6 +561,26 @@ const switchTab = (tab: string) => {
   color: #90caf9;
 }
 
+/* 确保页面底部有足够空间 */
+.dashboard-container {
+  padding-bottom: 60px !important; /* 强制应用底部间距 */
+  margin-bottom: 40px !important; /* 额外添加底部外边距 */
+  min-height: calc(100vh - 120px); /* 确保最小高度可以填充视口 */
+}
+
+/* 修复可能会导致底部被遮挡的元素 */
+.dashboard-wrapper {
+  position: relative;
+  z-index: 1; /* 确保内容不被其他固定元素遮挡 */
+}
+
+/* 处理最后一个卡片的底部边距 */
+.dashboard-card:last-child,
+.analysis-section:last-child,
+.video-grid:last-child {
+  margin-bottom: 60px;
+}
+
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .overview-stats {
@@ -574,6 +594,12 @@ const switchTab = (tab: string) => {
   
   .dashboard-card {
     min-height: 400px;
+  }
+  
+  /* 在小屏幕上增加更多底部空间 */
+  .dashboard-container {
+    padding-bottom: 80px !important;
+    margin-bottom: 60px !important;
   }
 }
 
@@ -599,6 +625,12 @@ const switchTab = (tab: string) => {
   .tab-button {
     flex: 1;
     min-width: 120px;
+  }
+  
+  /* 在移动设备上进一步增加底部空间 */
+  .dashboard-container {
+    padding-bottom: 100px !important;
+    margin-bottom: 80px !important;
   }
 }
 </style> 

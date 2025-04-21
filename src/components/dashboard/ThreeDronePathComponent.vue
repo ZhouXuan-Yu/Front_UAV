@@ -1,50 +1,50 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { gsap } from 'gsap';
+import gsap from 'gsap';
 
-// 定义属性
+// 组件属性定义
 const props = defineProps({
-  // 无人机路径点数组（经度、纬度、高度）
+  // 路径点，三维坐标数组 [经度, 纬度, 高度]
   pathPoints: {
-    type: Array as () => Array<[number, number, number]>,
+    type: Array as import('vue').PropType<Array<[number, number, number]>>,
     default: () => [
-      [116.4, 39.9, 100],
-      [116.42, 39.92, 150],
-      [116.44, 39.94, 200],
-      [116.46, 39.92, 150],
-      [116.44, 39.9, 100],
-      [116.4, 39.9, 100]
+      [116.400, 39.900, 100],
+      [116.405, 39.905, 150],
+      [116.410, 39.910, 200],
+      [116.415, 39.915, 150],
+      [116.420, 39.920, 100]
     ]
   },
   // 无人机当前位置
   currentPosition: {
-    type: Array as () => [number, number, number],
+    type: Array as import('vue').PropType<[number, number, number]>,
     default: () => [116.4, 39.9, 100]
   }
 });
 
-// 创建容器引用
+// 容器引用
 const container = ref<HTMLElement | null>(null);
-const isDarkMode = ref(true);
 
-// 场景相关变量
-let scene: THREE.Scene;
-let camera: THREE.PerspectiveCamera;
-let renderer: THREE.WebGLRenderer;
-let controls: OrbitControls;
-let droneModel: THREE.Object3D;
-let animationMixer: THREE.AnimationMixer;
-let pathLine: THREE.Line;
-let animationFrameId: number;
+// 场景对象
+let scene: THREE.Scene | null = null;
+let camera: THREE.PerspectiveCamera | null = null;
+let renderer: THREE.WebGLRenderer | null = null;
+let controls: OrbitControls | null = null;
+let droneModel: THREE.Group | null = null;
+let pathLine: THREE.Line | null = null;
+let timeline: gsap.core.Timeline | null = null;
+let animationMixer: THREE.AnimationMixer | null = null;
+let animationFrame: number | null = null;
 
-// 动画时间轴
-let timeline: gsap.core.Timeline;
+// 深色模式状态
+const isDarkMode = ref(false);
 
-// 初始化Three.js场景
+// 初始化three.js场景
 const initScene = () => {
+  if (!container.value) return;
+  
   // 创建场景
   scene = new THREE.Scene();
   scene.background = new THREE.Color(isDarkMode.value ? 0x0a1929 : 0xf0f8ff);
@@ -52,7 +52,7 @@ const initScene = () => {
   // 创建相机
   camera = new THREE.PerspectiveCamera(
     75,
-    container.value!.clientWidth / container.value!.clientHeight,
+    container.value.clientWidth / container.value.clientHeight,
     0.1,
     10000
   );
@@ -60,10 +60,10 @@ const initScene = () => {
   
   // 创建渲染器
   renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(container.value!.clientWidth, container.value!.clientHeight);
+  renderer.setSize(container.value.clientWidth, container.value.clientHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.shadowMap.enabled = true;
-  container.value!.appendChild(renderer.domElement);
+  container.value.appendChild(renderer.domElement);
   
   // 添加相机控制
   controls = new OrbitControls(camera, renderer.domElement);
@@ -96,40 +96,64 @@ const initScene = () => {
   // 加载无人机模型
   loadDroneModel();
   
-  // 添加大气辉光效果
+  // 添加大气效果
   addAtmosphericGlow();
   
-  // 开始动画
+  // 开始动画循环
   animate();
-  
-  // 窗口大小调整处理
-  window.addEventListener('resize', handleResize);
 };
 
 // 创建地形
 const createTerrain = () => {
-  // 创建一个地形几何体
-  const geometry = new THREE.PlaneGeometry(1000, 1000, 50, 50);
+  if (!scene) return;
   
-  // 用噪声函数来生成随机地形
+  // 使用更复杂的山地地形几何体
+  const geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+  
+  // 使用更复杂的Perlin噪声算法生成山地地形
+  const mountainHeight = 80;  // 增加山峰高度
+  const valleyDepth = 20;     // 山谷深度
+  const ridgeFrequency = 0.01; // 山脊频率
+  
   for (let i = 0; i < geometry.attributes.position.count; i++) {
     const x = geometry.attributes.position.getX(i);
     const y = geometry.attributes.position.getY(i);
     
-    // 使用简单的噪声函数模拟地形高度
-    const z = Math.sin(x * 0.01) * 10 + Math.cos(y * 0.01) * 10;
+    // 使用多层次的柏林噪声来创建真实的山地起伏
+    // 第一层：大尺度山脉
+    const elevation1 = mountainHeight * (0.5 + 0.5 * Math.sin(x * 0.005) * Math.cos(y * 0.005));
     
-    geometry.attributes.position.setZ(i, z);
+    // 第二层：中等尺度的山丘
+    const elevation2 = 30 * Math.sin(x * 0.02 + 10) * Math.cos(y * 0.02);
+    
+    // 第三层：小尺度的细节纹理
+    const elevation3 = 10 * Math.sin(x * 0.1) * Math.cos(y * 0.1);
+    
+    // 加入山脊/山谷系统
+    const ridge = Math.sin(x * ridgeFrequency) * Math.sin(y * ridgeFrequency);
+    const ridgeElevation = 40 * Math.pow(Math.abs(ridge), 2) * Math.sign(ridge);
+    
+    // 模拟河谷侵蚀
+    const riverVal = Math.abs(Math.sin(x * 0.007 + y * 0.007) + Math.sin(y * 0.008));
+    const riverDepth = riverVal < 0.2 ? -valleyDepth * (1 - riverVal * 5) : 0;
+    
+    // 将各层叠加，形成最终地形
+    const finalElevation = elevation1 + elevation2 + elevation3 + ridgeElevation + riverDepth;
+    
+    // 设置高度
+    geometry.attributes.position.setZ(i, finalElevation);
   }
   
-  // 更新法线
+  // 更新法线以确保正确的光照
   geometry.computeVertexNormals();
   
-  // 创建材质
+  // 创建更真实的地形材质
   const material = new THREE.MeshStandardMaterial({
     color: isDarkMode.value ? 0x114266 : 0x75cff0,
     wireframe: false,
-    flatShading: true
+    flatShading: true,
+    roughness: 0.8,
+    metalness: 0.2
   });
   
   // 创建网格
@@ -138,49 +162,267 @@ const createTerrain = () => {
   terrain.receiveShadow = true;
   
   scene.add(terrain);
+  
+  // 添加水面
+  addWaterSurface(-10); // 在海拔-10处添加水面
+  
+  // 添加植被
+  addVegetation(geometry);
+};
+
+// 添加水面
+const addWaterSurface = (height: number) => {
+  if (!scene) return;
+  
+  const waterGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+  const waterMaterial = new THREE.MeshStandardMaterial({
+    color: 0x0077be,
+    transparent: true,
+    opacity: 0.7,
+    roughness: 0.1,
+    metalness: 0.8
+  });
+  
+  const water = new THREE.Mesh(waterGeometry, waterMaterial);
+  water.rotation.x = -Math.PI / 2;
+  water.position.y = height;
+  
+  scene.add(water);
+  
+  // 水面动画
+  gsap.to(waterMaterial, {
+    opacity: 0.5,
+    duration: 2,
+    repeat: -1,
+    yoyo: true,
+    ease: "sine.inOut"
+  });
+};
+
+// 添加植被
+const addVegetation = (terrainGeometry: THREE.PlaneGeometry) => {
+  if (!scene) return;
+  
+  // 创建简化的树木几何体
+  const treeGeometry = new THREE.ConeGeometry(5, 20, 8);
+  const treeMaterial = new THREE.MeshStandardMaterial({
+    color: 0x2e7d32,
+    roughness: 0.8
+  });
+  
+  const treeTrunkGeometry = new THREE.CylinderGeometry(1, 1, 10, 8);
+  const treeTrunkMaterial = new THREE.MeshStandardMaterial({
+    color: 0x5d4037,
+    roughness: 0.9
+  });
+  
+  // 在地形上随机放置树木
+  const treeCount = 100;
+  const treePositions = [];
+  
+  for (let i = 0; i < treeCount; i++) {
+    // 随机位置
+    const x = (Math.random() - 0.5) * 900;
+    const z = (Math.random() - 0.5) * 900;
+    
+    // 获取该位置的地形高度
+    // 简化：使用简单的噪声函数重新计算高度而不是从几何体采样
+    const elevation = calculateElevationAt(x, z);
+    
+    // 如果高度合适（不是在水下或太高的山峰上），添加树木
+    if (elevation > 0 && elevation < 60) {
+      const treeGroup = new THREE.Group();
+      
+      // 树干
+      const trunk = new THREE.Mesh(treeTrunkGeometry, treeTrunkMaterial);
+      trunk.position.set(0, 5, 0);
+      trunk.castShadow = true;
+      treeGroup.add(trunk);
+      
+      // 树冠
+      const crown = new THREE.Mesh(treeGeometry, treeMaterial);
+      crown.position.set(0, 15, 0);
+      crown.castShadow = true;
+      treeGroup.add(crown);
+      
+      // 设置位置
+      treeGroup.position.set(x, elevation, z);
+      
+      // 添加到场景
+      scene.add(treeGroup);
+      treePositions.push(treeGroup.position);
+    }
+  }
+};
+
+// 辅助函数：计算特定位置的地形高度
+const calculateElevationAt = (x: number, z: number): number => {
+  const mountainHeight = 80;
+  const valleyDepth = 20;
+  const ridgeFrequency = 0.01;
+  
+  // 使用与创建地形相同的噪声函数
+  const elevation1 = mountainHeight * (0.5 + 0.5 * Math.sin(x * 0.005) * Math.cos(z * 0.005));
+  const elevation2 = 30 * Math.sin(x * 0.02 + 10) * Math.cos(z * 0.02);
+  const elevation3 = 10 * Math.sin(x * 0.1) * Math.cos(z * 0.1);
+  
+  const ridge = Math.sin(x * ridgeFrequency) * Math.sin(z * ridgeFrequency);
+  const ridgeElevation = 40 * Math.pow(Math.abs(ridge), 2) * Math.sign(ridge);
+  
+  const riverVal = Math.abs(Math.sin(x * 0.007 + z * 0.007) + Math.sin(z * 0.008));
+  const riverDepth = riverVal < 0.2 ? -valleyDepth * (1 - riverVal * 5) : 0;
+  
+  return elevation1 + elevation2 + elevation3 + ridgeElevation + riverDepth;
 };
 
 // 创建飞行路径
 const createFlightPath = () => {
-  // 将经纬度转换为Three.js坐标
-  const points = props.pathPoints.map(point => {
-    // 简单的坐标转换（实际应用中需要使用更复杂的地理坐标转换）
-    return new THREE.Vector3(
-      (point[0] - 116.4) * 1000,
-      point[2], // 高度
-      (point[1] - 39.9) * 1000
-    );
-  });
+  if (!scene) return;
+  
+  // 创建更复杂的飞行路径
+  const points = [
+    // 起点
+    new THREE.Vector3(-400, 100, -400),
+    // 穿过山谷
+    new THREE.Vector3(-300, 60, -300),
+    new THREE.Vector3(-200, 40, -200),
+    // 上升通过山脊
+    new THREE.Vector3(-100, 120, -100),
+    // 盘旋动作
+    new THREE.Vector3(0, 140, 0),
+    new THREE.Vector3(100, 130, -50),
+    new THREE.Vector3(50, 120, -100),
+    new THREE.Vector3(0, 110, -50),
+    new THREE.Vector3(-50, 100, 0),
+    // 下降到河谷
+    new THREE.Vector3(0, 50, 100),
+    new THREE.Vector3(100, 30, 200),
+    // 沿河谷飞行
+    new THREE.Vector3(200, 40, 200),
+    new THREE.Vector3(300, 50, 150),
+    // 最终上升
+    new THREE.Vector3(350, 130, 100),
+    // 终点
+    new THREE.Vector3(400, 150, 0)
+  ];
   
   // 创建一条平滑的曲线
   const curve = new THREE.CatmullRomCurve3(points);
-  const curvePoints = curve.getPoints(100);
+  // 增加更多的点以使曲线更平滑
+  const curvePoints = curve.getPoints(200);
   
   // 创建路径几何体
   const geometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
   
-  // 创建路径材质
-  const material = new THREE.LineBasicMaterial({
+  // 创建更好看的路径材质
+  const pathMaterial = new THREE.LineBasicMaterial({
     color: 0x00ffff,
-    linewidth: 2
+    linewidth: 3
   });
   
   // 创建路径线
-  pathLine = new THREE.Line(geometry, material);
+  pathLine = new THREE.Line(geometry, pathMaterial);
   scene.add(pathLine);
   
   // 在路径上添加指示点
-  points.forEach(point => {
-    const sphereGeometry = new THREE.SphereGeometry(3, 32, 32);
-    const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff9900 });
+  const waypoints = [0, 0.25, 0.5, 0.75, 1]; // 在曲线上均匀分布的点
+  
+  waypoints.forEach(t => {
+    const point = curve.getPoint(t);
+    const sphereGeometry = new THREE.SphereGeometry(4, 32, 32);
+    const sphereMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0xff9900,
+      transparent: true,
+      opacity: 0.8
+    });
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     sphere.position.copy(point);
     scene.add(sphere);
+    
+    // 添加发光效果
+    const glowMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff9900,
+      transparent: true,
+      opacity: 0.3
+    });
+    const glowSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(8, 32, 32),
+      glowMaterial
+    );
+    glowSphere.position.copy(point);
+    scene.add(glowSphere);
+    
+    // 为航点添加脉冲动画
+    gsap.to(glowSphere.scale, {
+      x: 1.5,
+      y: 1.5,
+      z: 1.5,
+      duration: 1 + Math.random(),
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
   });
+  
+  // 保存曲线以供动画使用
+  flightCurve = curve;
+};
+
+// 飞行曲线引用
+let flightCurve: THREE.CatmullRomCurve3 | null = null;
+
+// 无人机动画
+const animateDroneAlongPath = () => {
+  if (!droneModel || !flightCurve) return;
+  
+  // 设置初始位置
+  droneModel.position.copy(flightCurve.getPoint(0));
+  
+  // 创建更平滑的动画
+  const duration = 40; // 动画持续时间（秒）
+  
+  const tl = gsap.timeline({
+    repeat: -1,
+    onUpdate: () => {
+      if (!droneModel || !flightCurve) return;
+      
+      // 获取当前进度
+      const progress = tl.progress();
+      
+      // 获取当前位置和前方位置以计算朝向
+      const currentPoint = flightCurve.getPoint(progress);
+      const lookAtPoint = flightCurve.getPoint(Math.min(progress + 0.01, 1));
+      
+      // 更新无人机位置
+      droneModel.position.copy(currentPoint);
+      
+      // 让无人机朝向路径方向
+      droneModel.lookAt(lookAtPoint);
+      
+      // 添加一些自然的摇晃/倾斜效果
+      const wobble = Math.sin(progress * Math.PI * 20) * 0.05;
+      droneModel.rotation.z = wobble;
+      
+      // 在转弯处倾斜
+      const tangent = flightCurve.getTangent(progress);
+      const angle = Math.atan2(tangent.x, tangent.z);
+      droneModel.rotation.y = angle;
+      
+      // 转弯时倾斜
+      const nextTangent = flightCurve.getTangent(Math.min(progress + 0.01, 1));
+      const turnRate = 1 - nextTangent.dot(tangent); // 计算方向变化率
+      droneModel.rotation.z += turnRate * 0.5; // 根据转弯率增加倾斜
+    }
+  });
+  
+  // 添加动画
+  tl.to({}, { duration });
 };
 
 // 加载无人机模型
 const loadDroneModel = () => {
+  if (!scene) return;
+  
   // 使用一个精细一些的无人机模型而不是简单的方块
   // 创建无人机主体
   const bodyGeometry = new THREE.CylinderGeometry(5, 8, 3, 8);
@@ -212,10 +454,10 @@ const loadDroneModel = () => {
   
   // 创建机臂位置和角度
   const armPositions = [
-    { x: 0, y: 0, z: 0, rotation: 0 },
-    { x: 0, y: 0, z: 0, rotation: Math.PI / 2 },
-    { x: 0, y: 0, z: 0, rotation: Math.PI },
-    { x: 0, y: 0, z: 0, rotation: Math.PI * 1.5 }
+    { x: 10, y: 0, z: 0, rotation: 0 },
+    { x: 0, y: 0, z: 10, rotation: Math.PI / 2 },
+    { x: -10, y: 0, z: 0, rotation: 0 },
+    { x: 0, y: 0, z: -10, rotation: Math.PI / 2 }
   ];
   
   // 添加四个机臂
@@ -238,12 +480,12 @@ const loadDroneModel = () => {
     opacity: 0.8
   });
   
-  // 四个旋翼的位置
+  // 旋翼位置
   const rotorPositions = [
-    { x: 10, y: 0, z: 0 },
-    { x: 0, y: 0, z: 10 },
-    { x: -10, y: 0, z: 0 },
-    { x: 0, y: 0, z: -10 }
+    { x: 20, y: 0, z: 0 },
+    { x: 0, y: 0, z: 20 },
+    { x: -20, y: 0, z: 0 },
+    { x: 0, y: 0, z: -20 }
   ];
   
   // 创建旋翼组并添加至无人机
@@ -273,12 +515,15 @@ const loadDroneModel = () => {
     blade2.rotation.y = Math.PI / 2;
     blade2.castShadow = true;
     
+    // 将桨叶添加到旋翼组
     rotorGroup.add(blade1);
     rotorGroup.add(blade2);
     
-    // 存储旋翼引用以便动画
-    rotorGroup.userData.blades = [blade1, blade2];
-    rotorGroup.userData.speed = 0.1 + Math.random() * 0.1; // 不同旋翼速度略有差异
+    // 存储桨叶引用以便动画
+    rotorGroup.userData = {
+      blades: [blade1, blade2],
+      speed: 0.1 + Math.random() * 0.1 // 不同旋翼速度略有差异
+    };
     
     droneModel.add(rotorGroup);
   });
@@ -343,8 +588,10 @@ const loadDroneModel = () => {
   animateDroneAlongPath();
 };
 
-// 添加大气辉光效果
+// 添加大气效果
 const addAtmosphericGlow = () => {
+  if (!scene) return;
+  
   // 创建辉光球体
   const sphereGeometry = new THREE.SphereGeometry(500, 32, 32);
   const sphereMaterial = new THREE.MeshBasicMaterial({
@@ -363,81 +610,46 @@ const addAtmosphericGlow = () => {
     x: 1.1,
     y: 1.1,
     z: 1.1,
-    duration: 2,
+    duration: 4,
     ease: "power1.inOut"
   });
   timeline.to(glow.scale, {
     x: 1,
     y: 1,
     z: 1,
-    duration: 2,
+    duration: 4,
     ease: "power1.inOut"
-  });
-};
-
-// 沿路径创建无人机动画
-const animateDroneAlongPath = () => {
-  // 将经纬度转换为Three.js坐标
-  const points = props.pathPoints.map(point => {
-    return new THREE.Vector3(
-      (point[0] - 116.4) * 1000,
-      point[2], // 高度
-      (point[1] - 39.9) * 1000
-    );
-  });
-  
-  // 创建一条平滑的曲线
-  const curve = new THREE.CatmullRomCurve3(points);
-  
-  // 创建动画
-  const duration = 20; // 动画持续时间（秒）
-  let progress = 0;
-  
-  // 使用GSAP创建动画
-  gsap.to({}, {
-    duration: duration,
-    repeat: -1,
-    onUpdate: function() {
-      progress = this.progress();
-      
-      // 获取路径上的当前位置
-      const position = curve.getPointAt(progress);
-      droneModel.position.copy(position);
-      
-      // 计算下一点以确定朝向
-      const lookAtPosition = curve.getPointAt((progress + 0.01) % 1);
-      droneModel.lookAt(lookAtPosition);
-      
-      // 添加一些旋转以模拟飞行动态
-      droneModel.rotation.z = Math.sin(progress * Math.PI * 2) * 0.1;
-    }
   });
 };
 
 // 动画循环
 const animate = () => {
-  animationFrameId = requestAnimationFrame(animate);
+  animationFrame = requestAnimationFrame(animate);
   
   // 如果无人机模型已加载，旋转旋翼
   if (droneModel) {
-    droneModel.children.forEach(child => {
+    droneModel.children.forEach((child: THREE.Object3D) => {
       if (child.userData && child.userData.blades) {
-        child.userData.blades.forEach(blade => {
+        child.userData.blades.forEach((blade: THREE.Object3D) => {
           blade.rotation.y += child.userData.speed;
         });
       }
     });
   }
   
-  controls.update();
+  if (controls) {
+    controls.update();
+  }
   
   // 渲染场景
-  renderer.render(scene, camera);
+  if (renderer && scene && camera) {
+    renderer.render(scene, camera);
+  }
 };
 
 // 窗口大小调整处理
 const handleResize = () => {
-  if (!container.value) return;
+  if (!container.value || !camera || !renderer) return;
   
   // 更新相机宽高比
   camera.aspect = container.value.clientWidth / container.value.clientHeight;
@@ -449,87 +661,64 @@ const handleResize = () => {
 
 // 组件挂载时初始化场景
 onMounted(() => {
-  // 延迟初始化以确保容器已加载
-  setTimeout(initScene, 100);
+  // 初始化3D场景
+  initScene();
+  
+  // 添加窗口大小调整监听
+  window.addEventListener('resize', handleResize);
 });
 
 // 组件卸载前清理资源
 onBeforeUnmount(() => {
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId);
+  // 停止动画循环
+  if (animationFrame !== null) {
+    cancelAnimationFrame(animationFrame);
   }
   
+  // 清理时间线动画
   if (timeline) {
     timeline.kill();
   }
   
+  // 释放渲染器资源
   if (renderer) {
     renderer.dispose();
   }
   
+  // 从DOM中移除canvas
   if (container.value && renderer) {
     container.value.removeChild(renderer.domElement);
   }
   
+  // 移除事件监听器
   window.removeEventListener('resize', handleResize);
+});
+
+// 监视深色模式变化
+watch(isDarkMode, (newValue) => {
+  if (scene) {
+    scene.background = new THREE.Color(newValue ? 0x0a1929 : 0xf0f8ff);
+  }
 });
 </script>
 
 <template>
-  <div class="drone-path-container">
-    <div 
-      ref="container" 
-      class="three-container"
-      :class="{ 'dark-mode': isDarkMode }"
-    ></div>
-    
-    <div class="controls">
-      <button @click="isDarkMode = !isDarkMode" class="mode-toggle">
-        {{ isDarkMode ? '切换浅色模式' : '切换深色模式' }}
-      </button>
-    </div>
+  <div class="three-drone-path-container">
+    <div ref="container" class="three-container"></div>
   </div>
 </template>
 
 <style scoped>
-.drone-path-container {
-  position: relative;
+.three-drone-path-container {
   width: 100%;
   height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .three-container {
   width: 100%;
   height: 100%;
-  min-height: 400px;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #f0f8ff;
-}
-
-.three-container.dark-mode {
-  background-color: #0a1929;
-}
-
-.controls {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  z-index: 10;
-}
-
-.mode-toggle {
-  padding: 8px 16px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.mode-toggle:hover {
-  background-color: rgba(0, 0, 0, 0.9);
+  background: linear-gradient(to bottom, #87ceeb, #e0f7fa);
 }
 </style> 

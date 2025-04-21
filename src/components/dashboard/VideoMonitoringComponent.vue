@@ -432,6 +432,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .title {
@@ -506,6 +508,8 @@ onBeforeUnmount(() => {
   gap: 15px;
   flex: 1;
   overflow: auto;
+  position: relative;
+  z-index: 2;
 }
 
 .multiple-view {
@@ -526,6 +530,8 @@ onBeforeUnmount(() => {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 2;
 }
 
 .video-container:hover {
@@ -576,12 +582,15 @@ onBeforeUnmount(() => {
   height: 100%;
   position: relative;
   overflow: hidden;
+  z-index: 2;
 }
 
 .video-feed img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  position: relative;
+  z-index: 1;
 }
 
 .video-metadata {
@@ -612,6 +621,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 3;
 }
 
 .detection-box {

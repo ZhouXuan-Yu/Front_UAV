@@ -1,3 +1,13 @@
+/**
+ * 文件名: FeatureView.vue
+ * 描述: 功能特性展示视图组件
+ * 在项目中的作用: 
+ * - 根据路由动态展示不同功能特性的详情
+ * - 提供可复用的特性页面模板
+ * - 展示产品各个功能模块的详细信息
+ * - 管理特性数据和视图展示逻辑
+ */
+
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';

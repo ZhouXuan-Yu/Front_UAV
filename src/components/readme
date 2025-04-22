@@ -1,0 +1,22 @@
+核心功能组件：
+GeoApiDashboard.vue - 地理API服务综合仪表盘
+DataChartsComponent.vue - 数据图表可视化组件
+ThreeDronePathComponent.vue - 无人机飞行路径3D组件
+VideoMonitoringComponent.vue - 视频监控组件
+MapComponent.vue - 地图显示和交互组件
+布局组件：
+TheHeader.vue - 全局头部导航组件
+TheFooter.vue - 全局页脚组件
+Logo.vue - 应用程序Logo组件
+首页组件：
+HeroBanner.vue - 首页英雄区横幅
+MissionStatement.vue - 企业使命宣言
+VideoProductShowcase.vue - 产品视频展示
+TransitionBanner.vue - 过渡横幅组件
+功能页面组件：
+FeatureHero.vue - 功能页面英雄区
+FeatureContent.vue - 功能详情内容
+通用组件：
+CtaSection.vue - 行动号召组件
+SimpleCtaSection.vue - 简化版行动号召组件
+ElementDemo.vue - Element Plus组件示例页面

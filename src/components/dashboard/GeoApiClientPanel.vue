@@ -1,3 +1,13 @@
+/**
+ * 文件名: GeoApiClientPanel.vue
+ * 描述: 高德地图API客户端面板组件
+ * 在项目中的作用: 
+ * - 提供与高德地图API交互的用户界面
+ * - 支持POI搜索、路线规划、天气查询等地理服务功能
+ * - 通过WebSocket实现与后端服务的实时通信
+ * - 在地图上直观展示查询结果和地理信息
+ */
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, reactive } from 'vue';
 import type { GeoCoordinate } from '@/services/GeoApiService';

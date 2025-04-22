@@ -1,3 +1,13 @@
+/**
+ * 文件名: Logo.vue
+ * 描述: 应用程序Logo组件
+ * 在项目中的作用: 
+ * - 提供应用的品牌标识和Logo展示
+ * - 支持不同尺寸和颜色变体
+ * - 在导航栏、页脚等位置统一展示品牌形象
+ * - 确保品牌标识的一致性
+ */
+
 <script setup lang="ts">
 import { computed } from 'vue';
 

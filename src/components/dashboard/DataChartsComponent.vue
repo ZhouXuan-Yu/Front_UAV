@@ -1,3 +1,13 @@
+/**
+ * 文件名: DataChartsComponent.vue
+ * 描述: 数据图表可视化组件
+ * 在项目中的作用: 
+ * - 使用ECharts提供多种数据图表展示
+ * - 可视化展示无人机的电量、信号、速度等核心指标
+ * - 提供实时数据更新和历史数据趋势分析
+ * - 支持多种图表类型和交互方式
+ */
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import * as echarts from 'echarts';

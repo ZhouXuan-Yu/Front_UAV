@@ -1,3 +1,13 @@
+/**
+ * 文件名: main.ts
+ * 描述: 应用程序的主入口文件
+ * 在项目中的作用: 
+ * - 创建和挂载Vue应用实例
+ * - 注册全局插件和组件
+ * - 配置路由、状态管理和其他全局依赖
+ * - 将应用挂载到DOM中
+ */
+
 import { createApp } from "vue";
 import "./assets/main.css";
 import App from "./App.vue";

@@ -1,3 +1,13 @@
+/**
+ * 文件名: VideoProductShowcase.vue
+ * 描述: 产品视频展示组件
+ * 在项目中的作用: 
+ * - 通过视频形式展示产品亮点和功能
+ * - 提供交互式的产品演示体验
+ * - 增强用户对产品的理解和兴趣
+ * - 作为首页重要的产品宣传区域
+ */
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useEventListener } from '@vueuse/core';

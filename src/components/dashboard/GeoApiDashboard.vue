@@ -1,3 +1,13 @@
+/**
+ * 文件名: GeoApiDashboard.vue
+ * 描述: 地理API服务综合仪表盘组件
+ * 在项目中的作用: 
+ * - 作为地理信息服务的核心功能模块
+ * - 集成POI搜索、路线规划、天气查询、行政区域查询等功能
+ * - 与高德地图API交互并展示地理信息
+ * - 提供智能分析和数据可视化能力
+ */
+
 <template>
   <div class="geo-api-dashboard">
     <div class="dashboard-layout" :class="{'map-collapsed': !isMapVisible}">

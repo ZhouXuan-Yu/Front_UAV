@@ -1,3 +1,13 @@
+/**
+ * 文件名: VideoMonitoringComponent.vue
+ * 描述: 视频监控组件
+ * 在项目中的作用: 
+ * - 提供无人机视频流的实时监控界面
+ * - 支持多路视频源的切换和管理
+ * - 实现对视频内容的分析和警报功能
+ * - 提供视频回放和视频数据的筛选功能
+ */
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { gsap } from 'gsap';

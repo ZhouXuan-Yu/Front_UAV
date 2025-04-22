@@ -1,3 +1,13 @@
+/**
+ * 文件名: FeatureContent.vue
+ * 描述: 功能特性内容展示组件
+ * 在项目中的作用: 
+ * - 展示功能特性的详细内容和说明
+ * - 以卡片形式呈现功能点和优势
+ * - 配合FeatureHero组件构成完整的特性页面
+ * - 提供清晰易读的内容结构和布局
+ */
+
 <script setup lang="ts">
 defineProps<{
   features: Array<{

@@ -1,3 +1,13 @@
+/**
+ * 文件名: TransitionBanner.vue
+ * 描述: 过渡横幅组件
+ * 在项目中的作用: 
+ * - 在不同内容区块之间提供视觉过渡
+ * - 展示产品特性和优势要点
+ * - 通过背景图像和覆盖效果增强视觉吸引力
+ * - 改善页面的整体流动感和用户体验
+ */
+
 <script setup lang="ts">
 defineProps<{
   title: string;

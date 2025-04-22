@@ -1,3 +1,13 @@
+/**
+ * 文件名: SimpleCtaSection.vue
+ * 描述: 简化版行动号召(Call-to-Action)组件
+ * 在项目中的作用: 
+ * - 提供轻量级的用户行动引导区域
+ * - 支持自定义背景色和按钮样式
+ * - 比CtaSection更灵活，适用于不同页面位置
+ * - 增强用户体验和页面转化效果
+ */
+
 <script setup lang="ts">
 interface CtaProps {
   title?: string;

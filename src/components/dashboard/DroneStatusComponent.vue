@@ -1,3 +1,13 @@
+/**
+ * 文件名: DroneStatusComponent.vue
+ * 描述: 无人机和监控设备状态显示组件
+ * 在项目中的作用: 
+ * - 提供无人机及各类监控设备的实时状态监控
+ * - 展示设备健康度、温度、信号强度等关键指标
+ * - 支持按设备类型筛选和查看详细信息
+ * - 通过动态数据更新和视觉反馈增强监控体验
+ */
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { gsap } from 'gsap';

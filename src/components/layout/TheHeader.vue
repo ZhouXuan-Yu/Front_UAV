@@ -1,3 +1,13 @@
+/**
+ * 文件名: TheHeader.vue
+ * 描述: 应用程序全局头部导航组件
+ * 在项目中的作用: 
+ * - 提供全站通用的顶部导航栏
+ * - 包含Logo、导航菜单和用户操作区
+ * - 响应式设计适配不同屏幕尺寸
+ * - 实现站内导航和用户交互入口
+ */
+
 <!-- 导航栏页面，do you konw ，look my eyes -->
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';

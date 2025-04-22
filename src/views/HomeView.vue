@@ -1,3 +1,13 @@
+/**
+ * 文件名: HomeView.vue
+ * 描述: 网站首页视图
+ * 在项目中的作用: 
+ * - 作为用户访问网站的第一个页面
+ * - 展示产品的主要特点和核心功能
+ * - 提供导航到其他页面的入口
+ * - 通过视觉元素和交互体验吸引用户
+ */
+
 <script setup lang="ts">
 import { ref } from 'vue';
 import HeroBanner from '../components/home/HeroBanner.vue';

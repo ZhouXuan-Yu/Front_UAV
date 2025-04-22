@@ -1,3 +1,13 @@
+/**
+ * 文件名: ThreeDronePathComponent.vue
+ * 描述: 使用Three.js实现的无人机飞行路径3D可视化组件
+ * 在项目中的作用: 
+ * - 提供无人机飞行路径的三维立体展示
+ * - 支持模拟无人机在复杂地形中的飞行轨迹
+ * - 实现无人机模型的动画效果和交互功能
+ * - 增强系统的空间感知和数据可视化能力
+ */
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 import * as THREE from 'three';

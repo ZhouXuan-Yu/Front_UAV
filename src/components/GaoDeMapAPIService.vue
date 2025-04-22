@@ -1,3 +1,13 @@
+/**
+ * 文件名: GaoDeMapAPIService.vue
+ * 描述: 高德地图API服务组件
+ * 在项目中的作用: 
+ * - 封装高德地图API的调用和交互功能
+ * - 提供地图展示、标记、搜索等地图服务功能
+ * - 支持地理编码、路径规划、定位等地理信息服务
+ * - 作为地图相关功能的核心组件，供其他组件调用
+ */
+
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 

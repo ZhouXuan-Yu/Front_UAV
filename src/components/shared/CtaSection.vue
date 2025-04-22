@@ -1,3 +1,13 @@
+/**
+ * 文件名: CtaSection.vue
+ * 描述: 行动号召(Call-to-Action)组件
+ * 在项目中的作用: 
+ * - 提供页面底部的用户行动引导区域
+ * - 展示主要和次要行动按钮
+ * - 引导用户进行下一步操作如联系、查看解决方案等
+ * - 提升用户转化率和交互
+ */
+
 <script setup lang="ts">
 interface CtaProps {
   title?: string;

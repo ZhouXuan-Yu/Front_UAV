@@ -1,3 +1,13 @@
+/**
+ * 文件名: HeroBanner.vue
+ * 描述: 首页英雄区横幅组件
+ * 在项目中的作用: 
+ * - 作为网站首页的主视觉区域
+ * - 展示产品的核心价值主张和品牌形象
+ * - 提供视觉冲击力和用户第一印象
+ * - 引导用户进一步浏览网站内容
+ */
+
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 

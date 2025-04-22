@@ -1,3 +1,13 @@
+/**
+ * 文件名: style.css
+ * 描述: 全局样式定义文件
+ * 在项目中的作用: 
+ * - 提供应用程序的基础样式设置
+ * - 定义全局CSS变量和主题颜色
+ * - 设置通用样式规则和重置样式
+ * - 确保整个应用的视觉一致性
+ */
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

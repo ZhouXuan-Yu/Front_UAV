@@ -1,3 +1,13 @@
+/**
+ * 文件名: App.vue
+ * 描述: 应用程序的根组件，是整个应用的入口视图
+ * 在项目中的作用: 
+ * - 定义了应用程序的主布局结构
+ * - 包含公共导航和页脚
+ * - 集成了路由视图，使应用可以进行页面切换
+ * - 管理全局的CSS样式和主题
+ */
+
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import TheHeader from './components/layout/TheHeader.vue';

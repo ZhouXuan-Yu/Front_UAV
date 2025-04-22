@@ -1,3 +1,13 @@
+/**
+ * 文件名: shims-vue.d.ts
+ * 描述: TypeScript声明文件，用于定义Vue组件和第三方库的类型
+ * 在项目中的作用: 
+ * - 提供Vue文件和组件的类型定义
+ * - 声明全局接口和对象类型
+ * - 增强IDE的代码提示和类型检查功能
+ * - 确保TypeScript能正确识别和处理Vue组件和外部库
+ */
+
 // 声明Vue组件的类型
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'

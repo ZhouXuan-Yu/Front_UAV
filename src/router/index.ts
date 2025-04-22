@@ -1,3 +1,13 @@
+/**
+ * 文件名: router/index.ts
+ * 描述: 应用程序路由配置
+ * 在项目中的作用: 
+ * - 定义应用的路由结构和导航规则
+ * - 配置路由与组件的映射关系
+ * - 实现页面之间的切换和导航
+ * - 管理路由懒加载和导航行为
+ */
+
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({

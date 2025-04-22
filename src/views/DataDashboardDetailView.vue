@@ -1,3 +1,13 @@
+/**
+ * 文件名: DataDashboardDetailView.vue
+ * 描述: 数据仪表盘详情视图
+ * 在项目中的作用: 
+ * - 展示详细的数据分析和可视化信息
+ * - 集成各种数据图表和监控组件
+ * - 提供无人机数据、视频监控和地理信息的综合视图
+ * - 支持数据筛选和交互式数据探索
+ */
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import ThreeDronePathComponent from '@/components/dashboard/ThreeDronePathComponent.vue';

@@ -1,3 +1,13 @@
+/**
+ * 文件名: ElementDemo.vue
+ * 描述: Element Plus组件示例演示页面
+ * 在项目中的作用: 
+ * - 展示和测试Element Plus UI组件库的各种组件
+ * - 作为UI组件开发的参考和示例
+ * - 提供组件使用方法和最佳实践的演示
+ * - 便于开发人员快速了解可用的UI组件
+ */
+
 <template>
   <div class="element-demo-container">
     <h2>Element Plus 组件演示</h2>

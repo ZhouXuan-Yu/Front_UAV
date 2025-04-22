@@ -1,3 +1,13 @@
+/**
+ * 文件名: MapComponent.vue
+ * 描述: 地图显示和交互组件
+ * 在项目中的作用: 
+ * - 集成高德地图API，提供地图显示和操作功能
+ * - 支持地点标记、路径规划和区域显示
+ * - 提供地图控件和交互功能
+ * - 作为地理信息展示的基础组件
+ */
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 

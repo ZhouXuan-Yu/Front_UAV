@@ -41,19 +41,19 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'dfr', label: '无人机先遣系统', route: '/path-planning', dropdown: false },
-  { id: 'utilities', label: '公共设施', route: '/person-recognition', dropdown: false },
-  { id: 'national-security', label: '国家安全', route: '/vehicle-monitoring', dropdown: false },
-  { id: 'more-solutions', label: '更多解决方案', dropdown: true,
+  { id: 'dfr', label: '智能路径规划', route: '/path-planning', dropdown: false },
+  { id: 'utilities', label: '智能人物检测', route: '/person-recognition', dropdown: false },
+  { id: 'national-security', label: '知识库问答', route: '/vehicle-monitoring', dropdown: false },
+  { id: 'more-solutions', label: '夜间识别专项', dropdown: true,
     items: [
-      { label: '资产检查', description: '对关键基础设施进行自动化检查', route: '/license-plate-recognition' },
-      { label: '公共安全', description: '通过为执法部门设计的自主无人机解决方案', route: '/disaster-detection' },
-      { label: '测量与绘图', description: '创建任何区域的详细、准确的3D地图', route: '/data-dashboard' },
+      { label: '超远距离识别', description: '对关键基础设施进行自动化检查', route: '/license-plate-recognition' },
+      { label: '夜间增强识别', description: '通过为执法部门设计的自主无人机解决方案', route: '/disaster-detection' },
+      { label: '夜间保卫者', description: '创建任何区域的详细、准确的3D地图', route: '/data-dashboard' },
       { label: '场地安全', description: '通过自主无人机巡逻自动化周边安全', route: '/knowledge-graph' },
     ]
   },
-  { id: 'products', label: '产品', route: '/products', dropdown: false },
-  { id: 'resources', label: '资源', route: '/resources', dropdown: false },
+  { id: 'products', label: '森林', route: '/products', dropdown: false },
+  { id: 'resources', label: '车辆监控与报警', route: '/disaster-detection', dropdown: false },
 ];
 
 // 处理导航

@@ -127,8 +127,8 @@ const taskAreaPoints = ref<Array<[number, number]>>([]);
 const droneTimer = ref<number | null>(null);
 const dronePath = ref<Array<[number, number]>>([]);
 const pathPolyline = ref<any>(null);
-
-// 任务区域截图
+const dronePathPolyline = ref<any>(null);
+const taskAreaCenter = ref<[number, number] | null>(null);
 const taskAreaScreenshot = ref<string | null>(null);
 
 // 更新任务区域截图的监听器，确保更新值时能够正确触发事件
@@ -1004,10 +1004,12 @@ const showAreaSelector = (imgUrl: string) => {
       confirmButton.disabled = false;
       confirmButton.style.opacity = '1';
       confirmButton.style.cursor = 'pointer';
+      console.log('已启用确认按钮，当前点数:', points.length);
     } else {
       confirmButton.disabled = true;
       confirmButton.style.opacity = '0.5';
       confirmButton.style.cursor = 'not-allowed';
+      console.log('已禁用确认按钮，当前点数:', points.length);
     }
   };
   
@@ -1024,9 +1026,27 @@ const showAreaSelector = (imgUrl: string) => {
     
     try {
       // 将画布坐标转换为地理坐标
-      const geoPoints = points.map(point => {
-        return convertPixelToGeo(point.x, point.y, drawCanvas.width, drawCanvas.height);
-      });
+      const geoPoints: [number, number][] = [];
+      for (const point of points) {
+        try {
+          const geoPoint = convertPixelToGeo(point.x, point.y, drawCanvas.width, drawCanvas.height);
+          // 验证转换后的点是否有效
+          if (isNaN(geoPoint[0]) || isNaN(geoPoint[1]) || 
+              !isFinite(geoPoint[0]) || !isFinite(geoPoint[1])) {
+            console.error('无效的地理坐标点:', geoPoint);
+            continue;
+          }
+          geoPoints.push(geoPoint);
+        } catch (err) {
+          console.error('转换点时出错:', err);
+        }
+      }
+      
+      // 确保转换后仍有足够的点
+      if (geoPoints.length < 3) {
+        ElMessage.warning('有效点数不足，无法形成区域，请重新绘制');
+        return;
+      }
       
       console.log('转换后的地理坐标点:', geoPoints);
       
@@ -1037,7 +1057,9 @@ const showAreaSelector = (imgUrl: string) => {
       addTaskArea(geoPoints);
       
       // 更新任务区域截图
-      updateTaskAreaScreenshot();
+      setTimeout(() => {
+        updateTaskAreaScreenshot();
+      }, 300); // 延迟截图，确保地图已更新
       
       // 移除选择器
       document.body.removeChild(selectorContainer);
@@ -1063,6 +1085,9 @@ const showAreaSelector = (imgUrl: string) => {
     
     // 重新绘制
     drawPoints();
+    
+    // 打印当前点的数量，方便调试
+    console.log(`当前已绘制 ${points.length} 个点，points数组:`, JSON.stringify(points));
   });
   
   // 重置按钮事件
@@ -1093,8 +1118,20 @@ const convertPixelToGeo = (x: number, y: number, width: number, height: number):
   try {
     // 获取地图的边界
     const bounds = mapInstance.value.getBounds();
+    if (!bounds || !bounds.northeast || !bounds.southwest) {
+      console.error('无法获取有效的地图边界', bounds);
+      return [0, 0];
+    }
+    
     const ne = bounds.northeast;
     const sw = bounds.southwest;
+    
+    // 安全检查：确保边界点有效
+    if (!ne || !sw || typeof ne.lng !== 'number' || typeof ne.lat !== 'number' || 
+        typeof sw.lng !== 'number' || typeof sw.lat !== 'number') {
+      console.error('地图边界点无效', ne, sw);
+      return [0, 0];
+    }
     
     // 将像素坐标转换为地理坐标的比例
     const lngRatio = (ne.lng - sw.lng) / width;
@@ -1358,20 +1395,26 @@ const addTaskArea = (points: Array<[number, number]>) => {
 // 清除任务区域
 const clearTaskArea = () => {
   try {
-    if (mapInstance.value && taskAreaPolygon.value) {
-      try {
-        // 尝试从地图上移除多边形
-        mapInstance.value.remove(taskAreaPolygon.value);
-      } catch (e) {
-        console.warn('移除任务区域多边形失败:', e);
+    // 如果是Canvas模式，清除画布上的任务区域
+    if (useCanvas.value) {
+      const canvas = document.getElementById('canvas-overlay') as HTMLCanvasElement;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
       }
+    }
+    
+    // 如果是AMap模式，移除多边形
+    if (!useCanvas.value && mapInstance.value && taskAreaPolygon.value) {
+      mapInstance.value.remove(taskAreaPolygon.value);
       taskAreaPolygon.value = null;
     }
     
-    // 清除Canvas上的任务区域
-    if (useCanvas.value) {
-      clearCanvasTaskArea();
-    }
+    // 重置任务区域点
+    taskAreaPoints.value = [];
+    taskAreaCenter.value = null;
   } catch (e) {
     console.error('清除任务区域失败:', e);
   }
@@ -1578,12 +1621,33 @@ const simulateDroneMovement = () => {
 // 更新无人机路径
 const updateDronePath = () => {
   try {
-    // 检查地图是否初始化
-    if (!mapInstance.value || !window.AMap) {
-      console.log('更新无人机路径失败: 地图未初始化');
+    // 检查地图实例
+    if (!mapInstance.value || !dronePath.value || dronePath.value.length === 0) {
+      console.warn('地图实例不存在或无人机路径为空，跳过路径更新');
       return;
     }
     
+    // Canvas模式下的路径更新
+    if (useCanvas.value) {
+      const canvas = document.getElementById('canvas-overlay') as HTMLCanvasElement;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      // 清除旧路径区域
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+      initCanvas(); // 重新初始化画布，保留其他元素
+      
+      // 绘制路径
+      if (dronePath.value.length > 1) {
+        renderDronePathOnCanvas();
+      }
+      
+      return;
+    }
+    
+    // AMap模式下的路径更新
     // 先移除现有路径
     try {
       if (dronePathPolyline.value) {
@@ -1600,27 +1664,40 @@ const updateDronePath = () => {
     }
     
     // 确保有足够的点来创建路径
-    if (!dronePath.value || dronePath.value.length < 2) {
-      console.log('无人机路径点数不足，无法创建路径');
+    if (dronePath.value.length < 2) return;
+    
+    // ⭐⭐⭐关键修复：检查AMap对象是否可用，避免使用未加载的AMap实例⭐⭐⭐
+    if (!window.AMap) {
+      console.error('AMap未加载，无法创建路径');
       return;
     }
     
     try {
       // 创建新的路径线
+      if (!window.AMap.Polyline) {
+        console.error('AMap.Polyline未加载，无法创建路径');
+        return;
+      }
+      
       dronePathPolyline.value = new window.AMap.Polyline({
         path: dronePath.value,
         strokeColor: '#1890ff',
         strokeWeight: 4,
         strokeOpacity: 0.8,
         strokeStyle: 'solid',
-        strokeDasharray: [10, 5],
-        lineJoin: 'round',
-        lineCap: 'round',
-        zIndex: 50
+        borderWeight: 1,
+        borderColor: '#ffffff',
+        lineJoin: 'round'
       });
       
-      // 添加到地图上
-      mapInstance.value.add(dronePathPolyline.value);
+      // ⭐⭐⭐关键修复：确保地图实例已完全初始化且存在add方法⭐⭐⭐
+      if (mapInstance.value && typeof mapInstance.value.add === 'function') {
+        console.log('准备添加路径到地图，地图实例:', !!mapInstance.value);
+        mapInstance.value.add(dronePathPolyline.value);
+        console.log('路径已添加到地图');
+      } else {
+        console.error('地图实例不可用或add方法不存在');
+      }
     } catch (e) {
       console.error('创建无人机路径失败:', e);
       dronePathPolyline.value = null;
@@ -1911,48 +1988,128 @@ const updateTaskAreaScreenshot = () => {
       return;
     }
     
+    // 确保地图区域有实际尺寸
+    if (mapEl.offsetWidth === 0 || mapEl.offsetHeight === 0) {
+      console.error('地图容器尺寸为0，无法截图');
+      ElMessage.warning('地图区域不可见，无法截图');
+      return;
+    }
+    
     // 添加正在处理的提示
-    ElMessage({
+    const loadingMsg = ElMessage({
       message: '正在处理任务区域截图...',
       type: 'info',
-      duration: 2000
+      duration: 0 // 不自动关闭
     });
     
-    // 检查html2canvas是否已加载
-    import('html2canvas').then(({ default: html2canvas }) => {
-      // 设置选项以提高质量和处理跨域问题
-      html2canvas(mapEl, {
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
-        scale: window.devicePixelRatio // 使用设备像素比以获得更高质量
-      }).then(canvas => {
-        // 转换为数据URL
-        const imgDataUrl = canvas.toDataURL('image/png');
+    // 优先使用AMap的原生截图功能
+    if (mapInstance.value && window.AMap && mapInstance.value.getContainer) {
+      try {
+        console.log('尝试使用AMap原生截图功能');
+        const plugin = 'AMap.ToolBar';
         
-        // 检查生成的URL是否有效
-        if (!imgDataUrl || imgDataUrl === 'data:,') {
-          console.error('生成的图片URL无效');
-          ElMessage.error('截图生成失败，请重试');
-          return;
-        }
+        // 加载工具条插件
+        window.AMap.plugin([plugin], () => {
+          // 通过引用获取实例
+          const containerNode = mapInstance.value.getContainer();
+          
+          if (containerNode) {
+            // 调用原生截图
+            window.AMap.DomUtil.getScreenshot(containerNode, {
+              type: 'png',
+              quality: 0.95
+            }).then((imgDataUrl: string) => {
+              // 更新截图值
+              taskAreaScreenshot.value = imgDataUrl;
+              // 显式触发事件
+              emit('update:taskAreaScreenshot', imgDataUrl);
+              console.log('AMap原生截图成功', imgDataUrl.substring(0, 50) + '...');
+              
+              loadingMsg.close();
+              ElMessage.success('任务区域截图已更新');
+            }).catch((err: any) => {
+              console.error('AMap截图失败，回退到html2canvas:', err);
+              useHtml2Canvas();
+            });
+          } else {
+            console.error('无法获取地图容器节点');
+            useHtml2Canvas();
+          }
+        });
+      } catch (mapErr) {
+        console.error('AMap截图功能失败:', mapErr);
+        useHtml2Canvas();
+      }
+    } else {
+      console.log('AMap实例不可用，使用html2canvas');
+      useHtml2Canvas();
+    }
+    
+    // 使用html2canvas的备用方法
+    function useHtml2Canvas() {
+      import('html2canvas').then(({ default: html2canvas }) => {
+        // 临时隐藏可能导致跨域问题的元素
+        const elementsToHide = mapEl.querySelectorAll('img[crossorigin], iframe, .amap-logo, .amap-copyright');
+        const originalDisplay: {el: Element, style: string}[] = [];
         
-        // 更新截图值
-        taskAreaScreenshot.value = imgDataUrl;
-        // 显式触发事件
-        emit('update:taskAreaScreenshot', imgDataUrl);
-        console.log('任务区域截图已更新', imgDataUrl.substring(0, 50) + '...');
+        elementsToHide.forEach(el => {
+          originalDisplay.push({el, style: (el as HTMLElement).style.display});
+          (el as HTMLElement).style.display = 'none';
+        });
         
-        ElMessage.success('任务区域截图已更新');
+        // 设置选项以提高质量和处理跨域问题
+        html2canvas(mapEl, {
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#FFFFFF',
+          logging: false,
+          scale: 1, // 使用固定比例避免可能的缩放问题
+          ignoreElements: (element) => {
+            return element.classList?.contains('amap-copyright') || 
+                  element.classList?.contains('amap-logo') ||
+                  element.tagName === 'IFRAME';
+          }
+        }).then(canvas => {
+          // 恢复隐藏的元素
+          originalDisplay.forEach(item => {
+            (item.el as HTMLElement).style.display = item.style;
+          });
+          
+          // 转换为数据URL
+          const imgDataUrl = canvas.toDataURL('image/png');
+          
+          // 检查生成的URL是否有效
+          if (!imgDataUrl || imgDataUrl === 'data:,' || imgDataUrl === 'data:image/png;base64,') {
+            console.error('生成的图片URL无效');
+            loadingMsg.close();
+            ElMessage.error('截图生成失败，请重试');
+            return;
+          }
+          
+          // 更新截图值
+          taskAreaScreenshot.value = imgDataUrl;
+          // 显式触发事件
+          emit('update:taskAreaScreenshot', imgDataUrl);
+          console.log('html2canvas截图成功', imgDataUrl.substring(0, 50) + '...');
+          
+          loadingMsg.close();
+          ElMessage.success('任务区域截图已更新');
+        }).catch(err => {
+          // 恢复隐藏的元素
+          originalDisplay.forEach(item => {
+            (item.el as HTMLElement).style.display = item.style;
+          });
+          
+          console.error('html2canvas截图失败:', err);
+          loadingMsg.close();
+          ElMessage.error('截图处理失败，请重试');
+        });
       }).catch(err => {
-        console.error('更新任务区域截图失败:', err);
-        ElMessage.error('截图处理失败，请重试');
+        console.error('加载html2canvas失败:', err);
+        loadingMsg.close();
+        ElMessage.error('截图功能加载失败');
       });
-    }).catch(err => {
-      console.error('加载html2canvas失败:', err);
-      ElMessage.error('截图功能加载失败');
-    });
+    }
   } catch (e) {
     console.error('更新任务区域截图过程中出错:', e);
     ElMessage.error('截图过程出错，请重试');
@@ -2035,30 +2192,64 @@ const taskAreaPolygon = ref<any>(null);
 const dronePathLine = ref<any>(null);
 
 // 在地图上添加任务区域标签
-const addTaskAreaLabel = (position: [number, number], text: string) => {
-  if (!mapInstance.value || !window.AMap) return;
-  
+const addTaskAreaLabel = (center: [number, number] | Array<[number, number]>, text?: string) => {
   try {
-    const textLabel = new window.AMap.Text({
-      text: text,
-      position: position,
-      style: {
-        'background-color': '#3b82f6',
-        'border-width': '0',
-        'text-align': 'center',
-        'font-size': '12px',
-        'color': 'white',
-        'border-radius': '3px',
-        'padding': '2px 5px'
-      },
-      offset: new window.AMap.Pixel(0, 0)
-    });
+    // 如果传入的是点数组，计算中心点
+    let centerPoint: [number, number] | null = null;
     
-    mapInstance.value.add(textLabel);
-    return textLabel;
+    if (Array.isArray(center) && center.length >= 2 && typeof center[0] === 'number') {
+      // 已经是中心点坐标
+      centerPoint = center as [number, number];
+    } else if (Array.isArray(center) && center.length >= 3) {
+      // 是点数组，需要计算中心点
+      centerPoint = calculatePolygonCenter(center as Array<[number, number]>);
+    }
+    
+    if (!centerPoint) {
+      console.error('无法确定标签位置');
+      return;
+    }
+    
+    // 使用计算出的中心点添加标签
+    const labelText = text || '任务区域';
+    
+    if (!useCanvas.value && mapInstance.value) {
+      // 使用AMap添加文本标签
+      const textMarker = new window.AMap.Text({
+        text: labelText,
+        position: centerPoint,
+        style: {
+          'padding': '5px 10px',
+          'backgroundColor': '#1890ff',
+          'border': '1px solid #1890ff',
+          'color': 'white',
+          'fontSize': '12px',
+          'fontWeight': 'bold',
+          'borderRadius': '4px'
+        },
+        offset: new window.AMap.Pixel(0, -5),
+        zIndex: 100
+      });
+      
+      mapInstance.value.add(textMarker);
+    } else {
+      // Canvas模式下添加文本标签
+      const canvasPoint = convertGeoToCanvasCoord(centerPoint);
+      const canvas = document.getElementById('canvas-overlay') as HTMLCanvasElement;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.save();
+          ctx.font = 'bold 14px Arial';
+          ctx.fillStyle = 'white';
+          ctx.textAlign = 'center';
+          ctx.fillText(labelText, canvasPoint.x, canvasPoint.y - 15);
+          ctx.restore();
+        }
+      }
+    }
   } catch (e) {
     console.error('添加文本标签失败:', e);
-    return null;
   }
 };
 
@@ -2098,55 +2289,6 @@ const updateTaskAreaPolygon = () => {
   }
 };
 
-// 确认按钮事件处理函数
-const handleLocalConfirmClick = () => {
-  // 显式检测点的数量
-  console.log('确认选择，点数量:', points.length);
-  
-  // 确保有足够的点，并输出详细日志
-  if (points.length < 3) {
-    console.warn('点数不足3个，当前点数:', points.length);
-    ElMessage.warning('请至少绘制3个点以形成有效区域');
-    return;
-  }
-  
-  try {
-    // 将画布坐标转换为地理坐标，并记录详细信息
-    const geoPoints = points.map((point: {x: number, y: number}, index: number) => {
-      console.log(`点${index+1}坐标:`, point);
-      return convertPixelToGeo(point.x, point.y, drawCanvas.width, drawCanvas.height);
-    });
-    
-    console.log('转换后的地理坐标点:', geoPoints);
-    
-    // 确保地理坐标点有效
-    if (geoPoints.length < 3) {
-      console.error('转换后的地理坐标点数不足3个');
-      ElMessage.error('区域转换失败，请重试');
-      return;
-    }
-    
-    // 更新任务区域点
-    taskAreaPoints.value = geoPoints;
-    console.log('已更新taskAreaPoints，长度:', taskAreaPoints.value.length);
-    
-    // 添加任务区域到地图
-    addTaskArea(geoPoints);
-    
-    // 更新任务区域截图
-    updateTaskAreaScreenshot();
-    
-    // 移除选择器
-    document.body.removeChild(selectorContainer);
-    
-    // 显示成功消息
-    ElMessage.success('任务区域设置成功');
-  } catch (e) {
-    console.error('处理任务区域时出错:', e);
-    ElMessage.error('处理任务区域失败，请重试');
-  }
-};
-
 // 在区域选择器中确认选择区域
 const confirmAreaSelection = (points: Point[], drawCanvas: HTMLCanvasElement) => {
   // 显式检测点的数量
@@ -2162,7 +2304,24 @@ const confirmAreaSelection = (points: Point[], drawCanvas: HTMLCanvasElement) =>
   try {
     // 将画布坐标转换为地理坐标
     const geoPoints = points.map(point => {
-      return convertPixelToGeo(point.x, point.y, drawCanvas.width, drawCanvas.height);
+      // 根据Point类型处理坐标
+      let x = 0, y = 0;
+      
+      if (Array.isArray(point) && point.length >= 2) {
+        // 如果是GeoPoint类型 [lng, lat]
+        x = point[0];
+        y = point[1];
+      } else if ('x' in point && 'y' in point) {
+        // 如果是PointObject类型 {x, y}
+        x = (point as PointObject).x;
+        y = (point as PointObject).y;
+      } else if ('lng' in point && 'lat' in point) {
+        // 如果是GeoPointObject类型 {lng, lat}
+        x = (point as GeoPointObject).lng;
+        y = (point as GeoPointObject).lat;
+      }
+      
+      return convertPixelToGeo(x, y, drawCanvas.width, drawCanvas.height);
     });
     
     console.log('转换后的地理坐标点:', geoPoints);
@@ -2197,6 +2356,37 @@ const confirmAreaSelection = (points: Point[], drawCanvas: HTMLCanvasElement) =>
     console.error('处理任务区域时出错:', e);
     ElMessage.error('处理任务区域失败，请重试');
     return false;
+  }
+};
+
+// 添加多边形中心点计算函数
+const calculatePolygonCenter = (points: Array<[number, number]>): [number, number] | null => {
+  if (!points || points.length < 3) {
+    console.warn('计算中心点需要至少3个有效点');
+    return null;
+  }
+
+  try {
+    // 计算多边形的中心点 (简单平均值)
+    let sumLng = 0;
+    let sumLat = 0;
+    
+    for (const point of points) {
+      if (Array.isArray(point) && point.length >= 2) {
+        sumLng += point[0];
+        sumLat += point[1];
+      } else {
+        console.warn('无效的点格式:', point);
+      }
+    }
+    
+    const centerLng = sumLng / points.length;
+    const centerLat = sumLat / points.length;
+    
+    return [centerLng, centerLat];
+  } catch (e) {
+    console.error('计算多边形中心点失败:', e);
+    return null;
   }
 };
 </script>

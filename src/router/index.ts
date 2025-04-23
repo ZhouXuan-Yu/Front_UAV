@@ -9,6 +9,7 @@
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
+import DataDashboardDetailView from '../views/DataDashboardDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,7 +52,12 @@ const router = createRouter({
     {
       path: '/data-dashboard-detail',
       name: 'data-dashboard-detail',
-      component: () => import('../views/DataDashboardDetailView.vue')
+      component: DataDashboardDetailView
+    },
+    {
+      path: '/drone-task',
+      name: 'drone-task',
+      component: () => import('../views/DroneTaskDetailView.vue')
     },
     {
       path: '/knowledge-graph',

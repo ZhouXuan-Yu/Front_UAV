@@ -1,6 +1,15 @@
+/**
+ * 文件名: DataDashboardView.vue
+ * 描述: 数据仪表盘视图
+ * 在项目中的作用: 
+ * - 作为数据仪表盘功能的入口页面
+ * - 展示数据仪表盘的概览信息
+ * - 提供链接到详细数据分析界面
+ */
+
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import FeatureView from './FeatureView.vue';
 
 const router = useRouter();

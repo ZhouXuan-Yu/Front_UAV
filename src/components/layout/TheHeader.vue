@@ -121,76 +121,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header :class="['header', { 'scrolled': isScrolled }]">
-    <div class="container">
-      <!-- Logo 部分 -->
-      <div class="logo">
-        <a href="/" @click.prevent="router.push('/')">
-          <Logo :variant="'dark'" size="small" />
-        </a>
-      </div>
+  <div class="header-wrapper">
+    <header :class="['header', { 'scrolled': isScrolled }]">
+      <div class="container">
+        <!-- Logo 部分 -->
+        <div class="logo">
+          <a href="/" @click.prevent="router.push('/')">
+            <Logo :variant="'dark'" size="small" />
+          </a>
+        </div>
 
-      <!-- 桌面导航 -->
-      <nav class="desktop-nav">
-        <ul class="nav-list">
-          <li v-for="item in navItems" :key="item.id" class="nav-item">
-            <button
-              @click="handleNavigation(item)"
-              class="nav-link"
-              :class="{ 'active': route.path.includes(String(item.route)) || activeDropdown === item.id }"
-            >
-              {{ item.label }}
-              <svg v-if="item.dropdown" class="dropdown-icon" :class="{ 'open': activeDropdown === item.id }" viewBox="0 0 24 24">
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </button>
-
-            <!-- 下拉菜单 -->
-            <div v-if="item.dropdown && item.items" class="dropdown" :class="{ 'show': activeDropdown === item.id }">
-              <div class="dropdown-content">
-                <div
-                  v-for="subItem in item.items"
-                  :key="subItem.label"
-                  class="dropdown-item"
-                  @click="navigateToSubItem(subItem.route)"
-                >
-                  <h3>{{ subItem.label }}</h3>
-                  <p>{{ subItem.description }}</p>
-                </div>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </nav>
-      
-      <!-- 右侧操作区 -->
-      <div class="action-buttons">
-        <a href="/contact" @click.prevent="router.push('/contact')" class="contact-button">联系我们</a>
-        <a href="/careers" @click.prevent="router.push('/careers')" class="nav-link-plain">招聘</a>
-        <button class="locale-selector">
-          <span>中文</span>
-          <svg class="locale-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M12 2C9.49872 4.73835 8.07725 8.29203 8 12C8.07725 15.708 9.49872 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- 移动菜单按钮 -->
-      <button class="mobile-menu-button" @click="toggleMenu" aria-label="菜单">
-        <span :class="['menu-icon', { 'open': isMenuOpen }]"></span>
-      </button>
-
-      <!-- 移动导航菜单 -->
-      <div class="mobile-nav" :class="{ 'open': isMenuOpen }">
-        <div class="mobile-nav-container">
-          <ul class="mobile-nav-list">
-            <li v-for="item in navItems" :key="item.id" class="mobile-nav-item">
+        <!-- 桌面导航 -->
+        <nav class="desktop-nav">
+          <ul class="nav-list">
+            <li v-for="item in navItems" :key="item.id" class="nav-item">
               <button
                 @click="handleNavigation(item)"
-                class="mobile-nav-link"
+                class="nav-link"
                 :class="{ 'active': route.path.includes(String(item.route)) || activeDropdown === item.id }"
               >
                 {{ item.label }}
@@ -199,38 +146,93 @@ onUnmounted(() => {
                 </svg>
               </button>
 
-              <!-- 移动下拉菜单 -->
-              <div v-if="item.dropdown && item.items && activeDropdown === item.id" class="mobile-dropdown">
-                <div
-                  v-for="subItem in item.items"
-                  :key="subItem.label"
-                  class="mobile-dropdown-item"
-                  @click="navigateToSubItem(subItem.route)"
-                >
-                  <h3>{{ subItem.label }}</h3>
-                  <p>{{ subItem.description }}</p>
+              <!-- 下拉菜单 -->
+              <div v-if="item.dropdown && item.items" class="dropdown" :class="{ 'show': activeDropdown === item.id }">
+                <div class="dropdown-content">
+                  <div
+                    v-for="subItem in item.items"
+                    :key="subItem.label"
+                    class="dropdown-item"
+                    @click="navigateToSubItem(subItem.route)"
+                  >
+                    <h3>{{ subItem.label }}</h3>
+                    <p>{{ subItem.description }}</p>
+                  </div>
                 </div>
               </div>
             </li>
           </ul>
-          
-          <div class="mobile-cta">
-            <a href="/contact" @click.prevent="router.push('/contact')" class="cta-button">联系我们</a>
-            <a href="/careers" @click.prevent="router.push('/careers')" class="cta-button secondary">招聘</a>
-            <button class="locale-selector mobile">
-              <span>中文</span>
-              <svg class="locale-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M12 2C9.49872 4.73835 8.07725 8.29203 8 12C8.07725 15.708 9.49872 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
-              </svg>
-            </button>
+        </nav>
+        
+        <!-- 右侧操作区 -->
+        <div class="action-buttons">
+          <a href="/contact" @click.prevent="router.push('/contact')" class="contact-button">联系我们</a>
+          <a href="/careers" @click.prevent="router.push('/careers')" class="nav-link-plain">招聘</a>
+          <button class="locale-selector">
+            <span>中文</span>
+            <svg class="locale-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 2C9.49872 4.73835 8.07725 8.29203 8 12C8.07725 15.708 9.49872 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 移动菜单按钮 -->
+        <button class="mobile-menu-button" @click="toggleMenu" aria-label="菜单">
+          <span :class="['menu-icon', { 'open': isMenuOpen }]"></span>
+        </button>
+
+        <!-- 移动导航菜单 -->
+        <div class="mobile-nav" :class="{ 'open': isMenuOpen }">
+          <div class="mobile-nav-container">
+            <ul class="mobile-nav-list">
+              <li v-for="item in navItems" :key="item.id" class="mobile-nav-item">
+                <button
+                  @click="handleNavigation(item)"
+                  class="mobile-nav-link"
+                  :class="{ 'active': route.path.includes(String(item.route)) || activeDropdown === item.id }"
+                >
+                  {{ item.label }}
+                  <svg v-if="item.dropdown" class="dropdown-icon" :class="{ 'open': activeDropdown === item.id }" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5z" />
+                  </svg>
+                </button>
+
+                <!-- 移动下拉菜单 -->
+                <div v-if="item.dropdown && item.items && activeDropdown === item.id" class="mobile-dropdown">
+                  <div
+                    v-for="subItem in item.items"
+                    :key="subItem.label"
+                    class="mobile-dropdown-item"
+                    @click="navigateToSubItem(subItem.route)"
+                  >
+                    <h3>{{ subItem.label }}</h3>
+                    <p>{{ subItem.description }}</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            
+            <div class="mobile-cta">
+              <a href="/contact" @click.prevent="router.push('/contact')" class="cta-button">联系我们</a>
+              <a href="/careers" @click.prevent="router.push('/careers')" class="cta-button secondary">招聘</a>
+              <button class="locale-selector mobile">
+                <span>中文</span>
+                <svg class="locale-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12 2C9.49872 4.73835 8.07725 8.29203 8 12C8.07725 15.708 9.49872 19.2616 12 22" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
+  </div>
   
   <!-- 页面标题区域 (仅在公共安全页面显示) -->
   <div v-if="route.path.includes('public-safety')" class="page-title-area">
@@ -242,6 +244,10 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.header-wrapper {
+  width: 100%;
+}
+
 .header {
   position: fixed;
   top: 0;

@@ -10,6 +10,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import HeroBanner from '../components/home/HeroBanner.vue';
 import MissionStatement from '../components/home/MissionStatement.vue';
 import VideoProductShowcase from '../components/home/VideoProductShowcase.vue';
@@ -20,6 +21,7 @@ import SuccessStories from '../components/home/SuccessStories.vue';
 import CtaSection from '../components/home/CtaSection.vue';
 import TransitionBanner from '../components/home/TransitionBanner.vue';
 
+const router = useRouter();
 const videoShowcaseRef = ref<HTMLElement | null>(null);
 const productHighlightsRef = ref<HTMLElement | null>(null);
 
@@ -36,12 +38,43 @@ const scrollToProductHighlights = () => {
     productHighlightsRef.value.scrollIntoView({ behavior: 'smooth' });
   }
 };
+
+// 前往无人机任务页面
+const goToDroneTask = () => {
+  router.push('/drone-task');
+};
 </script>
 
 <template>
   <main class="home-view">
     <!-- 首屏区域 -->
     <HeroBanner @scroll-to-showcase="scrollToVideoShowcase" />
+    
+    <!-- 演示功能入口 -->
+    <div class="demo-section">
+      <div class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold text-center mb-8">产品功能演示</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="demo-card" @click="router.push('/data-dashboard-detail')">
+            <div class="demo-icon">📊</div>
+            <h3>数据仪表盘</h3>
+            <p>查看无人机数据分析和可视化界面</p>
+          </div>
+          
+          <div class="demo-card" @click="goToDroneTask">
+            <div class="demo-icon">🛸</div>
+            <h3>无人机巡逻任务</h3>
+            <p>查看正在执行的无人机巡逻任务</p>
+          </div>
+          
+          <div class="demo-card" @click="router.push('/geo-api')">
+            <div class="demo-icon">🗺️</div>
+            <h3>地理服务API</h3>
+            <p>体验位置搜索、路径规划等地理服务</p>
+          </div>
+        </div>
+      </div>
+    </div>
     
     <!-- 过渡区域 - 静态展示标题 -->
     <div class="transition-section">
@@ -95,6 +128,44 @@ const scrollToProductHighlights = () => {
   position: relative;
   overflow-x: hidden;
   background-color: #ffffff;
+}
+
+/* 演示功能区域 */
+.demo-section {
+  background-color: #f8fafc;
+  padding: 40px 0;
+}
+
+.demo-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.demo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.demo-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.demo-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.demo-card p {
+  font-size: 0.9rem;
+  color: #64748b;
 }
 
 .transition-section {

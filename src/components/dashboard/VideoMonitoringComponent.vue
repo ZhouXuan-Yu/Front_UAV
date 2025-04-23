@@ -9,7 +9,7 @@
  */
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { gsap } from 'gsap';
 
 // 定义监控视频类型
@@ -242,14 +242,25 @@ onMounted(() => {
   updateDisplayedVideos();
   startVideoFrameSimulation();
   
-  // 添加入场动画
-  const videoContainers = document.querySelectorAll('.video-container');
-  gsap.from(videoContainers, {
-    y: 30,
-    opacity: 0,
-    stagger: 0.1,
-    duration: 0.5,
-    ease: "power2.out"
+  // 添加入场动画 - 使用nextTick确保DOM已渲染
+  nextTick(() => {
+    const videoContainers = document.querySelector('.video-grid');
+    if (videoContainers) {
+      const containers = videoContainers.querySelectorAll('.video-container');
+      if (containers && containers.length > 0) {
+        gsap.from(containers, {
+          y: 30,
+          opacity: 0,
+          stagger: 0.1,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+      } else {
+        console.warn('未找到视频容器元素，跳过动画');
+      }
+    } else {
+      console.warn('未找到视频网格元素，跳过动画');
+    }
   });
 });
 

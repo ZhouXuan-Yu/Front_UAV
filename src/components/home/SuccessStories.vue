@@ -55,7 +55,7 @@ const successStories = ref<SuccessStory[]>([
     source: '4th Infantry Division, Fort Carson',
     hasVideo: false,
     link: '/success-stories/fort-carson',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/3/38/4th_Infantry_Division_SSI.svg'
+    logo: '🪖'
   },
   {
     id: 'joesullivan',
@@ -99,7 +99,7 @@ const successStories = ref<SuccessStory[]>([
     source: 'Kaz Daughtry',
     hasVideo: false,
     link: '/success-stories/nypd',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Patch_of_the_New_York_City_Police_Department.svg'
+    logo: '👮'
   },
   {
     id: 'hamilton',

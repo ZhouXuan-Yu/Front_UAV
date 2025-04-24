@@ -29,7 +29,7 @@ const featureData = computed(() => {
     features: Array<{ title: string; description: string; icon?: string; }>;
   }> = {
     'person-recognition': {
-      title: 'Person Recognition',
+      title: '人物检测',
       subtitle: 'Advanced AI for identifying and tracking people',
       description: 'Our Person Recognition technology enables drones to detect, identify, and track individuals in various environments. Perfect for search and rescue, security, and crowd monitoring applications.',
       image: 'https://ext.same-assets.com/913537297/1124492884.jpeg',
@@ -162,6 +162,75 @@ const featureData = computed(() => {
         {
           title: 'Predictive Analytics',
           description: 'Use historical relationships to predict future developments and inform strategic decision-making.',
+          icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
+        }
+      ]
+    },
+    'night-enhanced-recognition': {
+      title: '夜间增强识别技术',
+      subtitle: '先进的夜间光线增强与图像识别系统',
+      description: '我们的夜间增强识别技术结合了先进的光学成像和人工智能算法，使无人机能够在低光环境下进行高精度的目标识别和跟踪。',
+      image: 'https://ext.same-assets.com/913537297/3416323236.png',
+      features: [
+        {
+          title: '低光环境成像',
+          description: '在极低光照条件下捕获高质量图像，实现夜间监控和检测的清晰视觉。',
+          icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
+        },
+        {
+          title: '红外热成像集成',
+          description: '结合红外热成像技术，提供全天候、全天时的监控能力，不受光照条件限制。',
+          icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
+        },
+        {
+          title: 'AI增强处理',
+          description: '使用深度学习算法对夜间获取的图像进行实时增强和分析，提高识别精度。',
+          icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
+        }
+      ]
+    },
+    'night-guardian': {
+      title: '夜间守护者系统',
+      subtitle: '全方位夜间安全监控与保护解决方案',
+      description: '夜间守护者系统是我们专为夜间安全监控设计的综合解决方案，集成了夜视技术、热成像和AI智能分析，提供无与伦比的夜间安全保障能力。',
+      image: 'https://ext.same-assets.com/913537297/1124492884.jpeg',
+      features: [
+        {
+          title: '自动巡逻监控',
+          description: '无人机自主执行预设巡逻路线，实时监控关键区域，自动识别潜在威胁并发出警报。',
+          icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
+        },
+        {
+          title: '智能异常行为检测',
+          description: '利用行为分析算法，自动识别可疑行为并触发预警，大幅提高安全响应效率。',
+          icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
+        },
+        {
+          title: '多层次安全防护',
+          description: '结合视觉和声音传感器，提供全方位的环境感知和安全防护，确保全天候监控无死角。',
+          icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
+        }
+      ]
+    },
+    'long-range-identification': {
+      title: '超远距离识别系统',
+      subtitle: '领先业界的远距离目标识别与追踪技术',
+      description: '我们的超远距离识别系统采用尖端光学技术和AI增强算法，可在几公里外精确识别和分类目标，为远程监控和安全应用提供无与伦比的能力。',
+      image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
+      features: [
+        {
+          title: '高倍光学变焦',
+          description: '配备业界领先的变焦镜头系统，实现远距离高清成像，保证识别精度。',
+          icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
+        },
+        {
+          title: '图像稳定技术',
+          description: '先进的光学和电子图像稳定系统，确保在无人机移动和气流干扰下仍能获得稳定画面。',
+          icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
+        },
+        {
+          title: '多层次AI识别',
+          description: '运用深度学习模型进行目标检测、分类和特征提取，实现远距离精确识别和分析。',
           icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
         }
       ]

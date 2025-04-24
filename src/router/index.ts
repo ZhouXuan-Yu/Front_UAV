@@ -22,47 +22,74 @@ const router = createRouter({
     {
       path: '/path-planning',
       name: 'path-planning',
-      component: () => import('../views/PathPlanningView.vue')
+      component: () => import('../views/PathPlanningView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/person-recognition',
       name: 'person-recognition',
-      component: () => import('../views/PersonRecognitionView.vue')
+      component: () => import('../views/PersonRecognitionView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/vehicle-monitoring',
       name: 'vehicle-monitoring',
-      component: () => import('../views/VehicleMonitoringView.vue')
+      component: () => import('../views/VehicleMonitoringView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/disaster-detection',
       name: 'disaster-detection',
-      component: () => import('../views/DisasterDetectionView.vue')
+      component: () => import('../views/DisasterDetectionView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/license-plate-recognition',
       name: 'license-plate-recognition',
-      component: () => import('../views/LicensePlateRecognitionView.vue')
+      component: () => import('../views/LicensePlateRecognitionView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/data-dashboard',
       name: 'data-dashboard',
-      component: () => import('../views/DataDashboardView.vue')
+      component: () => import('../views/DataDashboardView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/data-dashboard-detail',
       name: 'data-dashboard-detail',
-      component: DataDashboardDetailView
+      component: DataDashboardDetailView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/drone-task',
       name: 'drone-task',
-      component: () => import('../views/DroneTaskDetailView.vue')
+      component: () => import('../views/DroneTaskDetailView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/knowledge-graph',
       name: 'knowledge-graph',
-      component: () => import('../views/KnowledgeGraphView.vue')
+      component: () => import('../views/KnowledgeGraphView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/software-security/night-enhanced-recognition',
+      name: 'night-enhanced-recognition',
+      component: () => import('../views/NightEnhancedRecognitionView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/software-security/long-range-identification',
+      name: 'long-range-identification',
+      component: () => import('../views/LongRangeIdentificationView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/software-security/night-guardian',
+      name: 'night-guardian',
+      component: () => import('../views/NightGuardianView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/contact',
@@ -73,10 +100,37 @@ const router = createRouter({
       path: '/element-demo',
       name: 'element-demo',
       component: () => import('../components/ElementDemo.vue')
+    },
+    {
+      path: '/auth',
+      name: 'auth',
+      component: () => import('../views/AuthView.vue')
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue'),
+      meta: { requiresAuth: true }
     }
   ],
   scrollBehavior() {
     return { top: 0 }
+  }
+})
+
+// 全局路由守卫
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const isLoggedIn = localStorage.getItem('currentUser')
+  
+  if (requiresAuth && !isLoggedIn) {
+    // 设置需要登录的标记和原始目标路由信息，用于登录页面回跳
+    localStorage.setItem('redirectAfterLogin', to.fullPath)
+    // 设置需要显示登录提示弹窗的标记
+    localStorage.setItem('showLoginPrompt', 'true')
+    next('/auth')
+  } else {
+    next()
   }
 })
 

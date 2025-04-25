@@ -7,34 +7,20 @@ import CtaSection from '@/components/home/CtaSection.vue';
 const features = ref([
   {
     title: '多策略路线规划',
-    description: 'Easily plan complex flight paths with our intuitive interface. Set waypoints, adjust altitude, and define areas for detailed scanning with just a few clicks.',
+    description: '基于高德地图，实现最快、最经济等多种路线规划策略，系统会同时计算不同方案并进行智能比较，考虑时间、距离、过路费等多维度因素，为用户推荐最合适的出行路线。',
     icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
   },
   {
-    title: 'Obstacle Avoidance',
-    description: 'Advanced AI-powered obstacle detection and avoidance ensures your drones complete their missions safely even in complex environments.',
+    title: '实时路况可视化',
+    description: '集成路况图层和卫星图像，实时监控和展示道路拥堵情况，通过不同颜色直观展示道路畅通、缓行和拥堵状态，帮助用户及时调整行程计划，避开拥堵路段。',
     icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
   },
   {
-    title: 'Terrain Following',
-    description: 'Maintain consistent altitude above terrain regardless of landscape changes, perfect for inspections of varied topography.',
-    icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
-  },
-  {
-    title: 'GIS Integration',
-    description: 'Import and export route data in standard GIS formats for seamless integration with your existing mapping and planning systems.',
-    icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
-  },
-  {
-    title: 'Mission Analytics',
-    description: 'Analyze flight efficiency, coverage completeness, and route optimization opportunities with comprehensive post-flight analytics.',
-    icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
-  },
-  {
-    title: 'Multi-Drone Coordination',
-    description: 'Plan and execute coordinated operations with multiple drones for large-scale missions with increased efficiency and reduced time.',
+    title: '自然语言交互查询',
+    description: '基于大模型的自然语言处理技术，支持用户使用日常语言进行路线查询和规划，系统能够智能理解出发地、目的地和途经点等信息，实现类似"帮我规划从北京到上海的路线"这样的自然交互体验。',
     icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
   }
+
 ]);
 </script>
 
@@ -50,7 +36,10 @@ const features = ref([
 
     <FeatureContent :features="features" />
 
-    <section class="py-20 bg-gray-50">
+    <!-- 留作后续进行扩展，进行演示视频可以用用下面组件-->
+
+
+    <!-- <section class="py-20 bg-gray-50">
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row items-center gap-12">
           <div class="md:w-1/2" data-aos="fade-right">
@@ -95,7 +84,7 @@ const features = ref([
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <CtaSection />
   </div>

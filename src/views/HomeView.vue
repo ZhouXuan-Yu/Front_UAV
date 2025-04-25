@@ -23,12 +23,40 @@ import TransitionBanner from '../components/home/TransitionBanner.vue';
 
 const router = useRouter();
 const videoShowcaseRef = ref<HTMLElement | null>(null);
+const secondShowcaseRef = ref<HTMLElement | null>(null);
 const productHighlightsRef = ref<HTMLElement | null>(null);
+
+// 第一个产品数据
+const productOne = {
+  title: 'Skydio X10:',
+  subtitle: "You've never seen like this before",
+  description: 'A world-class drone program starts with Skydio X10. Loaded with the best sensors in its class, guided by the most advanced AI in the sky, and built to gather the data you need, wherever and whenever you need it.',
+  videoSrc: '/src/assets/videos/file.mp4',
+  ctaText: 'See X10 in action',
+  ctaLink: '/monitor-screen'
+};
+
+// 第二个产品数据
+const productTwo = {
+  title: 'Skydio 3:',
+  subtitle: 'Mission-ready. Day or night.',
+  description: 'Skydio drone programs help even the most dangerous work get done safer, smarter, and faster through remote autonomous flight. From Drone as First Responder to automated inspection and site security, Skydio helps you get the intelligence you need to make the best decisions.',
+  videoSrc: '/src/assets/videos/file.mp4',
+  ctaText: 'Vehicle Monitoring',
+  ctaLink: '/vehicle-monitoring'
+};
 
 // Smooth scroll to the video showcase section
 const scrollToVideoShowcase = () => {
   if (videoShowcaseRef.value) {
     videoShowcaseRef.value.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
+// Smooth scroll to the second showcase section
+const scrollToSecondShowcase = () => {
+  if (secondShowcaseRef.value) {
+    secondShowcaseRef.value.scrollIntoView({ behavior: 'smooth' });
   }
 };
 
@@ -51,7 +79,7 @@ const goToDroneTask = () => {
     <HeroBanner @scroll-to-showcase="scrollToVideoShowcase" />
     
     <!-- 演示功能入口 -->
-    <div class="demo-section">
+    <!-- <div class="demo-section">
       <div class="container mx-auto px-4 py-8">
         <h2 class="text-2xl font-bold text-center mb-8">产品功能演示</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -74,7 +102,7 @@ const goToDroneTask = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
     
     <!-- 过渡区域 - 静态展示标题 -->
     <div class="transition-section">
@@ -98,9 +126,14 @@ const goToDroneTask = () => {
     <!-- 使命宣言 -->
     <MissionStatement />
     
-    <!-- 视频展示区域 -->
+    <!-- 第一个视频展示区域 -->
     <div ref="videoShowcaseRef" class="video-showcase-container">
-      <VideoProductShowcase />
+      <VideoProductShowcase :product="productOne" />
+    </div>
+    
+    <!-- 第二个视频展示区域 -->
+    <div ref="secondShowcaseRef" class="video-showcase-container">
+      <VideoProductShowcase :product="productTwo" />
     </div>
     
     <!-- 功能卡片 -->
@@ -187,11 +220,16 @@ const goToDroneTask = () => {
 
 .video-showcase-container {
   position: relative;
-  min-height: 90vh;
+  min-height: auto;
   overflow: visible;
   z-index: 1;
-  background-color: transparent; /* 改为透明背景 */
-  margin-top: 40px;
+  background-color: transparent;
+  margin: 0;
+}
+
+/* 减少视频展示区域的间距 */
+.video-showcase-container + .video-showcase-container {
+  margin-top: -40px;
 }
 
 /* 移除波浪效果的伪元素，可能会与轮播图干扰 */
@@ -206,7 +244,16 @@ const goToDroneTask = () => {
   
   .video-showcase-container {
     min-height: auto;
-    margin-top: 20px;
+    margin-top: 0;
+  }
+  
+  /* 移动端同样减少视频区域间距 */
+  .video-showcase-container + .video-showcase-container {
+    margin-top: -20px;
+  }
+  
+  .home-view {
+    padding-top: 40px;
   }
 }
 </style>

@@ -17,7 +17,7 @@ const props = defineProps({
   product: {
     type: Object,
     default: () => ({
-      title: 'Skydio X10:',
+  title: 'Skydio X10:',
       subtitle: "You've never seen like this before",
       description: 'A world-class drone program starts with Skydio X10. Loaded with the best sensors in its class, guided by the most advanced AI in the sky, and built to gather the data you need, wherever and whenever you need it.',
       videoSrc: '/src/assets/videos/file.mp4',
@@ -157,31 +157,31 @@ onMounted(() => {
     text-align: center;
     padding-right: 0;
     padding-left: 0;
-  }
-  
+}
+
   .product-content h2 {
     font-size: 2.75rem;
-  }
-  
+}
+
   .product-content h3 {
     font-size: 1.75rem;
-  }
-  
+}
+
   .product-content p {
     font-size: 1.125rem;
-  }
-  
+}
+
   .container {
     padding-left: 12px;
     padding-right: 12px;
     width: 98%;
-  }
-  
+}
+
   .media-card {
     width: 100%;
     margin: 0 auto;
-  }
-  
+}
+
   .media-card video {
     max-height: 450px;
   }

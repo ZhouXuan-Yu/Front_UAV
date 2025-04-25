@@ -2,6 +2,18 @@
 
 npm run dev
 
+#### 注意事项
+1. 主页邮件发送，采用deepseek api + Emailjs  实现  用户问题发送  实现  总结 建议 以及原文
+
+
+
+
+
+
+
+
+
+
 ## 修改
 
 1. 导航栏格式，修改为黑字体，然后背景设置为悬浮，使用白色蒙图效果，当鼠标向下的滑动的时候会向上隐藏，向上滑动的时候会显示出来<img src="file:///C:/Users/86159/AppData/Roaming/marktext/images/2025-04-22-21-59-56-image.png" title="" alt="" width="423">

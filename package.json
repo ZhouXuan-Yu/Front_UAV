@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vue-tsc -b --skipLibCheck && vite build --outDir dist",
+    "build": "vite build --outDir dist",
+    "type-check": "vue-tsc --noEmit",
     "lint": "eslint --ext .vue,.js,.cjs,.mjs,.ts,.cts,.mts . && tsc --noEmit",
     "format": "prettier --write \"src/**/*.{vue,js,ts,cjs,mjs,json,css,scss,md}\"",
     "preview": "vite preview"

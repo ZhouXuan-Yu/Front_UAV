@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vue-tsc -b && vite build --outDir dist",
+    "build": "vue-tsc -b --skipLibCheck && vite build --outDir dist",
     "lint": "eslint --ext .vue,.js,.cjs,.mjs,.ts,.cts,.mts . && tsc --noEmit",
     "format": "prettier --write \"src/**/*.{vue,js,ts,cjs,mjs,json,css,scss,md}\"",
     "preview": "vite preview"
@@ -29,7 +29,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@types/aos": "^3.0.7",
     "@types/crypto-js": "^4.2.2",
+    "@types/three": "^0.175.0",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "@vitejs/plugin-vue": "^5.2.1",

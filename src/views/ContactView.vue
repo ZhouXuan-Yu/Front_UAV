@@ -621,7 +621,7 @@ const submitForm = async () => {
                   </svg>
                   <div>
                     <p class="font-medium">总部地址</p>
-                    <p class="text-gray-600">中国河南省郑州市高新区科学大道100号</p>
+                    <p class="text-gray-600">中国河南省郑州市惠济区英才街18号</p>
                   </div>
                 </div>
 
@@ -631,7 +631,7 @@ const submitForm = async () => {
                   </svg>
                   <div>
                     <p class="font-medium">电子邮箱</p>
-                    <p class="text-gray-600">2356648915@qq.com</p>
+                    <p class="text-gray-600">1241515924@qq.com</p>
                   </div>
                 </div>
 

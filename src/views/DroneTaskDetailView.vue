@@ -194,7 +194,7 @@ onMounted(() => {
         <div class="section-title">执行无人机</div>
         <div class="drone-card">
           <div class="drone-header">
-            <img src="/images/drone-icon.png" alt="无人机" class="drone-image" />
+            <img src="" alt="无人机" class="drone-image" />
             <div class="drone-name">{{ taskInfo.droneName }}</div>
           </div>
           <div class="drone-stats">
@@ -365,6 +365,8 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   margin-right: 10px;
+  background-color: #ddd;
+  border-radius: 5px;
 }
 
 .drone-name {

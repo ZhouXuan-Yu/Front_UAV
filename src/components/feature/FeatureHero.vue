@@ -60,11 +60,60 @@ defineProps<{
           data-aos="fade-up"
           data-aos-delay="300"
         >
-          <router-link to="#" class="btn btn-primary">
-            Learn more
+          <router-link to="#" class="modern-button">
+            开始使用
           </router-link>
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.modern-button {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.modern-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(66, 66, 66, 0.7) 0%, rgba(158, 158, 158, 0.7) 100%);
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.modern-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.modern-button:hover::before {
+  opacity: 1;
+}
+
+.modern-button:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+</style>

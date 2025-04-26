@@ -19,275 +19,244 @@ interface ActionCard {
 const router = useRouter();
 const actionCards = ref<ActionCard[]>([
   {
-    id: 'police1',
-    title: 'Big wins propel big growth in Florida agency\'s drone program',
-    description: 'Pasco County\'s use has grown dramatically as personnel find new missions and benefits',
-    image: 'https://ext.same-assets.com/913537297/3416323236.png', 
-    source: 'Police1',
-    logo: 'https://static.vecteezy.com/system/resources/previews/010/994/451/original/police-badge-icon-sign-symbol-design-free-png.png',
+    id: 'multimodal',
+    title: '多模态融合感知，驱动低空经济智能监测升级',
+    description: '融合可见光与热成像数据，结合深度学习模型实现复杂环境下小目标检测与识别，为低空经济活动提供全天候智能监测，提升安全性与效率，完美契合国家低空经济智能化发展政策。',
+    image: '/src/assets/images/image.png',
+    source: '空融智链',
+    logo: '🛸',
     hasVideo: false,
     socialIcon: 'comment',
-    route: '/police1',
+    route: '/features/multimodal',
     date: '2023-05-15'
   },
   {
-    id: 'wkyc',
-    title: 'Drone video shows man stuck in chimney while allegedly trying to get inside Minority Behavioral Health Group in Akron',
-    description: 'The Akron Fire Department was called to the scene where it took several hours to remove him from the chimney.',
-    image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: 'wkyc',
-    logo: 'https://pbs.twimg.com/profile_images/1204542354578219008/2Zdwg2QR_400x400.jpg',
-    hasVideo: true,
+    id: 'deeplearning',
+    title: '深度学习赋能的精准识别，拓展低空经济应用场景',
+    description: '利用多模型特征融合及深度学习算法，精准识别图像中的关键目标，为安防监控、人员管理等场景提供高效智能解决方案，拓展低空经济应用范围，符合国家对无人机技术智能化发展方向。',
+    image: '/src/assets/images/image.png',
+    source: '智眸千析',
+    logo: '🧠',
+    hasVideo: false,
     socialIcon: 'comment',
-    route: '/wkyc',
+    route: '/features/deeplearning',
     date: '2023-05-15'
   },
   {
-    id: 'fortcarson',
-    title: 'Eyes in the Sky, Firepower on Point 🚁 🔥',
-    description: 'Soldiers from the 2nd Battalion, 77th Field Artillery Regiment put on a show of precision firepower during Exercise Steel Avalanche.',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    source: '4th Infantry Division, Fort Carson',
-    logo: '🪖',
+    id: 'decision',
+    title: '低空智能决策支持，助力低空经济智慧运营',
+    description: '借助知识图谱与语义理解技术，整合低空经济专业知识，实现智能问答与决策支持，为无人机任务规划与低空经济运营管理提供精准建议，推动低空经济向智能化方向发展。',
+    image: '/src/assets/images/image.png',
+    source: '智慧知库',
+    logo: '📊',
     hasVideo: false,
     socialIcon: 'linkedin',
-    route: '/fortcarson',
+    route: '/features/decision',
     date: '2023-05-15'
   },
   {
-    id: 'joesullivan',
-    title: 'It\'s another Well Done Wednesday, and we want to commend our officers for their excellent work.',
-    description: 'Watch this video as officers utilize drones and our K9 unit to track and apprehend suspects fleeing after a traffic stop.',
-    image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: 'Joe Sullivan',
-    logo: '👮',
+    id: 'collaboration',
+    title: '低空智能体协同作业，构建低空经济产业生态',
+    description: '实现无人机与其他智能体在低空环境中的协同作业，形成低空智能体生态系统，优化配送路线，提升整体物流效率，为低空经济产业发展注入新动力。',
+    image: '/src/assets/images/image.png',
+    source: '智航监控',
+    logo: '🚁',
     hasVideo: true,
     socialIcon: 'linkedin',
-    route: '/joesullivan',
+    route: '/features/collaboration',
     date: '2023-05-15'
   },
   {
-    id: 'wpbf',
-    title: 'Port St. Lucie police once again use drones to help improve traffic flow outside Clover Park',
-    description: 'Port St. Lucie police once again use drones to help improve traffic flow outside Clover Park',
-    image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: 'WPBF 25 News',
-    logo: 'https://pbs.twimg.com/profile_images/1239926494677553153/AdpvZdXT_400x400.png',
+    id: 'disaster',
+    title: '智能灾害预警，守护低空经济安全防线',
+    description: '基于无人机航拍图像和深度学习模型，快速精准定位火灾、洪水等自然灾害区域，提升灾害响应速度，减少低空经济活动中的风险，保障人民生命财产安全，符合国家加强低空经济应急管理要求。',
+    image: '/src/assets/images/image.png',
+    source: '灾害预警系统',
+    logo: '🔥',
     hasVideo: true,
     socialIcon: 'youtube',
-    route: '/wpbf',
+    route: '/features/disaster',
     date: '2023-05-15'
   },
   {
-    id: 'ryancoon',
-    title: 'After Hurricane #Helene made landfall, I saw an opportunity to flex the Skydio X10\'s night flying capabilities in full force.',
-    description: 'After Hurricane #Helene made landfall, I saw an opportunity to flex the Skydio X10\'s night flying capabilities.',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    source: 'Ryan Coon',
-    logo: 'https://cdn-icons-png.flaticon.com/512/3135/3135768.png',
+    id: 'lowlight',
+    title: '暗光增强与夜间行为识别',
+    description: '通过深度学习分类算法，精准识别夜间场景中的人类行为，结合自适应增强算法和噪声抑制技术，提高夜间监控质量，当检测到危险行为时自动触发报警系统，提升夜间安全监管能力。',
+    image: '/src/assets/images/image.png',
+    source: '暗光增强系统',
+    logo: '🌙',
     hasVideo: false,
     socialIcon: 'linkedin',
-    route: '/ryancoon',
+    route: '/features/lowlight',
     date: '2023-05-15'
   },
   {
-    id: 'nypd',
-    title: 'Your NYPD is leveraging drone technology to assist in the apprehension of subway surfers.',
-    description: 'This innovative technology has given your officers a vital edge and every apprehension is possibly another life saved.',
-    image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: 'Kaz Daughtry',
-    logo: '👮',
+    id: 'thermal',
+    title: '热感探测与超远距离识别',
+    description: '集成可见光和热成像双模态数据，专注于小目标检测与识别，通过多模态特征融合和跨模态匹配算法，实现恶劣环境和夜间条件下的高精度目标识别，有效解决传统方法对微小目标检测不足的问题。',
+    image: '/src/assets/images/image.png',
+    source: '热感探测系统',
+    logo: '🔍',
     hasVideo: false,
     socialIcon: 'linkedin',
-    route: '/nypd',
+    route: '/features/thermal',
     date: '2023-05-15'
   },
   {
-    id: 'card8',
-    title: '汉密尔顿警察局无人机项目的运作方式',
-    description: '了解汉密尔顿警方如何构建并运行他们的无人机项目，以及Skydio如何帮助他们提高效率。',
-    image: 'https://images.unsplash.com/photo-1597085916520-5d3c7a1d30e7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80',
-    source: '汉密尔顿警察局',
-    logo: 'https://static.vecteezy.com/system/resources/previews/010/994/451/original/police-badge-icon-sign-symbol-design-free-png.png',
+    id: 'license',
+    title: '车牌监控与智能报警系统',
+    description: '基于深度学习的车辆与车牌检测识别系统，采用级联检测架构和角点定位技术，实现车型识别、车牌定位和字符识别全流程，支持多种车牌类型识别，适应不同角度、光照条件下的车牌捕获与解析。',
+    image: '/src/assets/images/image.png',
+    source: '车牌监控系统',
+    logo: '🚗',
     hasVideo: true,
-    socialIcon: 'linkedin',
-    route: '/hamilton',
+    socialIcon: 'comment',
+    route: '/features/license',
     date: '2023-05-15'
   },
 ]);
 
-const currentIndex = ref(0);
-const isAnimating = ref(false);
-const visibleItems = computed(() => {
-  const { width: windowWidth } = useWindowSize();
-  if (windowWidth.value < 640) return 1;      // 移动设备
-  if (windowWidth.value < 1024) return 2;     // 平板
-  if (windowWidth.value < 1280) return 3;     // 小型桌面
-  return 4;                                   // 大型桌面
-});
-
+// 将currentPage改为currentIndex，表示当前第一个可见卡片的索引
+const currentIndex = ref<number>(0);
+const cardsPerPage = 3; // 一次显示3个卡片
 const totalCards = computed(() => actionCards.value.length);
-const totalPages = computed(() => Math.ceil(totalCards.value / visibleItems.value));
-const activePage = computed(() => Math.floor(currentIndex.value / visibleItems.value));
+const totalSlides = computed(() => actionCards.value.length);
 
-const cardPositions = ref<number[]>([]);
+// 添加方向控制
+const direction = ref<'forward' | 'backward'>('forward');
 
-const initializeCardPositions = () => {
-  const positions: number[] = [];
-  for (let i = 0; i < totalCards.value; i++) {
-    // 计算每张卡片的初始位置
-    if (i < visibleItems.value) {
-      positions.push(i * 100); // 可见卡片均匀分布
-    } else {
-      positions.push(100 * visibleItems.value); // 不可见卡片放在右侧
-    }
-  }
-  cardPositions.value = positions;
-};
-
-watchEffect(() => {
-  if (visibleItems.value > 0) {
-    initializeCardPositions();
-    // 确保currentIndex不超出有效范围
-    if (currentIndex.value >= totalCards.value) {
-      currentIndex.value = 0;
-    }
-  }
+// 获取当前页面应该显示的卡片
+const currentPageCards = computed(() => {
+  const start = currentIndex.value;
+  const end = start + cardsPerPage;
+  return actionCards.value.slice(start, end);
 });
 
-const handleNext = () => {
-  if (isAnimating.value) return;
-  isAnimating.value = true;
-  
-  const nextIndex = (currentIndex.value + visibleItems.value) % totalCards.value;
-  currentIndex.value = nextIndex;
-  
-  // 更新所有卡片的位置
-  updateCardPositions();
-  
-  setTimeout(() => {
-    isAnimating.value = false;
-  }, 500); // 动画持续时间
-};
-
-const handlePrev = () => {
-  if (isAnimating.value) return;
-  isAnimating.value = true;
-  
-  const prevIndex = (currentIndex.value - visibleItems.value + totalCards.value) % totalCards.value;
-  currentIndex.value = prevIndex;
-  
-  // 更新所有卡片的位置
-  updateCardPositions();
-  
-  setTimeout(() => {
-    isAnimating.value = false;
-  }, 500); // 动画持续时间
-};
-
-const updateCardPositions = () => {
-  const newPositions = [...cardPositions.value];
-  for (let i = 0; i < totalCards.value; i++) {
-    const relativeIndex = (i - currentIndex.value + totalCards.value) % totalCards.value;
-    if (relativeIndex < visibleItems.value) {
-      newPositions[i] = relativeIndex * 100; // 可见卡片均匀分布
-    } else {
-      newPositions[i] = 100 * visibleItems.value; // 不可见卡片放在右侧
+// 修改为每次只移动一个卡片，并且在到达边界时改变方向
+const nextSlide = () => {
+  if (direction.value === 'forward') {
+    // 向前滚动
+    if (currentIndex.value < totalCards.value - 1) {
+      currentIndex.value++;
+      // 如果到达最后一个卡片，改变方向
+      if (currentIndex.value === totalCards.value - 1) {
+        direction.value = 'backward';
+      }
+    }
+  } else {
+    // 向后滚动
+    if (currentIndex.value > 0) {
+      currentIndex.value--;
+      // 如果到达第一个卡片，改变方向
+      if (currentIndex.value === 0) {
+        direction.value = 'forward';
+      }
     }
   }
-  cardPositions.value = newPositions;
 };
 
-const goToPage = (pageIndex: number) => {
-  if (isAnimating.value) return;
-  isAnimating.value = true;
-  
-  currentIndex.value = pageIndex * visibleItems.value;
-  
-  // 更新所有卡片的位置
-  updateCardPositions();
-  
-  setTimeout(() => {
-    isAnimating.value = false;
-  }, 500); // 动画持续时间
+// 修改为每次只移动一个卡片，并且在到达边界时改变方向
+const prevSlide = () => {
+  if (direction.value === 'forward') {
+    // 当前是向前方向，改为向后
+    if (currentIndex.value > 0) {
+      currentIndex.value--;
+    } else {
+      // 到达第一个，改变方向
+      direction.value = 'backward';
+      currentIndex.value = 1; // 移到第二个，因为方向变了，下次会再次移回第一个
+    }
+  } else {
+    // 当前是向后方向，改为向前
+    if (currentIndex.value < totalCards.value - 1) {
+      currentIndex.value++;
+    } else {
+      // 到达最后一个，改变方向
+      direction.value = 'forward';
+      currentIndex.value = totalCards.value - 2; // 移到倒数第二个
+    }
+  }
 };
 
-const handleCardClick = (card: ActionCard) => {
+// 导航到卡片对应的路由
+const navigateToCard = (card: ActionCard) => {
   if (card.route) {
     router.push(card.route);
   }
 };
 
+// 自动轮播
+let autoplayInterval: number | null = null;
+
+const startAutoplay = () => {
+  if (autoplayInterval) clearInterval(autoplayInterval);
+  autoplayInterval = window.setInterval(() => {
+    nextSlide();
+  }, 6000); // 6秒切换一次
+};
+
+const stopAutoplay = () => {
+  if (autoplayInterval) {
+    clearInterval(autoplayInterval);
+    autoplayInterval = null;
+  }
+};
+
 onMounted(() => {
-  initializeCardPositions();
-  
-  // 设置自动轮播（可选）
-  const interval = setInterval(() => {
-    handleNext();
-  }, 5000); // 每5秒轮播一次
-  
-  onBeforeUnmount(() => {
-    clearInterval(interval);
-  });
+  startAutoplay();
 });
 
-onUnmounted(() => {
-  // 清理所有可能的计时器
-  if (isAnimating.value) {
-    isAnimating.value = false;
-  }
-  
-  window.removeEventListener('resize', () => {
-    // 这里可以根据需要重新计算卡片位置
-  });
+onBeforeUnmount(() => {
+  stopAutoplay();
 });
 </script>
 
 <template>
-  <section class="action-cards-section py-16 px-4 relative overflow-hidden">
-    <div class="container mx-auto">
-      <h2 class="text-3xl md:text-4xl font-bold text-center mb-12">资源与应用案例</h2>
+  <section class="action-cards-section py-24 px-12 relative overflow-hidden">
+      <div class="container mx-auto max-w-15xl px-12">
+      <h2 class="text-4xl md:text-5xl font-bold text-center mb-16">资源与应用案例</h2>
       
       <div class="carousel-container relative">
-        <!-- 轮播控制按钮 -->
+        <!-- 左右箭头导航 -->
         <button 
-          @click="handlePrev" 
-          class="carousel-arrow prev absolute left-0 top-1/2 transform -translate-y-1/2 z-10"
-          :disabled="isAnimating"
+          @click="prevSlide" 
+          class="carousel-arrow prev z-20"
         >
-          <span class="sr-only">上一页</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <span class="sr-only">上一个</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         
-        <!-- 卡片容器 -->
-        <div class="cards-wrapper overflow-hidden">
-          <div class="cards-track relative h-[400px]">
+        <!-- 卡片组 -->
+        <div class="cards-container relative overflow-hidden min-h-[650px]">
+          <div 
+            class="cards-wrapper flex transition-all duration-700 ease-in-out" 
+            :style="{transform: `translateX(-${(currentIndex * 100 / cardsPerPage)}%)`}"
+          >
             <div 
               v-for="(card, index) in actionCards" 
-              :key="index"
-              class="card absolute top-0 w-full md:w-1/2 lg:w-1/3 xl:w-1/4 transition-all duration-500 cursor-pointer"
-              :class="{ 'opacity-0': cardPositions[index] >= 100 * visibleItems }"
-              :style="{ 
-                transform: `translateX(${cardPositions[index]}%)`,
-                zIndex: totalCards - index
-              }"
-              @click="handleCardClick(card)"
+              :key="card.id"
+              class="card-slide w-full md:w-1/3 px-4 flex-shrink-0"
             >
-              <div class="card-inner mx-2 bg-white rounded-lg shadow-lg overflow-hidden h-full">
-                <div class="card-image h-48 relative overflow-hidden">
-                  <img :src="card.image" :alt="card.title" class="w-full h-full object-cover">
-                  <div class="card-badge absolute top-3 right-3 bg-sky-600 text-white px-2 py-1 rounded text-xs">
+              <div 
+                class="card-inner h-full bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-2xl cursor-pointer"
+                @click="navigateToCard(card)"
+              >
+                <div class="card-image h-72 relative overflow-hidden">
+                  <img :src="card.image" :alt="card.title" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+                  <div class="card-badge absolute top-4 right-4 bg-sky-600 text-white px-3 py-1.5 rounded-full text-sm font-medium">
                     {{ card.source }}
                   </div>
                 </div>
-                <div class="card-content p-4">
-                  <h3 class="card-title text-lg font-bold mb-2">{{ card.title }}</h3>
-                  <p class="card-description text-gray-700 text-sm mb-4">{{ card.description }}</p>
-                  <div class="card-footer flex items-center justify-between">
-                    <span class="text-sky-600 text-sm">了解更多</span>
-                    <span class="text-gray-500 text-xs">{{ card.date }}</span>
+                
+                <div class="card-content p-8">
+                  <h3 class="card-title text-2xl font-bold mb-4 text-gray-800 line-clamp-2">{{ card.title }}</h3>
+                  <p class="card-description text-gray-600 text-base mb-4 line-clamp-4">{{ card.description }}</p>
+                  
+                  <div class="card-footer flex items-center justify-end">
+                    <span class="text-gray-400 text-sm">{{ card.date }}</span>
                   </div>
                 </div>
               </div>
@@ -295,65 +264,97 @@ onUnmounted(() => {
           </div>
         </div>
         
-        <!-- 下一页按钮 -->
+        <!-- 右箭头 -->
         <button 
-          @click="handleNext" 
-          class="carousel-arrow next absolute right-0 top-1/2 transform -translate-y-1/2 z-10"
-          :disabled="isAnimating"
+          @click="nextSlide" 
+          class="carousel-arrow next z-20"
         >
-          <span class="sr-only">下一页</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <span class="sr-only">下一个</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-        
-        <!-- 页面指示器 -->
-        <div class="pagination flex justify-center mt-8">
-          <button 
-            v-for="i in totalPages" 
-            :key="i"
-            @click="goToPage(i - 1)"
-            class="pagination-dot mx-1 w-3 h-3 rounded-full"
-            :class="activePage === (i - 1) ? 'bg-sky-600' : 'bg-gray-300'"
-          ></button>
-        </div>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-/* 轮播控制按钮样式 */
+.action-cards-section {
+  background-color: rgb(255, 255, 255);
+  background-image: none;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  padding: 0 60px; /* 为箭头留出空间 */
+}
+
 .carousel-arrow {
-  @apply bg-white bg-opacity-80 p-2 rounded-full shadow-md text-gray-800 hover:bg-opacity-100 transition-all duration-300;
-}
-
-.carousel-arrow:disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
-
-/* 卡片动画和样式 */
-.card {
-  transition: transform 0.5s ease, opacity 0.5s ease;
-}
-
-.card:hover .card-inner {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.card-inner {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: white;
+  color: #334155;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  z-index: 10;
   transition: all 0.3s ease;
 }
 
-/* 确保轮播区域有足够的高度 */
-.cards-wrapper {
-  min-height: 450px;
+.carousel-arrow:hover {
+  background-color: #f0f9ff;
+  color: #0284c7;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.prev {
+  left: 0px;
+}
+
+.next {
+  right: 0px;
+}
+
+.card-inner {
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card-inner:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-4 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
 }
 
 @media (max-width: 768px) {
-  .cards-wrapper {
-    min-height: 400px;
+  .prev {
+    left: 10px;
+  }
+  
+  .next {
+    right: 10px;
   }
 }
 </style> 

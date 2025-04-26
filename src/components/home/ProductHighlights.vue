@@ -12,34 +12,34 @@ interface ProductFeature {
 const features = ref<ProductFeature[]>([
   {
     id: 1,
-    title: "先进的避障系统",
-    description: "Skydio的3D扫描避障系统能360度全方位探测障碍物，即使在复杂环境中也能保证安全飞行。",
-    image: "https://images.unsplash.com/photo-1506947411487-a56738267384?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-    video: "https://ext.same-assets.com/913537297/24051968.mp4"
+    title: "多模态融合感知",
+    description: "融合可见光与热成像数据，结合深度学习模型实现复杂环境下小目标检测与识别，为低空经济活动提供全天候智能监测，提升安全性与效率，完美契合国家低空经济智能化发展政策。",
+    image: "/src/assets/images/image.png",
+    //video: "https://ext.same-assets.com/913537297/24051968.mp4"
   },
   {
     id: 2,
-    title: "人工智能跟踪",
-    description: "内置的AI跟踪系统能够自动识别并跟随移动目标，适用于运动拍摄、人物跟踪和专业监控。",
-    image: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    title: "深度学习赋能精准识别",
+    description: "利用多模型特征融合及深度学习算法，精准识别图像中的关键目标，为安防监控、人员管理等场景提供高效智能解决方案，拓展低空经济应用范围，符合国家对无人机技术智能化发展方向。",
+    image: "/src/assets/images/image.png"
   },
   {
     id: 3,
-    title: "自主飞行技术",
-    description: "即使是新手也能实现专业级航拍效果，AI自动规划飞行路径，让您专注于创作。",
-    image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    title: "低空智能决策支持",
+    description: "借助知识图谱与语义理解技术，整合低空经济专业知识，实现智能问答与决策支持，为无人机任务规划与低空经济运营管理提供精准建议，推动低空经济向智能化方向发展。",
+    image: "/src/assets/images/image.png"
   },
   {
     id: 4,
-    title: "企业级数据安全",
-    description: "满足企业安全标准，提供端到端加密和完全数据控制，保障您的数据安全。",
-    image: "https://images.unsplash.com/photo-1563770660941-10a8b3099f6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    title: "夜间行为识别与智能报警",
+    description: "通过深度学习分类算法，精准识别夜间场景中的拥抱、握手、斗殴等人类行为，当检测到危险行为时自动触发报警系统，通过邮件、消息推送等多种方式实时通知安保人员，提升夜间安全监管能力。",
+    image: "/src/assets/images/image.png"
   },
   {
     id: 5,
-    title: "强大的3D建模",
-    description: "自动捕捉并创建高精度3D模型，为建筑、测绘和基础设施检查提供可靠数据。",
-    image: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    title: "智能灾害预警",
+    description: "基于无人机航拍图像和深度学习模型，快速精准定位火灾、洪水等自然灾害区域，提升灾害响应速度，减少低空经济活动中的风险，保障人民生命财产安全，符合国家加强低空经济应急管理要求。",
+    image: "/src/assets/images/image.png"
   }
 ]);
 </script>
@@ -51,7 +51,7 @@ const features = ref<ProductFeature[]>([
         <h2 class="text-4xl font-bold text-skydio-dark mb-6">产品亮点</h2>
         <div class="w-20 h-1 bg-skydio-blue mx-auto mb-8"></div>
         <p class="max-w-2xl mx-auto text-lg text-gray-700">
-          Skydio 无人机搭载最先进的自主飞行技术，提供卓越的飞行体验和革命性的航拍效果。
+          空融智链—融合多模态感知与深度学习技术，通过智能监测、精准决策和高效协同作业，给空中和低空经济提供新的智能化解决方案。
         </p>
       </div>
       
@@ -74,16 +74,6 @@ const features = ref<ProductFeature[]>([
             <span class="text-skydio-blue font-medium mb-2 block">特性 {{ index + 1 }}/{{ features.length }}</span>
             <h3 class="text-3xl font-bold mb-6 text-skydio-dark">{{ feature.title }}</h3>
             <p class="text-lg text-gray-700 mb-8">{{ feature.description }}</p>
-            
-            <router-link 
-              to="#" 
-              class="inline-flex items-center text-skydio-blue font-medium hover:underline"
-            >
-              了解更多
-              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-              </svg>
-            </router-link>
           </div>
           
           <!-- 媒体区域 -->
@@ -108,7 +98,9 @@ const features = ref<ProductFeature[]>([
                 <img 
                   :src="feature.image" 
                   :alt="feature.title" 
-                  class="w-full max-h-[500px] object-cover"
+                  class="w-full object-cover"
+                  width="720"
+                  height="500"
                 />
               </template>
             </div>
@@ -116,15 +108,7 @@ const features = ref<ProductFeature[]>([
         </div>
       </div>
       
-      <!-- 查看更多按钮 -->
-      <div class="text-center mt-16">
-        <router-link 
-          to="#" 
-          class="inline-block py-3 px-8 bg-skydio-blue text-white font-medium rounded-lg hover:bg-opacity-90 transition-colors"
-        >
-          了解更多产品特性
-        </router-link>
-      </div>
+
     </div>
   </section>
 </template>

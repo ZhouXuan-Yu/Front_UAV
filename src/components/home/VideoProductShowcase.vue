@@ -49,10 +49,6 @@ onMounted(() => {
           <h2 class="text-5xl lg:text-6xl font-bold mb-3">{{ props.product.title }}</h2>
           <h3 class="text-3xl lg:text-4xl font-medium mb-5">{{ props.product.subtitle }}</h3>
           <p class="mb-8 text-xl leading-relaxed">{{ props.product.description }}</p>
-          
-          <a :href="props.product.ctaLink" class="cta-button inline-flex items-center">
-            {{ props.product.ctaText }}
-          </a>
         </div>
         
         <!-- 视频/图片展示 - 右侧 -->
@@ -116,10 +112,11 @@ onMounted(() => {
   letter-spacing: -0.01em;
 }
 
+/* 产品字号修改description */
 .product-content p {
   color: #333333;
   line-height: 1.6;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 400;
 }
 
@@ -168,7 +165,7 @@ onMounted(() => {
 }
 
   .product-content p {
-    font-size: 1.125rem;
+    font-size: 1.3rem;
 }
 
   .container {

@@ -72,7 +72,7 @@ const currentYear = new Date().getFullYear();
         <!-- 版权和社交链接区域 -->
         <div class="pt-6 border-t border-gray-200">
           <p class="text-center text-gray-600 mb-4 flex items-center justify-center">
-            <span class="mr-2">产品设计、组装和技术支持均由中国团队提供</span>
+            <span class="mr-2">本项目构思到项目落地技术支持均由中国团队完成</span>
             <span class="flag-icon">🇨🇳</span>
           </p>
           

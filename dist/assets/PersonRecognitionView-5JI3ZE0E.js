@@ -1,0 +1,1 @@
+import{_ as o}from"./FeatureView.vue_vue_type_script_setup_true_lang-BIYpHVH6.js";import{d as e,G as r,i as t}from"./index-CJqd1CcK.js";import"./FeatureContent.vue_vue_type_script_setup_true_lang-D7lOH7A-.js";import"./CtaSection-D1vi5cSn.js";const p=e({__name:"PersonRecognitionView",setup(n){return(a,i)=>(t(),r(o))}});export{p as default};

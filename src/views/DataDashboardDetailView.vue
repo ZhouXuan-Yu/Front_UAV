@@ -206,7 +206,7 @@ const switchTab = (tab: string) => {
       <footer class="dashboard-footer">
         <div class="container">
           <div class="footer-left">
-            <p>© 2023 Skydio 无人机监控平台</p>
+            <p>© 2025 空融智链 无人机监控平台</p>
           </div>
           <div class="footer-right">
             <p>数据更新时间: {{ new Date().toLocaleString() }}</p>

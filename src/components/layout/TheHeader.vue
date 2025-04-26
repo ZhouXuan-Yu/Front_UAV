@@ -51,8 +51,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'dfr', label: '智程导航', route: '/path-planning', dropdown: false },
   { id: 'utilities', label: '智眸千析', route: '/person-recognition', dropdown: false },
-  { id: 'national-security', label: '知识库问答', route: '/knowledge-graph', dropdown: false },
-  { id: 'data-dashboard', label: '监控大屏', route: '/data-dashboard', dropdown: false },
+  { id: 'national-security', label: '智慧知库', route: '/knowledge-graph', dropdown: false },
+  { id: 'data-dashboard', label: '数据大屏', route: '/data-dashboard', dropdown: false },
   { id: 'more-solutions', label: '夜间识别专项', dropdown: true,
     items: [
     {
@@ -72,7 +72,7 @@ const navItems: NavItem[] = [
     }   //{ label: '场地安全', description: '通过自主无人机巡逻自动化周边安全', route: '/knowledge-graph' },
     ]
   },
-  { id: 'products', label: '森林火灾与洪水检测', route: '/disaster-detection', dropdown: false },
+  { id: 'products', label: '灾害预警', route: '/disaster-detection', dropdown: false },
   { id: 'resources', label: '车辆监控与报警', route: '/vehicle-monitoring', dropdown: false },
 ];
 

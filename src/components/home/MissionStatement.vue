@@ -24,23 +24,22 @@
       >
         <source src="@/assets/videos/file.mp4" type="video/mp4" />
       </video>
-      <!-- Overlay -->
-      <div class="absolute inset-0 bg-gradient-to-b from-white/80 to-white/90"></div>
+      <!-- 已移除蒙图overlay -->
     </div>
     
     <div class="container-narrow relative z-10">
       <h2
-        class="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-12 text-gray-800"
+        class="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-12 text-white"
         data-aos="fade-up"
       >
-        Mission-ready. Day or night.
+      空融智链，全天候守护低空经济
       </h2>
       <p
-        class="text-xl md:text-2xl text-center max-w-4xl mx-auto text-gray-600"
+        class="text-xl md:text-2xl text-center max-w-4xl mx-auto text-white"
         data-aos="fade-up"
         data-aos-delay="100"
       >
-        Skydio drone programs help even the most dangerous work get done safer, smarter, and faster through remote autonomous flight. From Drone as First Responder to automated inspection and site security, Skydio helps you get the intelligence you need to make the best decisions.
+      空融智链无人机软件平台，融合多模态感知技术，实现智能监测、精准决策和高效协同作业。我们致力于为低空经济活动提供全方位、全天候的智能化解决方案，确保安全与效率，助力低空经济的智能化发展。
       </p>
     </div>
   </section>

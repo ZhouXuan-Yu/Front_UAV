@@ -51,20 +51,20 @@ const featureData = computed(() => {
         }
       ]
     },
-    'vehicle-monitoring': {
-      title: 'Vehicle Monitoring',
-      subtitle: 'Comprehensive traffic and vehicle tracking solutions',
-      description: 'Monitor traffic flow, track vehicles, and analyze transportation patterns with our advanced drone-based vehicle monitoring system.',
+    'disaster-detection': {
+      title: '灾害预警',
+      subtitle: '语义分割与异常模式监测，精准预警灾害风险。',
+      description: '基于无人机航拍图像的森林火灾与洪水检测系统，实现对自然灾害的早期识别和监测。系统采用深度学习模型分析航拍图像，快速定位可能的灾害区域，为应急决策提供数据支持。',
       image: 'https://ext.same-assets.com/913537297/3416323236.png',
       features: [
         {
-          title: 'Traffic Analysis',
-          description: 'Monitor traffic flow, congestion points, and road usage patterns with real-time aerial data.',
+          title: '火灾语义分割',
+          description: '应用U-Net网络架构对航拍图像进行像素级分割，精确标记火灾区域，评估火势范围和严重程度。',
           icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
         },
         {
-          title: 'Vehicle Tracking',
-          description: 'Track specific vehicles across large areas with AI-powered identification and following capabilities.',
+          title: '异常模式检测',
+          description: '结合时序数据分析，识别河流水位变化和火点扩散等异常模式，提前预警可能发生的灾害。.',
           icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
         },
         {
@@ -74,25 +74,24 @@ const featureData = computed(() => {
         }
       ]
     },
-    'disaster-detection': {
-      title: 'Disaster Detection',
-      subtitle: 'Early warning and response for natural disasters',
-      description: 'Deploy our drones to detect, monitor, and respond to natural disasters like floods, fires, and earthquakes with rapid situational awareness.',
-      image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
+    'vehicle-monitoring': {
+      title: '车辆监控与报警',
+      subtitle: '深度学习精准识别，多技术协同高效定位车牌。',
+      description: '基于无人机图像的智能车辆监控系统，通过深度学习模型识别车牌信息，并结合多传感器数据实现精准定位和报警。系统支持实时监控、历史回放和报警联动，为交通管理提供智能化解决方案。',
       features: [
         {
-          title: 'Wildfire Detection',
-          description: 'Early detection of wildfires through thermal imaging and smoke recognition, even in remote areas.',
+          title: '级联检测架构',
+          description: '采用两阶段检测策略，先定位车辆，再精确识别车牌区域，大幅提高系统处理效率和识别准确率。',
           icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
         },
         {
-          title: 'Flood Monitoring',
-          description: 'Track water levels, flood progression, and identify areas at risk with real-time mapping.',
+          title: '字符分割与识别',
+          description: '结合CNN与OCR技术，实现对车牌字符的精准分割和识别，支持各类标准和非标准车牌格式。',
           icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
         },
         {
-          title: 'Earthquake Assessment',
-          description: 'Rapidly assess structural damage and safety hazards following seismic events to guide response teams.',
+          title: '角点定位技术',
+          description: '创新性地采用车牌四角点定位方法，通过透视变换获取规范化车牌图像，解决倾斜、变形等问题。',
           icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
         }
       ]
@@ -144,24 +143,24 @@ const featureData = computed(() => {
       ]
     },
     'knowledge-graph': {
-      title: 'Knowledge Graph',
-      subtitle: 'AI-powered data relationship mapping',
-      description: 'Our Knowledge Graph technology connects disparate pieces of information gathered by drones to reveal hidden relationships and insights.',
+      title: '智慧知库',
+      subtitle: '融合LLM与知识图谱，联网检索赋能智能问答',
+      description: '提供知识图谱驱动的智能问答系统，将结构化和非结构化知识统一管理，支持复杂语义查询和推理。用户可通过自然语言与系统交互，支持联网搜索，获取领域专业知识和智能决策支持。',
       image: 'https://cdn.sanity.io/images/mgxz50fq/~production-v3/e3baeb17f1556c50a0ea5ca5a75d5e998426ff73-2559x1706.png',
       features: [
         {
-          title: 'Relationship Mapping',
-          description: 'Automatically identify and visualize connections between objects, locations, and events in your data.',
+          title: '知识图谱构建',
+          description: '利用Neo4j等图数据库技术构建领域知识网络，支持复杂关系表达和多维度知识关联。',
           icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
         },
         {
-          title: 'Contextual Intelligence',
-          description: 'Enrich drone observations with external data sources for deeper understanding and insights.',
+          title: '语义理解与查询',
+          description: '应用自然语言处理技术解析用户问题，将其转化为结构化查询，实现对知识库的精准检索。',
           icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
         },
         {
-          title: 'Predictive Analytics',
-          description: 'Use historical relationships to predict future developments and inform strategic decision-making.',
+          title: '动态知识更新',
+          description: '支持知识的持续积累与更新，保持知识库的时效性和准确性，适应不断变化的信息需求。',
           icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
         }
       ]

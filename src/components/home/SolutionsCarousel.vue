@@ -139,11 +139,17 @@ watch(shouldAutoExpand, (newValue) => {
     if (!carouselExpanded.value) {
       // 使用RAF确保动画流畅
       requestAnimationFrame(() => {
+        // 标记需要扩展
         carouselExpanded.value = true;
         placeholderActive.value = true;
         
-        // 不再锁定滚动
-        // lockScroll();
+        // 获取元素并确保从中心开始扩展
+        const carousel = document.querySelector('.fullscreen-carousel');
+        if (carousel && carousel instanceof HTMLElement) {
+          // 应用CSS自定义属性进行平滑扩展
+          carousel.style.setProperty('--initial-width', `${carousel.offsetWidth}px`);
+          carousel.style.setProperty('--initial-height', `${carousel.offsetHeight}px`);
+        }
       });
     }
   } else {
@@ -154,15 +160,12 @@ watch(shouldAutoExpand, (newValue) => {
         if (!shouldAutoExpand.value && !isHovering.value) {
           carouselExpanded.value = false;
           
-          // 不再需要解锁滚动
-          // unlockScroll();
-          
           // 确保占位符移除平滑
           setTimeout(() => {
             if (!carouselExpanded.value) {
               placeholderActive.value = false;
             }
-          }, 1000);
+          }, 2500); // 与过渡时间一致
         }
       }, 300);
     }
@@ -321,16 +324,38 @@ const goToSolution = (index: number) => {
 
 // 处理手动展开/收缩
 const toggleExpansion = () => {
-  carouselExpanded.value = !carouselExpanded.value;
+  const carousel = document.querySelector('.fullscreen-carousel') as HTMLElement | null;
+  if (!carousel) return;
   
-  if (carouselExpanded.value) {
-    lockScroll();
-    placeholderActive.value = true;
-  } else {
-    unlockScroll();
+  if (!carouselExpanded.value) {
+    // 展开前记录当前位置和尺寸
+    const rect = carousel.getBoundingClientRect();
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const offsetX = centerX - (rect.left + rect.width / 2);
+    const offsetY = centerY - (rect.top + rect.height / 2);
+    
+    // 首先移动到中心
+    carousel.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    carousel.classList.add('centering');
+    
+    // 然后展开
     setTimeout(() => {
-      placeholderActive.value = false;
-    }, 800);
+      carouselExpanded.value = true;
+      carousel.classList.remove('centering');
+      carousel.style.transform = '';
+      placeholderActive.value = true;
+    }, 50);
+  } else {
+    // 收缩
+    carouselExpanded.value = false;
+    
+    // 在过渡完成后移除占位符
+    setTimeout(() => {
+      if (!carouselExpanded.value) {
+        placeholderActive.value = false;
+      }
+    }, 3000); // 与过渡时间一致
   }
 };
 
@@ -448,6 +473,19 @@ onMounted(() => {
   
   document.addEventListener('touchstart', handleTouchStart);
   document.addEventListener('touchmove', handleTouchMove);
+  
+  // 监听扩展状态变化
+  watch(carouselExpanded, (newValue) => {
+    const carousel = document.querySelector('.fullscreen-carousel') as HTMLElement | null;
+    if (!carousel) return;
+    
+    if (newValue) {
+      // 扩展前先确保位置准确
+      requestAnimationFrame(() => {
+        carousel.style.transformOrigin = 'center center';
+      });
+    }
+  });
   
   // 卸载时清理
   onUnmounted(() => {
@@ -622,29 +660,39 @@ onUnmounted(() => {
   overflow: hidden;
   border-radius: 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: all 1.5s cubic-bezier(0.2, 0, 0, 1); /* 更平滑的曲线，加快过渡时间 */
+  transition: all 3s cubic-bezier(0.165, 0.84, 0.44, 1); /* 使用更慢更平滑的过渡 */
   margin: 0 auto;
-  will-change: transform, opacity;
+  will-change: transform, width, height;
   backface-visibility: hidden;
-  transform: translateZ(0);
+  transform-origin: center center;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 添加CSS变量用于跟踪初始状态 */
+  --initial-width: 85vw;
+  --initial-height: 70vh;
 }
 
 .fullscreen-carousel.expanded {
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
   max-width: 100vw;
   border-radius: 0;
-  z-index: 100; /* 增加z-index确保在其他元素上方 */
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 100;
   margin: 0;
   padding: 0;
-  transition: all 1.2s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: none;
+  transform: scale(1);
+  transition: all 3s cubic-bezier(0.165, 0.84, 0.44, 1); /* 使用更慢更平滑的过渡 */
+}
+
+/* 确保展开过程是从当前位置中心向四周扩展 */
+.fullscreen-carousel:not(.expanded) {
+  transform: translate(0, 0);
 }
 
 /* 占位元素样式优化，确保与轮播图高度一致 */
@@ -680,8 +728,8 @@ onUnmounted(() => {
   background-size: cover;
   background-position: center;
   display: flex;
-  align-items: flex-start; /* 改为靠上对齐 */
-  justify-content: flex-start; /* 改为靠左对齐 */
+  align-items: center; /* 改为垂直居中 */
+  justify-content: flex-start;
   opacity: 0;
   z-index: 1;
   transition: opacity 1.8s cubic-bezier(0.2, 0, 0, 1), transform 1.8s cubic-bezier(0.2, 0, 0, 1);
@@ -710,14 +758,18 @@ onUnmounted(() => {
 
 .slide-content {
   max-width: 800px;
-  padding: 6rem 2rem 2rem 4rem; /* 增加上下左右边距 */
+  padding: 0 4rem 0 10rem; /* 增加左侧padding到10rem，使内容更靠右 */
   color: white;
-  text-align: left; /* 左对齐文字 */
+  text-align: left;
   opacity: 0;
   transform: translateY(30px) translateZ(0);
   transition: opacity 1.2s ease 0.6s, transform 1.2s ease 0.6s;
   will-change: transform, opacity;
   backface-visibility: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直居中 */
 }
 
 .slide-content.active {
@@ -730,9 +782,10 @@ onUnmounted(() => {
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
+  margin-top: 1rem; /* 增加顶部间距 */
 }
 
 .slide-title {
@@ -751,7 +804,7 @@ onUnmounted(() => {
   font-weight: 700;
   line-height: 1.1;
   margin-top: 0.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   color: white;
   max-width: 800px;
 }
@@ -763,36 +816,60 @@ onUnmounted(() => {
 }
 
 .slide-description {
-  background-color: rgba(0, 0, 0, 0.3); /* 更透明的背景 */
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+  background-color: rgba(0, 0, 0, 0.2); /* 更透明的背景 */
+  padding: 1.75rem;
+  border-radius: 12px;
+  margin-bottom: 2.5rem;
   font-size: 1.25rem;
   line-height: 1.6;
   max-width: 600px;
+  color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .slide-action {
-  margin-top: 2rem;
+  margin-top: 1rem;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .slide-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 2rem;
-  background-color: #3b82f6;
+  padding: 0.85rem 2.2rem;
+  background-color: rgba(255, 255, 255, 0.15); /* 半透明灰色背景 */
   color: white;
-  font-weight: 600;
-  border-radius: 4px;
+  font-weight: 500;
+  border-radius: 8px;
   transition: all 0.3s ease;
   text-decoration: none;
+  backdrop-filter: blur(4px); /* 模糊效果 */
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+  font-size: 0.95rem;
 }
 
 .slide-button:hover {
-  background-color: #2563eb;
+  background-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.slide-button svg {
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.slide-button:hover svg {
+  transform: translateX(3px);
 }
 
 /* 导航箭头 */
@@ -949,5 +1026,30 @@ onUnmounted(() => {
 /* 删除导航指示器样式 */
 .navigation-indicators {
   display: none;
+}
+
+/* 扩展动画 */
+@keyframes expandFromCenter {
+  0% {
+    width: 85vw;
+    height: 70vh;
+    border-radius: 24px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    top: 0;
+    left: 0;
+    transform: translate(0, 0);
+  }
+}
+
+/* 应用中心扩展动画 */
+.fullscreen-carousel.expanded {
+  animation: none;
 }
 </style> 

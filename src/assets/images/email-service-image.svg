@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#e6f0f7"/>
+  <text x="400" y="300" font-family="Arial" font-size="24" text-anchor="middle">邮件发送智能服务系统</text>
+  <text x="400" y="340" font-family="Arial" font-size="18" text-anchor="middle">Email Sending Intelligent Service System</text>
+</svg> 

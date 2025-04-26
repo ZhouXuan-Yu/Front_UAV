@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#f7e6f0"/>
+  <text x="400" y="300" font-family="Arial" font-size="24" text-anchor="middle">智眸千析：人物特征智能识别系统</text>
+  <text x="400" y="340" font-family="Arial" font-size="18" text-anchor="middle">Person Recognition: Intelligent Feature Analysis System</text>
+</svg> 

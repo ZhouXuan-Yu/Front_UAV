@@ -10,10 +10,10 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: 'Skydio in action',
-  description: ''
+  title: '用户使用案例',
+  description: '空融智链成功案例，由空融智链用户提供'
 });
-
+// 
 interface SuccessStory {
   id: string;
   title: string;
@@ -31,10 +31,10 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'email-service',
     title: '邮件发送智能服务系统',
-    subtitle: '客户服务部门',
-    description: '通过DeepSeek API分析用户需求生成结构化回复，借助智能解析与格式化构建层级清晰的响应邮件，并利用EmailJS实现自动化投递，大幅提升客户响应效率。',
+    subtitle: '客户服务小组',
+    description: '通过DeepSeek分析用户需求生成结构化回复，借助智能解析与格式化构建层级清晰的响应邮件，并利用EmailJS实现自动化投递，大幅提升客户响应效率。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: '客户服务部门',
+    source: '客户服务小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/email-service',
@@ -43,10 +43,10 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'data-dashboard',
     title: '无人机监控数据大屏系统',
-    subtitle: '智航监控团队',
+    subtitle: '空融智链团队',
     description: '基于Vue3和TypeScript开发的监控平台，集成高德地图API实现地理信息处理，通过Three.js展示3D飞行路径，并使用ECharts呈现实时监测数据，为无人机巡检提供可视化支持。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: '智航监控团队',
+    source: '空融智链团队',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/data-dashboard',
@@ -55,10 +55,10 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'smart-navigation',
     title: '智程导航：多策略路径规划系统',
-    subtitle: '智能导航实验室',
-    description: '集成高德地图API的智能路径规划系统，通过多种算法策略为用户提供最优出行方案，支持实时路况分析、多方案智能比较和自然语言交互式查询，让出行更加便捷高效。',
+    subtitle: '智能规划小组',
+    description: '集成高德地图的智能路径规划系统，通过多种算法策略为用户提供最优出行方案，支持实时路况分析、多方案智能比较和自然语言交互式查询，让出行更加便捷高效。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    source: '智能导航实验室',
+    source: '智能规划小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/smart-navigation',
@@ -67,10 +67,10 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'person-recognition',
     title: '智眸千析：人物特征智能识别系统',
-    subtitle: '视觉计算研究所',
+    subtitle: '计算机视觉实验室团队',
     description: '基于深度学习技术的人物特征分析系统，采用多模型特征融合技术，精确识别性别、年龄、服装颜色等多维特征，通过ResNet50等模型实现复杂场景下的高精度识别。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: '视觉计算研究所',
+    source: '计算机视觉实验室团队',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/person-recognition',
@@ -79,10 +79,10 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'disaster-warning',
     title: '智能灾害预警与监测系统',
-    subtitle: '应急技术研究中心',
+    subtitle: '灾害检测小组',
     description: '基于无人机航拍图像的自然灾害检测系统，应用U-Net网络架构进行火灾语义分割，结合异常模式检测技术，实现对森林火灾、洪水等自然灾害的早期识别和精确监测。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: '应急技术研究中心',
+    source: '灾害检测小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/disaster-warning',
@@ -91,10 +91,10 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'semantic-segmentation',
     title: '本地大模型语义分割实现路径规划',
-    subtitle: '智能规划部门',
+    subtitle: '智能规划小组',
     description: '通过深度学习模型对环境进行语义分割，实现无人机的精准路径规划，有效避开障碍物并选择最佳飞行路线。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png', 
-    source: '智能规划部门',
+    source: '智能规划小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/semantic-segmentation',
@@ -106,7 +106,7 @@ const successStories = ref<SuccessStory[]>([
     subtitle: '计算机视觉实验室团队',
     description: '基于ResNet50切割模型、年龄识别、性别分类及衣物颜色识别等多个本地训练模型，结合视觉模型实现多场景精准识别。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: '计算机视觉团队',
+    source: '计算机视觉实验室团队',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/image-recognition',
@@ -118,7 +118,7 @@ const successStories = ref<SuccessStory[]>([
     subtitle: '人工智能实验小组',
     description: '整合联网搜索、本地大语言模型对话及知识图谱构建，为用户提供全方位、深度的知识查询与交互体验。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    source: '人工智能研究院',
+    source: '人工智能实验小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/knowledge-base',
@@ -130,7 +130,7 @@ const successStories = ref<SuccessStory[]>([
     subtitle: '车辆识别小组',
     description: '采用先进图像增强算法结合YOLOv8模型，大幅提升夜间低光环境下的车辆检测准确率，为夜间交通监控提供可靠解决方案。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: '安防技术部',
+    source: '车辆识别小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/night-vehicle',
@@ -142,7 +142,7 @@ const successStories = ref<SuccessStory[]>([
     subtitle: '车辆识别小组',
     description: '专为高空或远距离监控设计的微小移动物体识别系统，能在极端条件下捕捉并识别移动目标，为边境安全提供技术支持。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: '边防安全部门',
+    source: '车辆识别小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/long-distance',
@@ -154,7 +154,7 @@ const successStories = ref<SuccessStory[]>([
     subtitle: '图像算法小组',
     description: '通过深度学习算法识别拥抱、握手、斗殴等人类行为，当检测到危险信号时，系统自动通过电子邮件发送警报至指定联系人。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    source: '公共安全研究所',
+    source: '图像算法小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/behavior-recognition',
@@ -166,7 +166,7 @@ const successStories = ref<SuccessStory[]>([
     subtitle: '自然灾害检测小组',
     description: '结合高精度图像识别与热成像技术，实时监测森林火灾、洪水及泥石流等自然灾害，提前预警并协助应急决策。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: '自然灾害监测中心',
+    source: '自然灾害检测小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/disaster-monitoring',
@@ -195,7 +195,8 @@ const successStories = ref<SuccessStory[]>([
     videoSrc: videoFile,
     link: '/success-stories/drone-rescue',
     logo: '🚨'
-  }
+  },
+
 ]);
 
 const currentIndex = ref(0);

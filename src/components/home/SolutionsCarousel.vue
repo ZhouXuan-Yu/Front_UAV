@@ -12,60 +12,44 @@ interface Solution {
 
 const solutions = ref<Solution[]>([
   {
-    id: 'dfr',
-    title: '无人机先遣系统',
-    subtitle: '我们保护您，无人机系统更保护您',
-    description: '2分钟内快速部署到现场。为任何服务请求提供即时态势感知。更好地协调响应。提高截获率。Skydio为您提供全方位保障。',
-    image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    link: '/path-planning'
-  },
-  {
-    id: 'utilities',
-    title: '公共设施',
-    subtitle: '确保电力持续供应',
-    description: '减少停机时间，在出现问题时加快服务恢复速度。Skydio帮助您提前预防停电和故障，全部通过您现有的工作人员完成。',
-    image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    link: '/person-recognition'
-  },
-  {
-    id: 'security',
-    title: '国家安全',
-    subtitle: '洞察、思考、超越对手',
-    description: '通过可靠的小型无人机系统更快、更智能、更安全地收集数据。凭借实时态势感知，您可以按照作战节奏进行调整，确保团队远离危险。',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    link: '/vehicle-monitoring'
-  },
-  {
-    id: 'inspection',
-    title: '资产检查',
-    subtitle: '精准检查',
-    description: '对关键基础设施进行自动化检查，精确度和细节无与伦比。在问题出现前识别隐患。',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    link: '/license-plate-recognition'
-  },
-  {
-    id: 'public-safety',
-    title: '公共安全',
-    subtitle: '更快、更安全地响应',
-    description: '通过为执法部门设计的自主无人机解决方案，改善响应时间和人员安全。',
-    image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    link: '/disaster-detection'
-  },
-  {
-    id: 'mapping',
-    title: '测量与绘图',
-    subtitle: '精确测绘',
-    description: '通过捕捉每一个细节的自主无人机技术，创建任何区域的详细、准确的3D地图。',
-    image: 'https://ext.same-assets.com/913537297/1121177740.png',
+    id: 'multi-modal',
+    title: '多模态融合感知',
+    subtitle: '我们守护你，智能监测更守护你',
+    description: '融合可见光与热成像数据，在复杂环境下实现小目标快速检测与识别。为低空经济活动提供全天候监测，确保安全与效率。',
+    image: '@/assets/images/data-dashboard-image.svg',
     link: '/data-dashboard'
   },
   {
-    id: 'site-security',
-    title: '场地安全',
-    subtitle: '自动保护周边安全',
-    description: '通过自主无人机巡逻自动化周边安全，实时检测并响应威胁。',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
+    id: 'deep-learning',
+    title: '深度学习赋能',
+    subtitle: '你看见所有，智眸千析看见细节',
+    description: '利用多模型特征融合及深度学习算法，精准识别图像中的关键目标，为安防监控提供智能分析，实现高效精确的特征提取。',
+    image: '@/assets/images/person-recognition-image.svg',
+    link: '/person-recognition'
+  },
+  {
+    id: 'smart-decision',
+    title: '低空智能决策',
+    subtitle: '你思考决策，智慧知库思考更快',
+    description: '借助知识图谱与语义理解技术，整合低空经济专业知识，实现智能问答与高效决策支持，让每个行动都有智能辅助。',
+    image: '@/assets/images/smart-navigation-image.svg',
     link: '/knowledge-graph'
+  },
+  {
+    id: 'smart-navigation',
+    title: '多策略路径规划',
+    subtitle: '你选择路径，智程导航选择最优解',
+    description: '结合多种算法策略，实现无人机在复杂环境下的智能路径规划，提高低空飞行安全性与效率，让每次飞行都精准可靠。',
+    image: '@/assets/images/smart-navigation-image.svg',
+    link: '/path-planning'
+  },
+  {
+    id: 'disaster-warning',
+    title: '智能灾害预警',
+    subtitle: '你保护世界，灾害预警保护你',
+    description: '基于无人机航拍图像和深度学习模型，快速精准地检测火灾、洪水等自然灾害，为低空经济活动构筑坚实的安全防线。',
+    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
+    link: '/disaster-detection'
   }
 ]);
 
@@ -85,14 +69,14 @@ const emit = defineEmits(['scrollToNext']);
 
 // 滚动锁定和解锁防抖
 const lockScroll = () => {
-  // 注释掉锁定滚动的功能
-  // document.body.style.overflow = 'hidden';
-  // document.body.style.height = '100vh';
+  // 不锁定屏幕，仅更新状态
+  isScrollingLocked.value = true;
+  // 不再设置 overflow 和 height
 };
 
 const unlockScroll = () => {
-  document.body.style.overflow = '';
-  document.body.style.height = '';
+  // 不再需要解锁，仅更新状态
+  isScrollingLocked.value = false;
 };
 
 // 添加锁定标志
@@ -148,30 +132,30 @@ const setupIntersectionObserver = () => {
   });
 };
 
-// 监听shouldAutoExpand状态变化
+// 修改watch函数，不再锁定滚动
 watch(shouldAutoExpand, (newValue) => {
   if (newValue) {
-    // 当轮询图自动扩展时，避免重置状态
+    // 当轮播图自动扩展时，避免重置状态
     if (!carouselExpanded.value) {
       // 使用RAF确保动画流畅
       requestAnimationFrame(() => {
         carouselExpanded.value = true;
         placeholderActive.value = true;
         
-        // 确保滚动位置正确，避免出现顶部空白
-        window.scrollTo({
-          top: window.pageYOffset - 1,
-          behavior: 'auto'
-        });
+        // 不再锁定滚动
+        // lockScroll();
       });
     }
   } else {
-    // 当轮询图需要收起时，只有鼠标不在上面时才收起
+    // 当轮播图需要收起时，只有鼠标不在上面时才收起
     if (!isHovering.value) {
       // 延迟收起，避免抖动
       setTimeout(() => {
         if (!shouldAutoExpand.value && !isHovering.value) {
           carouselExpanded.value = false;
+          
+          // 不再需要解锁滚动
+          // unlockScroll();
           
           // 确保占位符移除平滑
           setTimeout(() => {
@@ -238,6 +222,10 @@ const handleWheel = (e: Event) => {
   
   // 防止轻微滚动触发切换
   if (Math.abs(wheelEvent.deltaY) < 50) return;
+  
+  // 阻止默认滚动行为和事件冒泡
+  wheelEvent.preventDefault();
+  wheelEvent.stopPropagation();
   
   lastScrollTime = Date.now();
   
@@ -394,7 +382,8 @@ onMounted(() => {
     }
   };
   
-  document.addEventListener('wheel', handleWheelEvent, { passive: true });
+  // 修改为 passive: false，允许阻止默认滚动行为
+  document.addEventListener('wheel', handleWheelEvent, { passive: false });
   
   // 处理触摸事件
   let touchStartY = 0;
@@ -494,9 +483,6 @@ onUnmounted(() => {
 
 <template>
   <div class="solutions-carousel-container">
-    <!-- 占位元素，当轮播图扩展固定时防止内容跳动 -->
-    <div v-if="placeholderActive" class="placeholder" />
-    
     <div class="carousel-wrapper" :class="{ 'visible': isCarouselVisible }" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" @mousemove="handleMouseMove">
       <div class="fullscreen-carousel" :class="{ 'expanded': carouselExpanded || shouldAutoExpand }">
         <!-- 解决方案幻灯片 -->
@@ -517,10 +503,10 @@ onUnmounted(() => {
             }"
           >
             <div class="slide-content" :class="{ 'active': index === currentIndex }">
-              <div class="text-center mb-4">
-                <span class="slide-overline">{{ index + 1 }}/{{ solutions.length }} - {{ solution.id.toUpperCase() }}</span>
+              <div class="text-left mb-4">
+                <span class="slide-overline">{{ solution.id.toUpperCase() }}</span>
                 <h2 class="slide-title">{{ solution.title }}</h2>
-                <p class="slide-subtitle">{{ solution.subtitle }}</p>
+                <h3 class="slide-headline">{{ solution.subtitle }}</h3>
               </div>
               
               <div class="slide-description">
@@ -540,18 +526,6 @@ onUnmounted(() => {
               </div>
             </div>
           </div>
-        </div>
-        
-        <!-- 导航指示器 -->
-        <div class="navigation-indicators">
-          <button
-            v-for="(solution, index) in solutions"
-            :key="`indicator-${solution.id}`"
-            @click="goToSolution(index)"
-            class="nav-indicator"
-            :class="{ 'active': index === currentIndex }"
-            :aria-label="`转到解决方案 ${index + 1}`"
-          />
         </div>
         
         <!-- 导航箭头 -->
@@ -603,6 +577,9 @@ onUnmounted(() => {
           </svg>
         </button>
       </div>
+      
+      <!-- 占位元素，当轮播图扩展固定时防止内容跳动 -->
+      <div v-if="placeholderActive" class="placeholder" />
     </div>
   </div>
 </template>
@@ -645,7 +622,7 @@ onUnmounted(() => {
   overflow: hidden;
   border-radius: 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: all 2s cubic-bezier(0.2, 0, 0, 1); /* 更平滑的曲线 */
+  transition: all 1.5s cubic-bezier(0.2, 0, 0, 1); /* 更平滑的曲线，加快过渡时间 */
   margin: 0 auto;
   will-change: transform, opacity;
   backface-visibility: hidden;
@@ -656,8 +633,8 @@ onUnmounted(() => {
 
 .fullscreen-carousel.expanded {
   height: 100vh;
-  width: 100%;
-  max-width: 100%;
+  width: 100vw;
+  max-width: 100vw;
   border-radius: 0;
   z-index: 100; /* 增加z-index确保在其他元素上方 */
   position: fixed;
@@ -665,15 +642,25 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  transition: all 2s cubic-bezier(0.2, 0, 0, 1);
+  margin: 0;
+  padding: 0;
+  transition: all 1.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* 新添加的占位元素样式，用于防止内容跳动 */
+/* 占位元素样式优化，确保与轮播图高度一致 */
 .placeholder {
   height: 100vh;
   width: 100%;
   opacity: 0;
   pointer-events: none;
+  visibility: hidden; /* 防止占用空间但保持尺寸 */
+  position: relative;
+  z-index: -1; /* 确保在其他元素下方 */
+}
+
+/* 当轮播图扩展时占位符才显示 */
+.fullscreen-carousel.expanded + .placeholder {
+  visibility: visible;
 }
 
 .slides-container {
@@ -684,6 +671,7 @@ onUnmounted(() => {
 }
 
 .solution-slide {
+  background-color: #000;
   position: absolute;
   top: 0;
   left: 0;
@@ -692,8 +680,8 @@ onUnmounted(() => {
   background-size: cover;
   background-position: center;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start; /* 改为靠上对齐 */
+  justify-content: flex-start; /* 改为靠左对齐 */
   opacity: 0;
   z-index: 1;
   transition: opacity 1.8s cubic-bezier(0.2, 0, 0, 1), transform 1.8s cubic-bezier(0.2, 0, 0, 1);
@@ -722,9 +710,9 @@ onUnmounted(() => {
 
 .slide-content {
   max-width: 800px;
-  padding: 2rem;
+  padding: 6rem 2rem 2rem 4rem; /* 增加上下左右边距 */
   color: white;
-  text-align: center;
+  text-align: left; /* 左对齐文字 */
   opacity: 0;
   transform: translateY(30px) translateZ(0);
   transition: opacity 1.2s ease 0.6s, transform 1.2s ease 0.6s;
@@ -739,18 +727,33 @@ onUnmounted(() => {
 
 .slide-overline {
   display: block;
-  font-size: 0.875rem;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin-bottom: 1rem;
-  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
 }
 
 .slide-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
   line-height: 1.2;
+  max-width: 700px;
+  color: #3b82f6; /* Skydio blue */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.slide-headline {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-top: 0.5rem;
+  margin-bottom: 2.5rem;
+  color: white;
+  max-width: 800px;
 }
 
 .slide-subtitle {
@@ -760,12 +763,13 @@ onUnmounted(() => {
 }
 
 .slide-description {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3); /* 更透明的背景 */
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   line-height: 1.6;
+  max-width: 600px;
 }
 
 .slide-action {
@@ -789,33 +793,6 @@ onUnmounted(() => {
   background-color: #2563eb;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
-}
-
-/* 导航指示器 */
-.navigation-indicators {
-  position: absolute;
-  right: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  z-index: 10;
-}
-
-.nav-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.4);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.nav-indicator.active {
-  background-color: white;
-  transform: scale(1.3);
 }
 
 /* 导航箭头 */
@@ -911,16 +888,12 @@ onUnmounted(() => {
 
 /* 响应式调整 */
 @media (max-width: 768px) {
+  .slide-headline {
+    font-size: 2.5rem;
+  }
+  
   .slide-title {
-    font-size: 2rem;
-  }
-  
-  .slide-subtitle {
     font-size: 1.25rem;
-  }
-  
-  .navigation-indicators {
-    right: 1rem;
   }
   
   .fullscreen-carousel {
@@ -930,6 +903,10 @@ onUnmounted(() => {
   
   .placeholder {
     height: 80vh; /* 在移动设备上减少占位符高度 */
+  }
+
+  .slide-content {
+    padding: 4rem 1.5rem 1.5rem 2rem;
   }
 }
 
@@ -943,6 +920,18 @@ onUnmounted(() => {
     padding: 1rem;
     font-size: 1rem;
   }
+
+  .slide-headline {
+    font-size: 2rem;
+  }
+
+  .slide-title {
+    font-size: 1rem;
+  }
+
+  .slide-content {
+    padding: 3rem 1rem 1rem 1.5rem;
+  }
 }
 
 .carousel-controls {
@@ -955,5 +944,10 @@ onUnmounted(() => {
   gap: 12px;
   z-index: 1;
   pointer-events: auto; /* 确保鼠标事件可以通过 */
+}
+
+/* 删除导航指示器样式 */
+.navigation-indicators {
+  display: none;
 }
 </style> 

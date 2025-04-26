@@ -1,4 +1,5 @@
 /**
+ *  废弃使用页面
  * 文件名: CtaSection.vue
  * 描述: 行动号召(Call-to-Action)组件
  * 在项目中的作用: 

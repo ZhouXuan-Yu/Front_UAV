@@ -31,7 +31,7 @@ const productOne = {
   title: '低空多模态感知平台',
   subtitle: "融合可见光与热成像数据，结合深度学习算法，实现复杂环境下的小目标精准探测",
   description: '针对低空经济中的智能感知需求，我们创新性地融合可见光与热成像数据，采用深度学习模型进行小目标检测与识别。该平台不仅提升了低空场景的感知能力，还为低空经济活动提供了更可靠的监测手段，广泛应用于夜间安保巡检、复杂地形测绘等低空经济活动。',
-  videoSrc: '/src/assets/videos/file.mp4',
+  videoSrc: new URL('@/assets/videos/file.mp4', import.meta.url).href,
   ctaText: '了解更多',
   ctaLink: '/products/sensing'
 };
@@ -41,7 +41,7 @@ const productTwo = {
   title: '智能决策与应用平台',
   subtitle: '基于知识图谱与语义理解技术，提供智能问答与决策支持，助力低空经济智慧运营',
   description: '智能决策与应用平台整合低空经济领域的专业知识，通过知识图谱技术构建领域知识网络，应用自然语言处理技术实现精准理解与查询。该平台为无人机飞行任务规划、低空经济产业园区运营管理等场景提供精准决策建议，有效提升运营效率，符合国家政策中培育低空经济新质生产力的要求。',
-  videoSrc: '/src/assets/videos/file.mp4'
+  videoSrc: new URL('@/assets/videos/file.mp4', import.meta.url).href
 };
 
 // Smooth scroll to the video showcase section

@@ -672,6 +672,7 @@ const uploadAvatar = (event: any) => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  padding-top: 5rem;
   color: #333;
 }
 

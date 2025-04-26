@@ -9,3 +9,6 @@ src\components\home\SuccessStories.vue
 
 src\components\home\HeroBanner.vue
     网站开头展示
+
+src\components\home\ProductHighlights.vue
+    产品亮点

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
+// 导入图片资源路径
+const imagePath = new URL('@/assets/images/image.png', import.meta.url).href;
+
 interface ProductFeature {
   id: number;
   title: string;
@@ -14,32 +17,32 @@ const features = ref<ProductFeature[]>([
     id: 1,
     title: "多模态融合感知",
     description: "融合可见光与热成像数据，结合深度学习模型实现复杂环境下小目标检测与识别，为低空经济活动提供全天候智能监测，提升安全性与效率，完美契合国家低空经济智能化发展政策。",
-    image: "/src/assets/images/image.png",
+    image: imagePath,
     //video: "https://ext.same-assets.com/913537297/24051968.mp4"
   },
   {
     id: 2,
     title: "深度学习赋能精准识别",
     description: "利用多模型特征融合及深度学习算法，精准识别图像中的关键目标，为安防监控、人员管理等场景提供高效智能解决方案，拓展低空经济应用范围，符合国家对无人机技术智能化发展方向。",
-    image: "/src/assets/images/image.png"
+    image: imagePath
   },
   {
     id: 3,
     title: "低空智能决策支持",
     description: "借助知识图谱与语义理解技术，整合低空经济专业知识，实现智能问答与决策支持，为无人机任务规划与低空经济运营管理提供精准建议，推动低空经济向智能化方向发展。",
-    image: "/src/assets/images/image.png"
+    image: imagePath
   },
   {
     id: 4,
     title: "夜间行为识别与智能报警",
     description: "通过深度学习分类算法，精准识别夜间场景中的拥抱、握手、斗殴等人类行为，当检测到危险行为时自动触发报警系统，通过邮件、消息推送等多种方式实时通知安保人员，提升夜间安全监管能力。",
-    image: "/src/assets/images/image.png"
+    image: imagePath
   },
   {
     id: 5,
     title: "智能灾害预警",
     description: "基于无人机航拍图像和深度学习模型，快速精准定位火灾、洪水等自然灾害区域，提升灾害响应速度，减少低空经济活动中的风险，保障人民生命财产安全，符合国家加强低空经济应急管理要求。",
-    image: "/src/assets/images/image.png"
+    image: imagePath
   }
 ]);
 </script>

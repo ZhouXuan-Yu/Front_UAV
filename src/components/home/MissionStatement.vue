@@ -9,6 +9,9 @@
  */
 
 <script setup lang="ts">
+import { ref } from 'vue';
+// 导入视频资源
+import videoSrc from '@/assets/videos/file.mp4';
 </script>
 
 <template>
@@ -22,7 +25,7 @@
         muted
         playsinline
       >
-        <source src="@/assets/videos/file.mp4" type="video/mp4" />
+        <source :src="videoSrc" type="video/mp4" />
       </video>
       <!-- 已移除蒙图overlay -->
     </div>

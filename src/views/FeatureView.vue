@@ -78,6 +78,7 @@ const featureData = computed(() => {
       title: '车辆监控与报警',
       subtitle: '深度学习精准识别，多技术协同高效定位车牌。',
       description: '基于无人机图像的智能车辆监控系统，通过深度学习模型识别车牌信息，并结合多传感器数据实现精准定位和报警。系统支持实时监控、历史回放和报警联动，为交通管理提供智能化解决方案。',
+      image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
       features: [
         {
           title: '级联检测架构',
@@ -96,48 +97,25 @@ const featureData = computed(() => {
         }
       ]
     },
-    'license-plate-recognition': {
-      title: 'License Plate Recognition',
-      subtitle: 'Aerial vehicle identification system',
-      description: 'Our advanced License Plate Recognition technology allows drones to identify and log vehicle license plates from the air with exceptional accuracy.',
-      image: 'https://ext.same-assets.com/913537297/1121177740.png',
-      features: [
-        {
-          title: 'High-Resolution Imaging',
-          description: 'Capture clear license plate images from various heights and angles using specialized cameras.',
-          icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
-        },
-        {
-          title: 'AI-Powered Recognition',
-          description: 'Process and identify license plates in real-time using advanced machine learning algorithms.',
-          icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
-        },
-        {
-          title: 'Database Integration',
-          description: 'Connect with existing databases to check vehicles against watch lists or verify registrations.',
-          icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
-        }
-      ]
-    },
     'data-dashboard': {
-      title: 'Data Dashboard',
-      subtitle: 'Comprehensive analytics and visualization platform',
-      description: 'Our intuitive Data Dashboard transforms complex drone data into actionable insights through powerful analytics and visualizations.',
+      title: '智航监控',
+      subtitle: '',
+      description: '基于Vue3和TypeScript开发的无人机数据监控平台，集成高德地图API实现地理信息处理，通过Three.js展示3D飞行路径，使用ECharts呈现实时监测数据。系统支持无人机状态监控、飞行路径规划和目标识别分析，为无人机巡检、安全监控和数据采集提供可视化支持。',
       image: 'https://cdn.sanity.io/images/mgxz50fq/~production-v3/de53bd47ac33d82c6b654a6ef9898be75f33d3a3-1194x1200.png',
       features: [
         {
-          title: 'Real-time Monitoring',
-          description: 'View live data streams from multiple drones in a single, unified interface with instant updates.',
+          title: '智能地理服务',
+          description: '集成了多项地理信息服务功能，包括POI搜索定位、行政区域和实时天气监测。通过高精度坐标转换和边界处理算法，确保地理数据的准确性；同时提供地理编码与逆地理编码服务，支持地址与坐标的双向转换，为无人机任务提供全方位的地理信息支持和环境感知能力。',
           icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
         },
         {
-          title: 'Advanced Analytics',
-          description: 'Apply machine learning algorithms to detect patterns, anomalies, and trends in your collected data.',
+          title: '三维飞行路径',
+          description: '利用Three.js实现的3D飞行路径可视化技术，通过曲线插值算法创建平滑飞行轨迹，结合地形渲染和无人机模型动画。系统能直观展示飞行轨迹和姿态变化，支持轨迹回放和视角调整，帮助操作者更好理解飞行状态和环境关系。',
           icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
         },
         {
-          title: 'Custom Reporting',
-          description: 'Generate detailed reports and visualizations tailored to your specific operational needs.',
+          title: '数据可视化',
+          description: '使用ECharts实现实时数据的可视化展示，包括无人机状态、飞行轨迹、目标识别结果等。系统通过数据缓存和异步更新机制，确保数据展示的流畅性和实时性，为操作者提供全面、直观的监控信息。',
           icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
         }
       ]

@@ -28,7 +28,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: false,
     socialIcon: 'comment',
     route: '/features/multimodal',
-    date: '2023-05-15'
+    date: '2025-01-15'
   },
   {
     id: 'deeplearning',
@@ -40,7 +40,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: false,
     socialIcon: 'comment',
     route: '/features/deeplearning',
-    date: '2023-05-15'
+    date: '2025-02-08'
   },
   {
     id: 'decision',
@@ -52,7 +52,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: false,
     socialIcon: 'linkedin',
     route: '/features/decision',
-    date: '2023-05-15'
+    date: '2025-01-23'
   },
   {
     id: 'collaboration',
@@ -64,7 +64,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: true,
     socialIcon: 'linkedin',
     route: '/features/collaboration',
-    date: '2023-05-15'
+    date: '2025-03-17'
   },
   {
     id: 'disaster',
@@ -76,7 +76,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: true,
     socialIcon: 'youtube',
     route: '/features/disaster',
-    date: '2023-05-15'
+    date: '2025-02-25'
   },
   {
     id: 'lowlight',
@@ -88,7 +88,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: false,
     socialIcon: 'linkedin',
     route: '/features/lowlight',
-    date: '2023-05-15'
+    date: '2025-04-10'
   },
   {
     id: 'thermal',
@@ -100,7 +100,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: false,
     socialIcon: 'linkedin',
     route: '/features/thermal',
-    date: '2023-05-15'
+    date: '2025-04-02'
   },
   {
     id: 'license',
@@ -112,7 +112,7 @@ const actionCards = ref<ActionCard[]>([
     hasVideo: true,
     socialIcon: 'comment',
     route: '/features/license',
-    date: '2023-05-15'
+    date: '2025-03-05'
   },
 ]);
 
@@ -240,8 +240,7 @@ onBeforeUnmount(() => {
               class="card-slide w-full md:w-1/3 px-4 flex-shrink-0"
             >
               <div 
-                class="card-inner h-full bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-2xl cursor-pointer"
-                @click="navigateToCard(card)"
+                class="card-inner h-full bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-500 hover:translate-y-[-10px] hover:shadow-2xl"
               >
                 <div class="card-image h-72 relative overflow-hidden">
                   <img :src="card.image" :alt="card.title" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
@@ -255,7 +254,16 @@ onBeforeUnmount(() => {
                   <h3 class="card-title text-2xl font-bold mb-4 text-gray-800 line-clamp-2">{{ card.title }}</h3>
                   <p class="card-description text-gray-600 text-base mb-4 line-clamp-4">{{ card.description }}</p>
                   
-                  <div class="card-footer flex items-center justify-end">
+                  <div class="card-footer flex items-center justify-between">
+                    <button 
+                      v-if="card.route" 
+                      class="read-more-btn text-sky-600 hover:text-sky-800 font-medium flex items-center"
+                    >
+                      了解更多
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
                     <span class="text-gray-400 text-sm">{{ card.date }}</span>
                   </div>
                 </div>

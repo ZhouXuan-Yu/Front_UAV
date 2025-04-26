@@ -28,17 +28,19 @@ const productHighlightsRef = ref<HTMLElement | null>(null);
 
 // 第一个产品数据
 const productOne = {
-  title: '低空智联',
-  subtitle: "融合多模态与深度学习，实现智能监测与协同作业，助低空经济发展。",
-  description: '聚焦低空经济智能感知与协同作业，融合多模态数据与深度学习，实现复杂环境监测与智能体高效协同，构建低空经济产业生态，推动低空经济活动的智能化、融合化发展，符合国家政策对低空经济高质量发展的要求。',
-  videoSrc: '/src/assets/videos/file.mp4'
+  title: '低空多模态感知平台',
+  subtitle: "融合可见光与热成像数据，结合深度学习算法，实现复杂环境下的小目标精准探测",
+  description: '针对低空经济中的智能感知需求，我们创新性地融合可见光与热成像数据，采用深度学习模型进行小目标检测与识别。该平台不仅提升了低空场景的感知能力，还为低空经济活动提供了更可靠的监测手段，广泛应用于夜间安保巡检、复杂地形测绘等低空经济活动。',
+  videoSrc: '/src/assets/videos/file.mp4',
+  ctaText: '了解更多',
+  ctaLink: '/products/sensing'
 };
 
 // 第二个产品数据
 const productTwo = {
-  title: '智航慧脑',
-  subtitle: '融合LLM与深度学习技术，实现智能问答、精准识别与预警，提升智航水平。',
-  description: '打造低空经济智能决策与创新应用平台，融合LLM和深度学习技术，实现智能问答、精准识别与灾害预警，提升低空经济活动的智能化水平，保障安全高效运营，助力低空经济新质生产力培育与应用拓展。',
+  title: '智能决策与应用平台',
+  subtitle: '基于知识图谱与语义理解技术，提供智能问答与决策支持，助力低空经济智慧运营',
+  description: '智能决策与应用平台整合低空经济领域的专业知识，通过知识图谱技术构建领域知识网络，应用自然语言处理技术实现精准理解与查询。该平台为无人机飞行任务规划、低空经济产业园区运营管理等场景提供精准决策建议，有效提升运营效率，符合国家政策中培育低空经济新质生产力的要求。',
   videoSrc: '/src/assets/videos/file.mp4'
 };
 
@@ -105,7 +107,7 @@ const goToDroneTask = () => {
       <div class="transition-content">
         <!-- 核心价值主张 -->
         <div class="core-value">
-          <h2>赋能低空经济，引领智能变革</h2>
+          <h2>多模态感知融合，驱动低空经济智能化发展</h2>
           <div class="divider"></div>
         </div>
         
@@ -118,8 +120,8 @@ const goToDroneTask = () => {
                 <path d="M20.188 10.9343C20.5762 11.4056 20.7703 11.6412 20.7703 12C20.7703 12.3588 20.5762 12.5944 20.188 13.0657C18.7679 14.7899 15.6357 18 12 18C8.36427 18 5.23206 14.7899 3.81197 13.0657C3.42381 12.5944 3.22973 12.3588 3.22973 12C3.22973 11.6412 3.42381 11.4056 3.81197 10.9343C5.23206 9.21014 8.36427 6 12 6C15.6357 6 18.7679 9.21014 20.188 10.9343Z" stroke="currentColor" stroke-width="1.5"/>
               </svg>
             </div>
-            <h3>智能监测</h3>
-            <p>融合深度学习算法<br>精准识别目标<br>实时处理低空数据</p>
+            <h3>多模态感知</h3>
+            <p>融合可见光与热成像<br>实现复杂环境下<br>小目标精准探测</p>
           </div>
           
           <div class="feature-item">
@@ -128,8 +130,8 @@ const goToDroneTask = () => {
                 <path d="M16 3.93552C18.8915 5.95319 21 9.17319 21 12.7958C21 16.4184 18.8915 19.6384 16 21.6561M16 3.93552C14.5209 2.96773 12.8158 2.41797 11 2.41797C9.18419 2.41797 7.4791 2.96773 6 3.93552M16 3.93552L13.5 8.71656M8 21.6561C5.10851 19.6384 3 16.4184 3 12.7958C3 9.17319 5.10851 5.95319 8 3.93552M8 3.93552L10.5 8.71656M8 3.93552C9.16414 3.16902 10.5439 2.64747 12 2.46582M13.5 16.875C11.8431 15.3961 10.1569 15.3961 8.5 16.875" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3>灾害预测</h3>
-            <p>运用智能模型<br>分析低空态势<br>预警潜在风险</p>
+            <h3>智能灾害预警</h3>
+            <p>基于U-Net语义分割<br>实现火灾、洪水<br>早期精准预警</p>
           </div>
           
           <div class="feature-item">
@@ -138,8 +140,8 @@ const goToDroneTask = () => {
                 <path d="M12 16V14M12 14V12M12 14H18C19.1046 14 20 13.1046 20 12C20 10.8954 19.1046 10 18 10H12M12 8V6M6 10C4.89543 10 4 10.8954 4 12C4 13.1046 4.89543 14 6 14H8M21 3L3 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3>决策支持</h3>
-            <p>结合LLM与数据分析<br>生成建议<br>助力智能决策</p>
+            <h3>精准识别</h3>
+            <p>多模型特征融合<br>深度学习算法<br>实现人物车辆识别</p>
           </div>
           
           <div class="feature-item">
@@ -150,8 +152,8 @@ const goToDroneTask = () => {
                 <path d="M9 14H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
             </div>
-            <h3>智慧运营</h3>
-            <p>智能系统自动化管理<br>提升资源利用效率<br>保障任务高效执行</p>
+            <h3>智能决策支持</h3>
+            <p>知识图谱构建<br>语义理解与查询<br>赋能低空智慧运营</p>
           </div>
         </div>
         
@@ -161,32 +163,33 @@ const goToDroneTask = () => {
           
           <!-- 关键词云 -->
           <div class="keyword-cloud">
-            <span class="keyword size-lg">智能监测</span>
-            <span class="keyword size-md">目标识别</span>
+            <span class="keyword size-lg">热成像融合</span>
+            <span class="keyword size-md">暗光增强</span>
             <span class="keyword size-xl">灾害预警</span>
-            <span class="keyword size-sm">低空感知</span>
-            <span class="keyword size-lg">自动分析</span>
-            <span class="keyword size-md">精准决策</span>
-            <span class="keyword size-sm">数据处理</span>
-            <span class="keyword size-xl">智能管理</span>
-            <span class="keyword size-md">流程优化</span>
-            <span class="keyword size-lg">高效运营</span>
+            <span class="keyword size-sm">车牌监控</span>
+            <span class="keyword size-lg">智能导航</span>
+            <span class="keyword size-md">知识图谱</span>
+            <span class="keyword size-sm">森林火灾检测</span>
+            <span class="keyword size-xl">深度学习</span>
+            <span class="keyword size-md">多模态感知</span>
+            <span class="keyword size-lg">低空巡检</span>
           </div>
         </div>
       </div>
     </div>
     
+
     <!-- 使命宣言 -->
     <MissionStatement />
     
     <!-- 第一个视频展示区域 -->
     <div ref="videoShowcaseRef" class="video-showcase-container">
-      <VideoProductShowcase :product="productOne" />
+      <VideoProductShowcase :product="productOne" :flipped="false" />
     </div>
     
     <!-- 第二个视频展示区域 -->
     <div ref="secondShowcaseRef" class="video-showcase-container">
-      <VideoProductShowcase :product="productTwo" />
+      <VideoProductShowcase :product="productTwo" :flipped="true" />
     </div>
     
     <!-- 功能卡片 -->
@@ -201,7 +204,25 @@ const goToDroneTask = () => {
     </div>
     
     <!-- 用户故事 -->
-    <SuccessStories title="用户使用体验" description="看看专业人士如何评价Skydio无人机解决方案" />
+    <SuccessStories
+      :stories="[
+        {
+          title: '智慧森林防火监测',
+          description: '基于热成像与可见光融合技术，结合U-Net语义分割网络，实现了对森林火灾的早期预警，准确率提升35%，为国家林业局提供更可靠的森林防火监测手段。',
+          icon: 'fire-alert'
+        },
+        {
+          title: '城市低空安防巡检',
+          description: '采用多模态特征融合技术，结合深度学习算法，实现对城市低空场景中人员、车辆的精准识别，夜间识别准确率提升40%，助力城市安防智能化升级。',
+          icon: 'shield-check'
+        },
+        {
+          title: '应急救援指挥决策',
+          description: '融合知识图谱与多源数据分析技术，构建应急救援知识网络，为救援指挥提供智能决策支持，缩短决策时间48%，显著提升救援效率。',
+          icon: 'ambulance'
+        }
+      ]"
+    />
     
     <!-- 行动号召 -->
     <CtaSection />

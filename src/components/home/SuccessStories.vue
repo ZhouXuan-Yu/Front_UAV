@@ -29,6 +29,66 @@ interface SuccessStory {
 
 const successStories = ref<SuccessStory[]>([
   {
+    id: 'email-service',
+    title: '邮件发送智能服务系统',
+    subtitle: '客户服务部门',
+    description: '通过DeepSeek API分析用户需求生成结构化回复，借助智能解析与格式化构建层级清晰的响应邮件，并利用EmailJS实现自动化投递，大幅提升客户响应效率。',
+    image: 'https://ext.same-assets.com/913537297/3416323236.png',
+    source: '客户服务部门',
+    hasVideo: true,
+    videoSrc: videoFile,
+    link: '/success-stories/email-service',
+    logo: '📧'
+  },
+  {
+    id: 'data-dashboard',
+    title: '无人机监控数据大屏系统',
+    subtitle: '智航监控团队',
+    description: '基于Vue3和TypeScript开发的监控平台，集成高德地图API实现地理信息处理，通过Three.js展示3D飞行路径，并使用ECharts呈现实时监测数据，为无人机巡检提供可视化支持。',
+    image: 'https://ext.same-assets.com/913537297/1121177740.png',
+    source: '智航监控团队',
+    hasVideo: true,
+    videoSrc: videoFile,
+    link: '/success-stories/data-dashboard',
+    logo: '📊'
+  },
+  {
+    id: 'smart-navigation',
+    title: '智程导航：多策略路径规划系统',
+    subtitle: '智能导航实验室',
+    description: '集成高德地图API的智能路径规划系统，通过多种算法策略为用户提供最优出行方案，支持实时路况分析、多方案智能比较和自然语言交互式查询，让出行更加便捷高效。',
+    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
+    source: '智能导航实验室',
+    hasVideo: true,
+    videoSrc: videoFile,
+    link: '/success-stories/smart-navigation',
+    logo: '🧭'
+  },
+  {
+    id: 'person-recognition',
+    title: '智眸千析：人物特征智能识别系统',
+    subtitle: '视觉计算研究所',
+    description: '基于深度学习技术的人物特征分析系统，采用多模型特征融合技术，精确识别性别、年龄、服装颜色等多维特征，通过ResNet50等模型实现复杂场景下的高精度识别。',
+    image: 'https://ext.same-assets.com/913537297/3416323236.png',
+    source: '视觉计算研究所',
+    hasVideo: true,
+    videoSrc: videoFile,
+    link: '/success-stories/person-recognition',
+    logo: '👁️'
+  },
+  {
+    id: 'disaster-warning',
+    title: '智能灾害预警与监测系统',
+    subtitle: '应急技术研究中心',
+    description: '基于无人机航拍图像的自然灾害检测系统，应用U-Net网络架构进行火灾语义分割，结合异常模式检测技术，实现对森林火灾、洪水等自然灾害的早期识别和精确监测。',
+    image: 'https://ext.same-assets.com/913537297/1121177740.png',
+    source: '应急技术研究中心',
+    hasVideo: true,
+    videoSrc: videoFile,
+    link: '/success-stories/disaster-warning',
+    logo: '🔥'
+  },
+  {
     id: 'semantic-segmentation',
     title: '本地大模型语义分割实现路径规划',
     subtitle: '智能规划部门',
@@ -43,7 +103,7 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'image-recognition',
     title: '图像识别与分类系统应用',
-    subtitle: '计算机视觉团队',
+    subtitle: '计算机视觉实验室团队',
     description: '基于ResNet50切割模型、年龄识别、性别分类及衣物颜色识别等多个本地训练模型，结合视觉模型实现多场景精准识别。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
     source: '计算机视觉团队',
@@ -55,7 +115,7 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'knowledge-base',
     title: '智能知识库交流系统上线',
-    subtitle: '人工智能研究院',
+    subtitle: '人工智能实验小组',
     description: '整合联网搜索、本地大语言模型对话及知识图谱构建，为用户提供全方位、深度的知识查询与交互体验。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
     source: '人工智能研究院',
@@ -67,7 +127,7 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'night-vehicle',
     title: '夜间车辆识别技术新突破',
-    subtitle: '安防技术部',
+    subtitle: '车辆识别小组',
     description: '采用先进图像增强算法结合YOLOv8模型，大幅提升夜间低光环境下的车辆检测准确率，为夜间交通监控提供可靠解决方案。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
     source: '安防技术部',
@@ -79,7 +139,7 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'long-distance',
     title: '超远距离物体识别系统',
-    subtitle: '边防安全部门',
+    subtitle: '车辆识别小组',
     description: '专为高空或远距离监控设计的微小移动物体识别系统，能在极端条件下捕捉并识别移动目标，为边境安全提供技术支持。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
     source: '边防安全部门',
@@ -91,7 +151,7 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'behavior-recognition',
     title: '夜间行为识别与智能报警系统',
-    subtitle: '公共安全研究所',
+    subtitle: '图像算法小组',
     description: '通过深度学习算法识别拥抱、握手、斗殴等人类行为，当检测到危险信号时，系统自动通过电子邮件发送警报至指定联系人。',
     image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
     source: '公共安全研究所',
@@ -103,7 +163,7 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'disaster-monitoring',
     title: '森林火灾与洪水实时监测系统',
-    subtitle: '自然灾害监测中心',
+    subtitle: '自然灾害检测小组',
     description: '结合高精度图像识别与热成像技术，实时监测森林火灾、洪水及泥石流等自然灾害，提前预警并协助应急决策。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
     source: '自然灾害监测中心',
@@ -115,10 +175,10 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'license-plate',
     title: '智能车牌识别与匹配告警系统',
-    subtitle: '交通管理技术处',
+    subtitle: '车辆识别小组',
     description: '上传目标车牌照片后，系统可实时监控视频流并匹配特定车牌，一旦发现匹配车辆，立即触发告警机制，大幅提升交通管理效率。',
     image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: '交通管理技术处',
+    source: '车辆识别小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/license-plate',
@@ -127,86 +187,14 @@ const successStories = ref<SuccessStory[]>([
   {
     id: 'drone-rescue',
     title: '无人机救援行动：山区搜救的新时代',
-    subtitle: '救援杂志',
-    description: '在一次危险的山区救援行动中，Skydio无人机成功定位了一名迷路登山者，为救援队提供了实时地形数据，大大缩短了救援时间。',
+    subtitle: '无人机视觉小组',
+    description: '在一次危险的山区救援行动中，空融智链成功定位了一名迷路登山者，为救援队提供了实时地形数据，大大缩短了救援时间。',
     image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: '救援杂志',
+    source: '无人机视觉小组',
     hasVideo: true,
     videoSrc: videoFile,
     link: '/success-stories/drone-rescue',
     logo: '🚨'
-  },
-  {
-    id: 'agriculture-tech',
-    title: '科技农业：无人机如何改变现代农业',
-    subtitle: '农业科技周刊',
-    description: 'Skydio无人机在农业领域的应用正在改变农民监测作物健康、规划灌溉和优化收成的方式，提高了效率和产量。',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    source: '农业科技周刊',
-    hasVideo: true,
-    videoSrc: videoFile,
-    link: '/success-stories/agriculture-tech',
-    logo: '🌾'
-  },
-  {
-    id: 'medical-diagnosis',
-    title: '医疗影像智能诊断助手',
-    subtitle: '医学研究中心',
-    description: '利用深度学习模型分析医疗影像，辅助医生进行疾病诊断，特别在肺部CT和骨骼X光片分析方面取得显著成效。',
-    image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: '医学研究中心',
-    hasVideo: true,
-    videoSrc: videoFile,
-    link: '/success-stories/medical-diagnosis',
-    logo: '🏥'
-  },
-  {
-    id: 'smart-logistics',
-    title: '智能物流：仓储机器人视觉系统',
-    subtitle: '物流技术协会',
-    description: '为仓储机器人开发的先进视觉系统，能精确识别货物类型和摆放位置，提高拣选效率，降低仓储成本。',
-    image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: '物流技术协会',
-    hasVideo: true,
-    videoSrc: videoFile,
-    link: '/success-stories/smart-logistics',
-    logo: '📦'
-  },
-  {
-    id: 'urban-planning',
-    title: '城市规划:3D建模与模拟系统',
-    subtitle: '城市发展研究院',
-    description: '通过无人机采集的影像数据，构建精确的3D城市模型，为城市规划、交通优化和环境评估提供数据支持。',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
-    source: '城市发展研究院',
-    hasVideo: true,
-    videoSrc: videoFile,
-    link: '/success-stories/urban-planning',
-    logo: '🏙️'
-  },
-  {
-    id: 'wildlife-monitoring',
-    title: '野生动物监测与保护系统',
-    subtitle: '生态保护协会',
-    description: '应用AI识别技术监测濒危物种活动和数量变化，为野生动物保护工作提供科学依据，有效打击偷猎行为。',
-    image: 'https://ext.same-assets.com/913537297/3416323236.png',
-    source: '生态保护协会',
-    hasVideo: true,
-    videoSrc: videoFile,
-    link: '/success-stories/wildlife-monitoring',
-    logo: '🐾'
-  },
-  {
-    id: 'autonomous-navigation',
-    title: '自主导航：室内无GPS环境定位',
-    subtitle: '机器人研究所',
-    description: '突破性的视觉SLAM技术，使无人机能在无GPS信号的室内环境精确定位和导航，为工业检测和搜救提供关键支持。',
-    image: 'https://ext.same-assets.com/913537297/1121177740.png',
-    source: '机器人研究所',
-    hasVideo: true,
-    videoSrc: videoFile,
-    link: '/success-stories/autonomous-navigation',
-    logo: '🧭'
   }
 ]);
 

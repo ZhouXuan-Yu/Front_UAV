@@ -9,12 +9,21 @@
  */
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+
 defineProps<{
   title: string;
   subtitle: string;
   description: string;
   image: string;
 }>();
+
+const router = useRouter();
+
+// 跳转到数据大屏详情页面
+const goToDashboardDetail = () => {
+  router.push('/data-dashboard-detail');
+};
 </script>
 
 <template>
@@ -60,9 +69,9 @@ defineProps<{
           data-aos="fade-up"
           data-aos-delay="300"
         >
-          <router-link to="#" class="modern-button">
+          <button @click="goToDashboardDetail" class="modern-button">
             开始使用
-          </router-link>
+          </button>
         </div>
       </div>
     </div>
@@ -86,6 +95,7 @@ defineProps<{
   position: relative;
   overflow: hidden;
   z-index: 1;
+  cursor: pointer;
 }
 
 .modern-button::before {

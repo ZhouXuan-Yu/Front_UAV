@@ -1,8 +1,8 @@
-# Skydio克隆网站 - 地理API服务组件重构项目
+# 项目前端网站 - 地理API服务组件重构项目
 
 ## 项目概述
 
-本项目为Skydio官网克隆项目的一部分，主要聚焦于地理信息服务功能模块的重构与优化。项目基于Vue 3框架，使用TypeScript作为主要编程语言，集成Element Plus UI库和ECharts图表库，提供高效、美观的地理信息服务体验。
+要聚焦于地理信息服务功能模块的重构与优化。项目基于Vue 3框架，使用TypeScript作为主要编程语言，集成Element Plus UI库和ECharts图表库，提供高效、美观的地理信息服务体验。
 
 ## 主要功能组件
 
@@ -141,7 +141,7 @@ npm run build
 
 ## 贡献者
 
-- 开发团队：Skydio Clone Team
+- 开发团队：Student team China
 
 ### 启动
 

@@ -22,7 +22,9 @@ export default defineConfig({
           return;
         }
         warn(warning);
-      }
+      },
+      // 添加外部依赖配置
+      external: ['@element-plus/icons-vue']
     }
   }
 }); 

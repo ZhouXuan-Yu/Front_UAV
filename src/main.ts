@@ -19,8 +19,10 @@ import 'aos/dist/aos.css';
 // 导入Element Plus
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+
+// 暂时注释掉原来的图标导入方式
 // 导入Element Plus图标
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+// import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 // Initialize AOS
 AOS.init({
@@ -38,10 +40,24 @@ app.use(pinia);
 // 注册Element Plus
 app.use(ElementPlus);
 
+// 注释掉原来的图标注册方式
 // 注册所有图标
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
-}
+// for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+//   app.component(key, component)
+// }
+
+// 动态导入并注册必要的图标
+import('@element-plus/icons-vue')
+  .then((module) => {
+    const ElementPlusIconsVue = module;
+    // 注册所有图标
+    for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+      app.component(key, component);
+    }
+  })
+  .catch(error => {
+    console.error('Failed to load Element Plus icons:', error);
+  });
 
 app.use(router);
 

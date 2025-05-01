@@ -662,12 +662,12 @@ const getHealthColor = (health: number) => {
         <div class="status-filter-item" :class="{ active: currentFilter === 'offline' }" @click="setFilter('offline')">
           离线设备 <span class="count">{{ offlineCount }}</span>
         </div>
-      </div>
+        </div>
       <div class="status-filter-buttons">
         <span 
           v-for="(type, index) in deviceTypes" 
           :key="index" 
-          class="filter-button" 
+          class="filter-button"
           :class="{ active: currentTypeFilter === type.value }"
           @click="setTypeFilter(type.value)"
         >
@@ -680,25 +680,25 @@ const getHealthColor = (health: number) => {
       <div class="status-count">
         <span class="value">{{ filteredDevices.length }}</span>
         <span class="label">设备总数</span>
-      </div>
+          </div>
       <div class="status-chart">
         <div class="chart-bar-container">
           <div class="chart-bar online" :style="{ width: `${onlinePercentage}%` }">
             <span class="bar-label">在线</span>
             <span class="bar-value">{{ onlineCount }}</span>
-          </div>
+        </div>
           <div class="chart-bar alert" :style="{ width: `${alertPercentage}%` }">
             <span class="bar-label">告警</span>
             <span class="bar-value">{{ alertCount }}</span>
-          </div>
+            </div>
           <div class="chart-bar offline" :style="{ width: `${offlinePercentage}%` }">
             <span class="bar-label">离线</span>
             <span class="bar-value">{{ offlineCount }}</span>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-    
+            </div>
+            </div>
+            
     <div class="status-list-container">
       <div class="status-list">
         <div 
@@ -716,7 +716,7 @@ const getHealthColor = (health: number) => {
               :class="{ 'pulse-alert': device.status === 'warning' || device.status === 'critical' }"
             />
             <div class="status-indicator" :class="device.status"></div>
-          </div>
+            </div>
           <div class="status-details">
             <div class="device-name">{{ device.name }}</div>
             <div class="device-type">{{ getDeviceTypeLabel(device.type) }}</div>
@@ -724,17 +724,17 @@ const getHealthColor = (health: number) => {
               <span class="health-label">健康度:</span>
               <div class="health-bar-container">
                 <div class="health-bar" :style="{ width: `${device.health}%`, backgroundColor: getHealthColor(device.health) }"></div>
-              </div>
-              <span class="health-value">{{ device.health }}%</span>
             </div>
-          </div>
+              <span class="health-value">{{ device.health }}%</span>
+              </div>
+              </div>
           <div class="device-location">
             <i class="el-icon-location"></i>
             {{ device.location }}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      
+          
       <div class="pagination-controls">
         <button type="button" class="pagination-button" :disabled="currentPage === 1" @click="prevPage">上一页</button>
         <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>

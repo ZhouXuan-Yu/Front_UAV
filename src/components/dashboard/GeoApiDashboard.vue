@@ -3778,4 +3778,59 @@ onMounted(() => {
     margin-bottom: 0;
   }
 }
+
+/* 更新面板标题样式 */
+.panel-header {
+  background-color: #0d1d3a;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.panel-header h2 {
+  font-size: 1.8rem;
+  color: #e3f2fd;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.panel-subtitle {
+  font-size: 1.2rem;
+  color: #90caf9;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+/* 更新数据提示卡片样式 */
+.data-hint-card {
+  background-color: rgba(13, 29, 58, 0.8);
+  border-left: 4px solid #4fc3f7;
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.data-hint-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #4fc3f7;
+  margin-bottom: 10px;
+}
+
+.data-hint-title .el-icon {
+  margin-right: 10px;
+  color: #4fc3f7;
+}
+
+.data-hint-card p {
+  color: #e3f2fd;
+  line-height: 1.5;
+  margin: 0;
+  font-size: 1rem;
+}
 </style>

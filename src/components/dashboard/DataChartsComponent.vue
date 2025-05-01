@@ -881,16 +881,16 @@ const initRecognitionChart = () => {
   chartsLoading.recognition = true;
   
   setTimeout(() => {
-    const option = {
-      tooltip: {
-        trigger: 'item',
+  const option = {
+    tooltip: {
+      trigger: 'item',
         formatter: '{b}: {c} ({d}%)',
         backgroundColor: 'rgba(19, 47, 76, 0.9)',
         borderColor: '#4fc3f7',
         borderWidth: 1,
         textStyle: { color: '#fff' }
-      },
-      legend: {
+    },
+    legend: {
         orient: 'horizontal',
         bottom: '5%',
         textStyle: { color: '#90caf9' },
@@ -898,43 +898,43 @@ const initRecognitionChart = () => {
         itemWidth: 10,
         itemHeight: 10,
         itemGap: 20
-      },
-      series: [
-        {
+    },
+    series: [
+      {
           name: '人物识别',
-          type: 'pie',
-          radius: ['40%', '70%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
             borderColor: '#0a1929',
-            borderWidth: 2
-          },
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
           label: {
-            show: false,
-            position: 'center'
-          },
-          emphasis: {
-            label: {
-              show: true,
+            show: true,
               fontSize: '14',
-              fontWeight: 'bold',
-              color: '#ffffff'
-            }
-          },
-          labelLine: {
-            show: false
-          },
+            fontWeight: 'bold',
+            color: '#ffffff'
+          }
+        },
+        labelLine: {
+          show: false
+        },
           data: [
             { value: 42, name: '成年男性', itemStyle: { color: '#42A5F5' } },
             { value: 38, name: '成年女性', itemStyle: { color: '#EC407A' } },
             { value: 15, name: '老年人', itemStyle: { color: '#66BB6A' } },
             { value: 5, name: '儿童', itemStyle: { color: '#FFA726' } }
           ]
-        }
-      ]
-    };
-    
-    recognitionChart.setOption(option);
+      }
+    ]
+  };
+  
+  recognitionChart.setOption(option);
     chartsLoading.recognition = false;
   }, 500);
 };
@@ -948,16 +948,16 @@ const initTaskChart = () => {
   chartsLoading.task = true;
   
   setTimeout(() => {
-    const option = {
-      tooltip: {
+  const option = {
+    tooltip: {
         trigger: 'item',
         formatter: '{b}: {c} ({d}%)',
         backgroundColor: 'rgba(19, 47, 76, 0.9)',
         borderColor: '#4fc3f7',
         borderWidth: 1,
         textStyle: { color: '#fff' }
-      },
-      legend: {
+    },
+    legend: {
         orient: 'horizontal',
         bottom: '5%',
         textStyle: { color: '#90caf9' },
@@ -1019,51 +1019,51 @@ const initRiskChart = () => {
         data: ['低风险', '中风险', '高风险'],
         textStyle: { color: '#90caf9' },
         top: '5%'
-      },
-      grid: {
+    },
+    grid: {
         top: '25%',
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
         data: riskData.value.map(item => item.date),
-        axisLabel: {
+      axisLabel: {
           color: '#90caf9',
           fontSize: 10
-        },
-        axisLine: {
+      },
+      axisLine: {
           lineStyle: { color: '#1e3a5f' }
-        }
-      },
-      yAxis: {
-        type: 'value',
+      }
+    },
+    yAxis: {
+      type: 'value',
         axisLabel: { color: '#90caf9' },
-        splitLine: {
+      splitLine: {
           lineStyle: { color: '#1e3a5f', type: 'dashed' }
-        }
-      },
-      series: [
-        {
+      }
+    },
+    series: [
+      {
           name: '低风险',
-          type: 'bar',
-          stack: 'total',
+        type: 'bar',
+        stack: 'total',
           data: riskData.value.map(item => item.level1),
           itemStyle: { color: '#66BB6A' }
         },
         {
           name: '中风险',
-          type: 'bar',
-          stack: 'total',
+        type: 'bar',
+        stack: 'total',
           data: riskData.value.map(item => item.level2),
           itemStyle: { color: '#FFA726' }
         },
         {
           name: '高风险',
-          type: 'bar',
-          stack: 'total',
+        type: 'bar',
+        stack: 'total',
           data: riskData.value.map(item => item.level3),
           itemStyle: { color: '#EF5350' }
         }
@@ -1108,13 +1108,13 @@ const initRiskChart = () => {
       <div v-if="shouldShowChart('personActivity')" class="chart-container">
         <div id="person-activity-chart" class="chart"></div>
         <div v-if="chartsLoading.personActivity" class="chart-loading">加载中...</div>
-      </div>
+          </div>
       
       <!-- 任务执行图 -->
       <div v-if="shouldShowChart('task')" class="chart-container">
         <div id="task-chart" class="chart"></div>
         <div v-if="chartsLoading.task" class="chart-loading">加载中...</div>
-      </div>
+        </div>
       
       <!-- 风险分析图 -->
       <div v-if="shouldShowChart('risk')" class="chart-container">
@@ -1131,8 +1131,8 @@ const initRiskChart = () => {
         <div class="filter-button" @click="showFilterPanel = !showFilterPanel">
           <el-icon><Filter /></el-icon>
           筛选
+          </div>
         </div>
-      </div>
       
       <!-- 筛选面板 -->
       <div v-if="showFilterPanel" class="filter-panel">
@@ -1144,7 +1144,7 @@ const initRiskChart = () => {
         <div class="grid-item">
           <h3>电量趋势</h3>
           <div id="battery-chart" class="chart"></div>
-        </div>
+          </div>
         <div class="grid-item">
           <h3>信号强度</h3>
           <div id="signal-chart" class="chart"></div>
@@ -1156,11 +1156,11 @@ const initRiskChart = () => {
         <div class="grid-item">
           <h3>人物识别</h3>
           <div id="recognition-chart" class="chart"></div>
-        </div>
+      </div>
         <div class="grid-item">
           <h3>风险分析</h3>
           <div id="risk-chart" class="chart"></div>
-        </div>
+    </div>
         <div class="grid-item">
           <h3>任务执行</h3>
           <div id="task-chart" class="chart"></div>

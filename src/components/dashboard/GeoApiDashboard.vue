@@ -59,6 +59,16 @@
                 </el-form-item>
               </el-form>
               
+              <!-- 添加DeepSeek分析进度条 -->
+              <ProgressBar
+                v-if="deepseekProgress.poi.active"
+                title="DeepSeek AI分析进度"
+                :progress="deepseekProgress.poi.progress"
+                :message="deepseekProgress.poi.message"
+                :completed="deepseekProgress.poi.completed"
+                :failed="deepseekProgress.poi.failed"
+              />
+              
               <div v-if="poiResult.status === '1' && poiResult.pois && poiResult.pois.length > 0" class="result-section">
                 <div class="result-header">
                   <el-icon><Compass /></el-icon>
@@ -80,7 +90,7 @@
                   </el-card>
                 </div>
                 
-                <!-- 使用新的增强样式显示DeepSeek智能分析结果 -->
+                <!-- 使用Markdown渲染DeepSeek分析结果 -->
                 <el-card v-if="poiResult.enhanced_info" class="enhanced-analysis-card">
                   <template #header>
                     <div class="enhanced-analysis-header">
@@ -88,42 +98,17 @@
                       <span>DeepSeek 智能场所分析</span>
                     </div>
                   </template>
-                  <div class="enhanced-analysis-content">{{ poiResult.enhanced_info }}</div>
-
-                  <!-- 添加可视化数据图表 -->
-                  <div v-if="poiResult.pois && poiResult.pois.length > 0" class="charts-container">
-                    <div class="charts-header">
-                      <el-icon><Histogram /></el-icon>
-                      <span>数据可视化分析</span>
-                    </div>
-                    
-                    <div class="charts-grid">
-                      <!-- 地点分布饼图 -->
-                      <div class="chart-item">
-                        <div class="chart-title">区域分布</div>
-                        <div ref="poiDistChart" class="chart-container"></div>
-                      </div>
-                      
-                      <!-- 评分分布柱状图 -->
-                      <div class="chart-item">
-                        <div class="chart-title">评分分布</div>
-                        <div ref="poiRatingChart" class="chart-container"></div>
-                      </div>
-                      
-                      <!-- 人流量曲线图 -->
-                      <div class="chart-item">
-                        <div class="chart-title">预估人流量趋势</div>
-                        <div ref="poiCrowdChart" class="chart-container"></div>
-                      </div>
-                      
-                      <!-- 场所类型分布图 -->
-                      <div class="chart-item">
-                        <div class="chart-title">场所类型分布</div>
-                        <div ref="poiTypeChart" class="chart-container"></div>
-                      </div>
-                    </div>
-                  </div>
+                  
+                  <!-- 使用Markdown渲染器显示内容 -->
+                  <MarkdownRenderer :content="poiResult.enhanced_info" />
                 </el-card>
+                
+                <!-- 使用POI分析组件 -->
+                <POIAnalysisComponent
+                  v-if="poiResult.enhanced_info"
+                  :poiData="poiResult.pois"
+                  :enhancedInfo="poiResult.enhanced_info"
+                />
               </div>
               
               <div v-else-if="poiResult.status === '1' && (!poiResult.pois || poiResult.pois.length === 0)" class="result-section">
@@ -160,6 +145,26 @@
                   </el-button>
                 </el-form-item>
               </el-form>
+              
+              <!-- 添加实况天气DeepSeek分析进度条 -->
+              <ProgressBar
+                v-if="deepseekProgress.weather.active"
+                title="DeepSeek AI天气分析进度"
+                :progress="deepseekProgress.weather.progress"
+                :message="deepseekProgress.weather.message"
+                :completed="deepseekProgress.weather.completed"
+                :failed="deepseekProgress.weather.failed"
+              />
+              
+              <!-- 添加天气预报DeepSeek分析进度条 -->
+              <ProgressBar
+                v-if="deepseekProgress.forecast.active"
+                title="DeepSeek AI天气预报分析进度"
+                :progress="deepseekProgress.forecast.progress"
+                :message="deepseekProgress.forecast.message"
+                :completed="deepseekProgress.forecast.completed"
+                :failed="deepseekProgress.forecast.failed"
+              />
               
               <div v-if="weatherResult.status === '1'" class="result-section">
                 <div class="result-header">
@@ -201,12 +206,13 @@
                     </div>
                   </div>
                   
+                  <!-- 使用Markdown渲染DeepSeek分析结果 -->
                   <div v-if="weatherResult.weather_advice" class="analysis-section">
                     <div class="analysis-header">
                       <el-icon><DataAnalysis /></el-icon>
-                      <span>天气建议</span>
+                      <span>DeepSeek 天气分析</span>
                     </div>
-                    <div class="analysis-content">{{ weatherResult.weather_advice }}</div>
+                    <MarkdownRenderer :content="weatherResult.weather_advice" />
                   </div>
                 </el-card>
                 
@@ -239,7 +245,23 @@
                       </div>
                     </div>
                   </div>
+                  
+                  <!-- 使用Markdown渲染DeepSeek天气预报分析 -->
+                  <div v-if="weatherResult.forecast_advice" class="analysis-section">
+                    <div class="analysis-header">
+                      <el-icon><DataAnalysis /></el-icon>
+                      <span>DeepSeek 预报分析</span>
+                    </div>
+                    <MarkdownRenderer :content="weatherResult.forecast_advice" />
+                  </div>
                 </el-card>
+                
+                <!-- 天气数据可视化组件 -->
+                <WeatherVisualization 
+                  v-if="weatherResult.forecasts || weatherResult.lives" 
+                  :weatherData="weatherResult" 
+                  :city="weatherForm.city"
+                />
               </div>
             </div>
           </el-tab-pane>
@@ -352,6 +374,16 @@
                 </el-form-item>
               </el-form>
               
+              <!-- 添加DeepSeek分析进度条 -->
+              <ProgressBar
+                v-if="deepseekProgress.traffic.active"
+                title="DeepSeek AI交通态势分析进度"
+                :progress="deepseekProgress.traffic.progress"
+                :message="deepseekProgress.traffic.message"
+                :completed="deepseekProgress.traffic.completed"
+                :failed="deepseekProgress.traffic.failed"
+              />
+              
               <div v-if="trafficResult.status === '1'" class="result-section">
                 <div class="result-header">
                   <el-icon><Guide /></el-icon>
@@ -385,6 +417,15 @@
                       <div class="indicator-item" style="background-color: #FFB74D;">缓行</div>
                       <div class="indicator-item" style="background-color: #F44336;">拥堵</div>
                     </div>
+                  </div>
+                  
+                  <!-- 使用Markdown渲染DeepSeek交通态势分析 -->
+                  <div v-if="trafficResult.traffic_analysis" class="analysis-section">
+                    <div class="analysis-header">
+                      <el-icon><DataAnalysis /></el-icon>
+                      <span>DeepSeek 交通态势分析</span>
+                    </div>
+                    <MarkdownRenderer :content="trafficResult.traffic_analysis" />
                   </div>
                   
                   <div class="card-actions">
@@ -431,13 +472,6 @@
         </div>
       </div>
     </div>
-    <!-- 添加地图左下角的覆盖组件 -->
-    <div v-if="isMapVisible" class="map-logo-overlay">
-      <div class="logo-content">
-        <el-icon><Monitor /></el-icon>
-        <span>Skydio GeoAPI</span>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -451,6 +485,13 @@ import {
   Delete, SetUp, PictureFilled, Fold, Expand, Monitor
 } from '@element-plus/icons-vue';
 import GeoApiService from '../../services/GeoApiService';
+// 引入DeepSeek服务
+import DeepSeekService, { ProgressCallback, CompletionCallback, RequestStatus } from '../../services/DeepSeekService';
+// 引入新组件
+import WeatherVisualization from '../weather/WeatherVisualization.vue';
+import POIAnalysisComponent from '../poi/POIAnalysisComponent.vue';
+import MarkdownRenderer from '../common/MarkdownRenderer.vue';
+import ProgressBar from '../common/ProgressBar.vue';
 // 引入echarts
 import * as echarts from 'echarts/core';
 import { PieChart, BarChart, LineChart } from 'echarts/charts';
@@ -493,6 +534,42 @@ let map: any = null; // 地图实例
 
 // 加载状态
 const loading = ref(false);
+
+// DeepSeek API请求进度状态
+const deepseekProgress = reactive({
+  // 天气分析进度
+  weather: {
+    active: false,
+    progress: 0,
+    message: '',
+    completed: false,
+    failed: false
+  },
+  // 天气预报分析进度
+  forecast: {
+    active: false,
+    progress: 0,
+    message: '',
+    completed: false,
+    failed: false
+  },
+  // POI分析进度
+  poi: {
+    active: false,
+    progress: 0,
+    message: '',
+    completed: false,
+    failed: false
+  },
+  // 交通态势分析进度
+  traffic: {
+    active: false,
+    progress: 0,
+    message: '',
+    completed: false,
+    failed: false
+  }
+});
 
 // 表单数据
 const poiForm = reactive({
@@ -947,6 +1024,15 @@ const handlePoiSearch = async () => {
   try {
     loading.value = true;
     
+    // 重置进度状态
+    deepseekProgress.poi = {
+      active: false,
+      progress: 0,
+      message: '',
+      completed: false,
+      failed: false
+    };
+    
     // 修改POI搜索参数，添加必要的参数
     const poiSearchParams = {
       ...poiForm,
@@ -963,48 +1049,72 @@ const handlePoiSearch = async () => {
       // 明确使用search_poi端点
       response = await mcpService.callMCP('search_poi', poiSearchParams);
       console.log('MCP服务返回的POI分析结果:', response);
-      
-      // 如果MCP服务没有返回enhanced_info，本地生成一个
-      if (response.status === '1' && response.pois && response.pois.length > 0 && !response.enhanced_info) {
-        console.log('MCP服务未返回智能分析，使用本地生成');
-        ElMessage({
-          message: '正在生成智能分析...',
-          type: 'info',
-          offset: 80
-        });
-        
-        response.enhanced_info = generateAnalysis('poi', response.pois);
-      }
     } else {
       response = await callAmapAPI('place/text', poiSearchParams);
-      
-      // 本地模拟智能分析
-      if (response.status === '1' && response.pois && response.pois.length > 0) {
-        ElMessage({
-          message: '正在生成智能分析...',
-          type: 'info',
-          offset: 80
-        });
-        
-        response.enhanced_info = generateAnalysis('poi', response.pois);
-      }
     }
     
     // 确保结果赋值正确，强制视图更新
     poiResult.value = { ...response };
     
-    // 显示生成的智能分析的通知
-    if (response.enhanced_info) {
+    // 使用DeepSeek API进行智能分析
+    if (response.status === '1' && response.pois && response.pois.length > 0 && !response.enhanced_info) {
       ElMessage({
-        message: '智能分析已生成',
-        type: 'success',
+        message: '正在使用DeepSeek AI生成智能分析...',
+        type: 'info',
         offset: 80
       });
       
-      // 在更新POI结果后，确保渲染分析图表
-      nextTick(() => {
-        renderPoiCharts();
-      });
+      // 激活进度状态
+      deepseekProgress.poi.active = true;
+      
+      try {
+        // 定义进度回调函数
+        const onProgress: ProgressCallback = (progress, message) => {
+          deepseekProgress.poi.progress = progress;
+          if (message) {
+            deepseekProgress.poi.message = message;
+          }
+        };
+        
+        // 定义完成回调函数
+        const onCompletion: CompletionCallback = (result) => {
+          deepseekProgress.poi.completed = true;
+          deepseekProgress.poi.active = false;
+          
+          ElMessage({
+            message: 'DeepSeek AI分析已生成',
+            type: 'success',
+            offset: 80
+          });
+        };
+        
+        // 调用DeepSeek API进行POI分析，传入进度和完成回调
+        const enhancedInfo = await DeepSeekService.generatePOIAnalysis(
+          response.pois,
+          onProgress,
+          onCompletion
+        );
+        
+        // 更新结果
+        poiResult.value.enhanced_info = enhancedInfo;
+        
+      } catch (error) {
+        console.error('DeepSeek AI分析生成失败:', error);
+        
+        // 标记为失败
+        deepseekProgress.poi.failed = true;
+        deepseekProgress.poi.active = false;
+        deepseekProgress.poi.message = `分析失败: ${error instanceof Error ? error.message : String(error)}`;
+        
+        // 失败时使用本地生成
+        poiResult.value.enhanced_info = generateAnalysis('poi', response.pois);
+        
+        ElMessage({
+          message: '使用本地模型生成分析',
+          type: 'warning',
+          offset: 80
+        });
+      }
     }
     
     if (response.status === '1') {
@@ -1013,17 +1123,6 @@ const handlePoiSearch = async () => {
         type: 'success',
         offset: 80
       });
-      
-      // 在搜索成功后，始终确保有智能分析
-      if (response.pois && response.pois.length > 0 && !response.enhanced_info) {
-        // 再次检查确保没有遗漏智能分析
-        poiResult.value.enhanced_info = generateAnalysis('poi', response.pois);
-        
-        // 生成图表
-        nextTick(() => {
-          renderPoiCharts();
-        });
-      }
       
       // 尝试自动展示地图
       if (map && response.pois && response.pois.length > 0) {
@@ -1083,6 +1182,23 @@ const handleWeatherSearch = async () => {
   try {
     loading.value = true;
     
+    // 重置进度状态
+    deepseekProgress.weather = {
+      active: false,
+      progress: 0,
+      message: '',
+      completed: false,
+      failed: false
+    };
+    
+    deepseekProgress.forecast = {
+      active: false,
+      progress: 0,
+      message: '',
+      completed: false,
+      failed: false
+    };
+    
     // 准备天气查询参数
     const weatherParams = {
       ...weatherForm,
@@ -1135,28 +1251,130 @@ const handleWeatherSearch = async () => {
         offset: 80
       });
       
-      // 智能增强处理 - 独立为天气处理
-      if (response.lives && response.lives.length > 0) {
-        // 检查是否已经有智能建议
-        if (!response.weather_advice) {
-          ElMessage({
-            message: '正在生成天气分析...',
-            type: 'info',
-            offset: 80
-          });
+      // 使用DeepSeek API进行天气分析
+      if (response.lives && response.lives.length > 0 && !response.weather_advice) {
+        ElMessage({
+          message: '正在使用DeepSeek AI生成天气分析...',
+          type: 'info',
+          offset: 80
+        });
+        
+        // 激活进度状态
+        deepseekProgress.weather.active = true;
+        
+        try {
+          // 定义进度回调函数
+          const onProgress: ProgressCallback = (progress, message) => {
+            deepseekProgress.weather.progress = progress;
+            if (message) {
+              deepseekProgress.weather.message = message;
+            }
+          };
           
-          // 本地生成天气建议
+          // 定义完成回调函数
+          const onCompletion: CompletionCallback = (result) => {
+            deepseekProgress.weather.completed = true;
+            deepseekProgress.weather.active = false;
+            
+            ElMessage({
+              message: 'DeepSeek AI天气分析已生成',
+              type: 'success',
+              offset: 80
+            });
+          };
+          
+          // 调用DeepSeek API生成实况天气分析
+          const weatherAdvice = await DeepSeekService.generateWeatherAnalysis(
+            response.lives[0],
+            onProgress,
+            onCompletion
+          );
+          
+          // 更新结果
+          weatherResult.value.weather_advice = weatherAdvice;
+          
+        } catch (error) {
+          console.error('DeepSeek AI天气分析生成失败:', error);
+          
+          // 标记为失败
+          deepseekProgress.weather.failed = true;
+          deepseekProgress.weather.active = false;
+          deepseekProgress.weather.message = `分析失败: ${error instanceof Error ? error.message : String(error)}`;
+          
+          // 失败时使用本地生成
           weatherResult.value.weather_advice = generateAnalysis('weather', response.lives[0]);
           
-          // 通知用户
           ElMessage({
-            message: '天气分析已生成',
-            type: 'success',
+            message: '使用本地模型生成天气分析',
+            type: 'warning',
             offset: 80
           });
         }
+      }
+      
+      // 如果是天气预报，使用DeepSeek API生成预报分析
+      if (response.forecasts && response.forecasts.length > 0 && !response.forecast_advice) {
+        ElMessage({
+          message: '正在使用DeepSeek AI生成天气预报分析...',
+          type: 'info',
+          offset: 80
+        });
         
-        // 显示城市位置到地图
+        // 激活进度状态
+        deepseekProgress.forecast.active = true;
+        
+        try {
+          // 定义进度回调函数
+          const onProgress: ProgressCallback = (progress, message) => {
+            deepseekProgress.forecast.progress = progress;
+            if (message) {
+              deepseekProgress.forecast.message = message;
+            }
+          };
+          
+          // 定义完成回调函数
+          const onCompletion: CompletionCallback = (result) => {
+            deepseekProgress.forecast.completed = true;
+            deepseekProgress.forecast.active = false;
+            
+            ElMessage({
+              message: 'DeepSeek AI天气预报分析已生成',
+              type: 'success',
+              offset: 80
+            });
+          };
+          
+          // 调用DeepSeek API生成天气预报分析
+          const forecastAdvice = await DeepSeekService.generateForecastAnalysis(
+            response.forecasts[0],
+            onProgress,
+            onCompletion
+          );
+          
+          // 更新结果
+          weatherResult.value.forecast_advice = forecastAdvice;
+          
+        } catch (error) {
+          console.error('DeepSeek AI天气预报分析生成失败:', error);
+          
+          // 标记为失败
+          deepseekProgress.forecast.failed = true;
+          deepseekProgress.forecast.active = false;
+          deepseekProgress.forecast.message = `分析失败: ${error instanceof Error ? error.message : String(error)}`;
+          
+          // 失败时使用本地生成简单模拟分析
+          weatherResult.value.forecast_advice = `未来几天${weatherForm.city}天气整体${response.forecasts[0].casts[0].dayweather.includes('雨') ? '多雨潮湿' : '晴好干燥'}，温度在${Math.min(...response.forecasts[0].casts.map((c: any) => parseInt(c.nighttemp)))}°C至${Math.max(...response.forecasts[0].casts.map((c: any) => parseInt(c.daytemp)))}°C之间波动。建议合理安排户外活动，注意防晒和保暖。`;
+          
+          ElMessage({
+            message: '使用本地模型生成天气预报分析',
+            type: 'warning',
+            offset: 80
+          });
+        }
+      }
+      
+      // 显示城市位置到地图
+      if (response.lives) {
         await showCityOnMap(response.lives[0].city, response.lives[0]);
       }
     } else {
@@ -1335,6 +1553,15 @@ const handleTrafficSearch = async () => {
     
     loading.value = true;
     
+    // 重置进度状态
+    deepseekProgress.traffic = {
+      active: false,
+      progress: 0,
+      message: '',
+      completed: false,
+      failed: false
+    };
+    
     // 准备交通态势查询参数
     const trafficParams = {
       ...trafficForm,
@@ -1421,17 +1648,66 @@ const handleTrafficSearch = async () => {
         offset: 80
       });
       
-      // 智能增强处理
+      // 使用DeepSeek API进行交通态势分析
       if (!response.traffic_analysis) {
-        const analysisText = generateAnalysis('traffic', response);
-        trafficResult.value.traffic_analysis = analysisText;
-        
-        // 通知用户
         ElMessage({
-          message: '交通态势分析已生成',
-          type: 'success',
+          message: '正在使用DeepSeek AI生成交通态势分析...',
+          type: 'info',
           offset: 80
         });
+        
+        // 激活进度状态
+        deepseekProgress.traffic.active = true;
+        
+        try {
+          // 定义进度回调函数
+          const onProgress: ProgressCallback = (progress, message) => {
+            deepseekProgress.traffic.progress = progress;
+            if (message) {
+              deepseekProgress.traffic.message = message;
+            }
+          };
+          
+          // 定义完成回调函数
+          const onCompletion: CompletionCallback = (result) => {
+            deepseekProgress.traffic.completed = true;
+            deepseekProgress.traffic.active = false;
+            
+            ElMessage({
+              message: 'DeepSeek AI交通态势分析已生成',
+              type: 'success',
+              offset: 80
+            });
+          };
+          
+          // 调用DeepSeek API生成交通态势分析
+          const trafficAnalysis = await DeepSeekService.generateTrafficAnalysis(
+            response.evaluation || response.traffic_condition || response,
+            trafficForm.rectangle,
+            onProgress,
+            onCompletion
+          );
+          
+          // 更新结果
+          trafficResult.value.traffic_analysis = trafficAnalysis;
+          
+        } catch (error) {
+          console.error('DeepSeek AI交通态势分析生成失败:', error);
+          
+          // 标记为失败
+          deepseekProgress.traffic.failed = true;
+          deepseekProgress.traffic.active = false;
+          deepseekProgress.traffic.message = `分析失败: ${error instanceof Error ? error.message : String(error)}`;
+          
+          // 失败时使用本地生成
+          trafficResult.value.traffic_analysis = generateAnalysis('traffic', response);
+          
+          ElMessage({
+            message: '使用本地模型生成交通态势分析',
+            type: 'warning',
+            offset: 80
+          });
+        }
       }
       
       // 显示矩形区域到地图
@@ -2973,6 +3249,57 @@ const toggleMap = () => toggleMapVisibility();
 .chart-container {
   height: 250px;
   width: 100%;
+}
+
+/* DeepSeek AI 分析样式 */
+.analysis-section {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: rgba(25, 118, 210, 0.03);
+  border-left: 3px solid #1976d2;
+  border-radius: 4px;
+}
+
+.analysis-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #1976d2;
+}
+
+.analysis-header .el-icon {
+  margin-right: 8px;
+}
+
+.analysis-content {
+  line-height: 1.6;
+  white-space: pre-line;
+  color: #606266;
+}
+
+.enhanced-analysis-card {
+  margin-bottom: 25px;
+}
+
+.enhanced-analysis-header {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.enhanced-analysis-header .el-icon {
+  margin-right: 8px;
+  color: #1976d2;
+}
+
+.enhanced-analysis-content {
+  padding: 15px;
+  line-height: 1.6;
+  white-space: pre-line;
+  background-color: rgba(25, 118, 210, 0.03);
+  border-left: 3px solid #1976d2;
+  border-radius: 4px;
 }
 
 /* 其他样式保持不变 */

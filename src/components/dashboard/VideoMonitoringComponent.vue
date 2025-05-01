@@ -9,7 +9,7 @@
  */
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, computed, watch } from 'vue';
 import { gsap } from 'gsap';
 
 // 定义监控视频类型
@@ -24,6 +24,16 @@ interface DroneVideo {
   status: 'online' | 'offline';
   alertLevel: 'normal' | 'warning' | 'critical';
   imageUrl: string; // 模拟视频用的图片URL
+  detectionResults?: DetectionResult[]; // 新增：检测结果
+}
+
+// 定义检测结果接口
+interface DetectionResult {
+  type: 'object' | 'face' | 'text' | 'scene' | 'anomaly';
+  confidence: number;
+  label: string;
+  boundingBox?: { x: number, y: number, width: number, height: number };
+  timestamp: number;
 }
 
 // 模拟无人机视频数据
@@ -218,6 +228,127 @@ const simulateVideoShake = () => {
   });
 };
 
+// 告警计数
+const alertCounts = computed(() => {
+  return {
+    normal: droneVideos.value.filter(v => v.alertLevel === 'normal' && v.status === 'online').length,
+    warning: droneVideos.value.filter(v => v.alertLevel === 'warning' && v.status === 'online').length,
+    critical: droneVideos.value.filter(v => v.alertLevel === 'critical' && v.status === 'online').length
+  };
+});
+
+// 总告警数
+const totalAlerts = computed(() => {
+  return alertCounts.value.warning + alertCounts.value.critical;
+});
+
+// 当前活跃视频的检测结果
+const activeVideoDetectionResults = computed(() => {
+  if (!activeVideoId.value) return [];
+  const activeVideo = droneVideos.value.find(v => v.id === activeVideoId.value);
+  return activeVideo?.detectionResults || [];
+});
+
+// 生成模拟检测结果
+const generateDetectionResults = (videoType: VideoType): DetectionResult[] => {
+  const results: DetectionResult[] = [];
+  const now = Date.now();
+  
+  switch (videoType) {
+    case 'license-plate':
+      // 模拟车牌识别结果
+      results.push({
+        type: 'text',
+        confidence: 0.85 + Math.random() * 0.14,
+        label: ['京A88888', '沪B12345', '粤C67890', '津D54321', '冀E13579'][Math.floor(Math.random() * 5)],
+        boundingBox: { x: 0.4, y: 0.6, width: 0.2, height: 0.1 },
+        timestamp: now
+      });
+      break;
+    case 'person-detection':
+      // 模拟人物识别结果
+      const personCount = Math.floor(Math.random() * 8) + 1;
+      for (let i = 0; i < personCount; i++) {
+        results.push({
+          type: 'object',
+          confidence: 0.75 + Math.random() * 0.2,
+          label: '人物',
+          boundingBox: {
+            x: Math.random() * 0.7,
+            y: Math.random() * 0.7,
+            width: 0.1 + Math.random() * 0.1,
+            height: 0.2 + Math.random() * 0.1
+          },
+          timestamp: now
+        });
+      }
+      break;
+    case 'wildfire':
+      // 模拟火灾检测结果
+      if (Math.random() > 0.4) {
+        results.push({
+          type: 'anomaly',
+          confidence: 0.7 + Math.random() * 0.25,
+          label: '热点异常',
+          boundingBox: {
+            x: 0.3 + Math.random() * 0.4,
+            y: 0.3 + Math.random() * 0.4,
+            width: 0.2,
+            height: 0.2
+          },
+          timestamp: now
+        });
+      }
+      break;
+    case 'flood':
+      // 模拟洪水检测结果
+      results.push({
+        type: 'scene',
+        confidence: 0.8 + Math.random() * 0.15,
+        label: '水位上升',
+        timestamp: now
+      });
+      break;
+    default:
+      // 普通监控随机检测
+      if (Math.random() > 0.7) {
+        results.push({
+          type: 'object',
+          confidence: 0.65 + Math.random() * 0.3,
+          label: ['车辆', '建筑', '树木', '道路'][Math.floor(Math.random() * 4)],
+          boundingBox: {
+            x: Math.random() * 0.6,
+            y: Math.random() * 0.6,
+            width: 0.15 + Math.random() * 0.2,
+            height: 0.15 + Math.random() * 0.2
+          },
+          timestamp: now
+        });
+      }
+      break;
+  }
+  
+  return results;
+};
+
+// 更新所有视频的检测结果
+const updateAllDetectionResults = () => {
+  droneVideos.value.forEach(video => {
+    if (video.status === 'online') {
+      video.detectionResults = generateDetectionResults(video.videoType);
+      
+      // 根据检测结果判断告警级别
+      if (video.videoType === 'wildfire' && video.detectionResults.some(d => d.label === '热点异常' && d.confidence > 0.85)) {
+        video.alertLevel = 'critical';
+      } else if (video.videoType === 'flood' && video.detectionResults.some(d => d.label === '水位上升' && d.confidence > 0.85)) {
+        video.alertLevel = 'warning';
+      } else if (video.videoType === 'person-detection' && video.detectionResults.length > 5) {
+        video.alertLevel = 'warning';
+      }
+    }
+  });
+};
+
 // 模拟视频帧更新
 const startVideoFrameSimulation = () => {
   // 每3秒更新一次
@@ -225,10 +356,13 @@ const startVideoFrameSimulation = () => {
     // 模拟视频抖动
     simulateVideoShake();
     
-    // 模拟告警级别变化
+    // 更新检测结果
+    updateAllDetectionResults();
+    
+    // 随机更新告警级别（在updateAllDetectionResults后，给一些随机性）
     droneVideos.value.forEach(video => {
-      // 一定概率改变告警级别
-      if (Math.random() < 0.1) {
+      // 一定概率改变告警级别，但不覆盖前面根据检测结果设置的级别
+      if (Math.random() < 0.05) {
         const levels: ('normal' | 'warning' | 'critical')[] = ['normal', 'warning', 'critical'];
         const randomIndex = Math.floor(Math.random() * 3);
         video.alertLevel = levels[randomIndex];
@@ -240,6 +374,10 @@ const startVideoFrameSimulation = () => {
 // 初始化组件
 onMounted(() => {
   updateDisplayedVideos();
+  
+  // 初始化检测结果
+  updateAllDetectionResults();
+  
   startVideoFrameSimulation();
   
   // 添加入场动画 - 使用nextTick确保DOM已渲染
@@ -275,7 +413,27 @@ onBeforeUnmount(() => {
 <template>
   <div class="video-monitoring-container">
     <div class="control-panel">
-      <h2 class="title">无人机视频监控</h2>
+      <div class="header-row">
+        <h2 class="title">无人机视频监控</h2>
+        
+        <div class="alert-summary" v-if="totalAlerts > 0">
+          <div class="alert-badge">
+            <span class="alert-count">{{ totalAlerts }}</span>
+            <span class="alert-text">告警</span>
+          </div>
+          
+          <div class="alert-details">
+            <div v-if="alertCounts.critical > 0" class="alert-detail critical">
+              <span class="dot"></span>
+              <span>{{ alertCounts.critical }} 严重</span>
+            </div>
+            <div v-if="alertCounts.warning > 0" class="alert-detail warning">
+              <span class="dot"></span>
+              <span>{{ alertCounts.warning }} 警告</span>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <div class="control-group">
         <button 
@@ -382,8 +540,14 @@ onBeforeUnmount(() => {
               <div class="detection-box">
                 <div class="detection-title">车牌识别中...</div>
                 <div class="detection-result">
-                  <span class="detection-value">京A88888</span>
-                  <span class="detection-confidence">置信度: 92%</span>
+                  <span class="detection-value">
+                    {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      video.detectionResults[0].label : '京A88888' }}
+                  </span>
+                  <span class="detection-confidence">
+                    置信度: {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      Math.round(video.detectionResults[0].confidence * 100) : 92 }}%
+                  </span>
                 </div>
               </div>
             </div>
@@ -396,9 +560,27 @@ onBeforeUnmount(() => {
               <div class="detection-box person-box">
                 <div class="detection-title">人物识别中...</div>
                 <div class="detection-result">
-                  <span class="detection-value">检测到 5 人</span>
-                  <span class="detection-confidence">置信度: 89%</span>
+                  <span class="detection-value">检测到 {{ video.detectionResults ? video.detectionResults.length : 0 }} 人</span>
+                  <span class="detection-confidence">
+                    置信度: {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      Math.round(video.detectionResults[0].confidence * 100) : 89 }}%
+                  </span>
                 </div>
+              </div>
+              
+              <!-- 显示所有人物检测框 -->
+              <div v-if="video.detectionResults">
+                <div 
+                  v-for="(detection, index) in video.detectionResults" 
+                  :key="index"
+                  class="person-detection-box"
+                  :style="{
+                    left: `${detection.boundingBox?.x ? detection.boundingBox.x * 100 : 0}%`,
+                    top: `${detection.boundingBox?.y ? detection.boundingBox.y * 100 : 0}%`,
+                    width: `${detection.boundingBox?.width ? detection.boundingBox.width * 100 : 0}%`,
+                    height: `${detection.boundingBox?.height ? detection.boundingBox.height * 100 : 0}%`
+                  }"
+                ></div>
               </div>
             </div>
             
@@ -410,9 +592,30 @@ onBeforeUnmount(() => {
               <div class="detection-box warning-box">
                 <div class="detection-title">火灾风险检测</div>
                 <div class="detection-result">
-                  <span class="detection-value warning-text">发现热点异常!</span>
-                  <span class="detection-confidence">风险等级: 高</span>
+                  <span class="detection-value warning-text">
+                    {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '发现热点异常!' : '未检测到异常' }}
+                  </span>
+                  <span class="detection-confidence">
+                    风险等级: {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '高' : '低' }}
+                  </span>
                 </div>
+              </div>
+              
+              <!-- 显示热点检测区域 -->
+              <div v-if="video.detectionResults && video.detectionResults.length > 0">
+                <div 
+                  v-for="(detection, index) in video.detectionResults" 
+                  :key="index"
+                  class="heat-detection-area"
+                  :style="{
+                    left: `${detection.boundingBox?.x ? detection.boundingBox.x * 100 : 0}%`,
+                    top: `${detection.boundingBox?.y ? detection.boundingBox.y * 100 : 0}%`,
+                    width: `${detection.boundingBox?.width ? detection.boundingBox.width * 100 : 0}%`,
+                    height: `${detection.boundingBox?.height ? detection.boundingBox.height * 100 : 0}%`
+                  }"
+                ></div>
               </div>
             </div>
             
@@ -424,9 +627,19 @@ onBeforeUnmount(() => {
               <div class="detection-box warning-box">
                 <div class="detection-title">洪水风险检测</div>
                 <div class="detection-result">
-                  <span class="detection-value warning-text">水位上升警告!</span>
-                  <span class="detection-confidence">上升速度: 0.5m/h</span>
+                  <span class="detection-value warning-text">
+                    {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '水位上升警告!' : '水位正常' }}
+                  </span>
+                  <span class="detection-confidence">
+                    上升速度: {{ Math.random() < 0.7 ? '0.5m/h' : '0.2m/h' }}
+                  </span>
                 </div>
+              </div>
+              
+              <!-- 水位线动画效果 -->
+              <div class="water-level-indicator">
+                <div class="water-level"></div>
               </div>
             </div>
             
@@ -434,6 +647,28 @@ onBeforeUnmount(() => {
             <div class="video-metadata">
               <div class="video-timestamp">{{ new Date().toLocaleTimeString() }}</div>
               <div class="video-location">{{ video.location }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 活跃视频的详细分析结果 -->
+    <div v-if="viewMode === 'single' && activeVideoId && displayedVideos.length > 0" class="analysis-panel">
+      <h3 class="analysis-title">视频分析结果</h3>
+      
+      <div class="analysis-content">
+        <div v-if="activeVideoDetectionResults.length === 0" class="no-results">
+          暂无分析结果
+        </div>
+        
+        <div v-else class="result-list">
+          <div v-for="(result, index) in activeVideoDetectionResults" :key="index" class="result-item">
+            <div class="result-icon" :class="result.type"></div>
+            <div class="result-details">
+              <div class="result-label">{{ result.label }}</div>
+              <div class="result-confidence">置信度: {{ Math.round(result.confidence * 100) }}%</div>
+              <div class="result-time">{{ new Date(result.timestamp).toLocaleTimeString() }}</div>
             </div>
           </div>
         </div>
@@ -730,5 +965,274 @@ onBeforeUnmount(() => {
     min-width: 80px;
     text-align: center;
   }
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.alert-summary {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.alert-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #F44336;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+.alert-count {
+  font-weight: bold;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.alert-text {
+  font-size: 0.7rem;
+}
+
+.alert-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-detail {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+}
+
+.alert-detail.critical {
+  color: #F44336;
+}
+
+.alert-detail.warning {
+  color: #FF9800;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.alert-detail.critical .dot {
+  background-color: #F44336;
+}
+
+.alert-detail.warning .dot {
+  background-color: #FF9800;
+}
+
+/* 人物检测框样式 */
+.person-detection-box {
+  position: absolute;
+  border: 2px solid #9C27B0;
+  background-color: rgba(156, 39, 176, 0.2);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* 热点检测区域样式 */
+.heat-detection-area {
+  position: absolute;
+  border: 2px dashed #F44336;
+  background-color: rgba(244, 67, 54, 0.3);
+  border-radius: 2px;
+  pointer-events: none;
+  animation: heat-pulse 1.5s infinite;
+}
+
+@keyframes heat-pulse {
+  0% {
+    background-color: rgba(244, 67, 54, 0.1);
+  }
+  50% {
+    background-color: rgba(244, 67, 54, 0.4);
+  }
+  100% {
+    background-color: rgba(244, 67, 54, 0.1);
+  }
+}
+
+/* 水位线动画 */
+.water-level-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.water-level {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(33, 150, 243, 0.3);
+  transform-origin: bottom;
+  animation: water-rise 10s ease-in-out infinite;
+}
+
+@keyframes water-rise {
+  0% {
+    height: 30%;
+    background: rgba(33, 150, 243, 0.2);
+  }
+  50% {
+    height: 40%;
+    background: rgba(33, 150, 243, 0.4);
+  }
+  100% {
+    height: 30%;
+    background: rgba(33, 150, 243, 0.2);
+  }
+}
+
+/* 分析面板样式 */
+.analysis-panel {
+  margin-top: 20px;
+  background-color: #132f4c;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.analysis-title {
+  font-size: 1.2rem;
+  margin: 0 0 15px;
+  color: #4fc3f7;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.analysis-content {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.no-results {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding: 20px;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+}
+
+.result-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.result-icon.object {
+  background-color: rgba(33, 150, 243, 0.2);
+  position: relative;
+}
+
+.result-icon.object::before {
+  content: "□";
+  color: #2196F3;
+  font-size: 1.2rem;
+}
+
+.result-icon.face {
+  background-color: rgba(233, 30, 99, 0.2);
+  position: relative;
+}
+
+.result-icon.face::before {
+  content: "☺";
+  color: #E91E63;
+  font-size: 1.2rem;
+}
+
+.result-icon.text {
+  background-color: rgba(139, 195, 74, 0.2);
+  position: relative;
+}
+
+.result-icon.text::before {
+  content: "T";
+  color: #8BC34A;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.result-icon.scene {
+  background-color: rgba(255, 152, 0, 0.2);
+  position: relative;
+}
+
+.result-icon.scene::before {
+  content: "⛰";
+  color: #FF9800;
+  font-size: 1.2rem;
+}
+
+.result-icon.anomaly {
+  background-color: rgba(244, 67, 54, 0.2);
+  position: relative;
+}
+
+.result-icon.anomaly::before {
+  content: "⚠";
+  color: #F44336;
+  font-size: 1.2rem;
+}
+
+.result-details {
+  flex: 1;
+}
+
+.result-label {
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.result-confidence {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 3px;
+}
+
+.result-time {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
 }
 </style> 

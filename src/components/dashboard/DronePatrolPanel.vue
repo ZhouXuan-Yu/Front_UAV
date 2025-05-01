@@ -236,6 +236,99 @@ const mapInstance = ref<InstanceType<typeof MapComponent> | null>(null);
 const isDrawing = ref(false);
 const drawingPolygon = ref<GeoCoordinate[]>([]);
 
+// 视频监控相关状态
+const showVideoMonitoring = ref(false);
+const monitoringDroneId = ref<string | null>(null);
+
+// 模拟无人机视频数据
+const droneVideoStreams = computed(() => {
+  return droneList.value
+    .filter(drone => drone.status === 'active' && missionInfo.value.selectedDrones.includes(drone.id))
+    .map(drone => {
+      // 根据无人机类型选择适合的视频类型
+      let videoType: 'normal' | 'license-plate' | 'person-detection' | 'wildfire' | 'flood' = 'normal';
+      
+      if (drone.type === '消防型') {
+        videoType = 'wildfire';
+      } else if (drone.type === '水域型') {
+        videoType = 'flood';
+      } else if (drone.type === '侦察型') {
+        videoType = 'license-plate';
+      } else if (drone.type === '监控型') {
+        videoType = 'person-detection';
+      }
+      
+      return {
+        id: drone.id,
+        name: drone.name,
+        videoType,
+        location: locationInfo.value.name,
+        status: 'online',
+        alertLevel: Math.random() < 0.2 ? 'warning' : (Math.random() < 0.1 ? 'critical' : 'normal'),
+        imageUrl: getVideoImageUrl(videoType)
+      };
+    });
+});
+
+// 根据视频类型获取模拟图片URL
+const getVideoImageUrl = (type: string): string => {
+  switch (type) {
+    case 'wildfire':
+      return 'https://ext.same-assets.com/913537297/145035404.jpeg';
+    case 'flood':
+      return 'https://ext.same-assets.com/913537297/145035404.jpeg';
+    case 'license-plate':
+      return 'https://ext.same-assets.com/913537297/1121177740.png';
+    case 'person-detection':
+      return 'https://ext.same-assets.com/913537297/1124492884.jpeg';
+    default:
+      return 'https://ext.same-assets.com/913537297/1124492884.jpeg';
+  }
+};
+
+// 切换视频监控显示
+const toggleVideoMonitoring = () => {
+  showVideoMonitoring.value = !showVideoMonitoring.value;
+};
+
+// 选择要监控的无人机
+const selectDroneForMonitoring = (droneId: string) => {
+  monitoringDroneId.value = droneId;
+  showVideoMonitoring.value = true;
+};
+
+// 获取视频类型标题
+const getVideoTypeTitle = (type: string): string => {
+  switch (type) {
+    case 'normal':
+      return '标准监控';
+    case 'license-plate':
+      return '车牌识别';
+    case 'person-detection':
+      return '人物识别';
+    case 'wildfire':
+      return '森林火灾监测';
+    case 'flood':
+      return '洪水监测';
+    default:
+      return '标准监控';
+  }
+};
+
+// 获取告警级别颜色
+const getAlertLevelColor = (level: string): string => {
+  switch (level) {
+    case 'normal':
+      return '#4CAF50';
+    case 'warning':
+      return '#FF9800';
+    case 'critical':
+      return '#F44336';
+    default:
+      return '#4CAF50';
+  }
+};
+
 // 获取任务编号
 const generateTaskId = () => {
   const now = new Date();
@@ -1349,6 +1442,195 @@ onBeforeUnmount(() => {
       
       <div class="running-content">
         <!-- 任务运行逻辑部分 -->
+        <div class="running-mission">
+          <div class="mission-header">
+            <h3>任务执行中</h3>
+            <div class="mission-id">ID: {{ missionInfo.id }}</div>
+          </div>
+          
+          <div class="mission-details">
+            <div class="detail-item">
+              <div class="detail-label">任务名称:</div>
+              <div class="detail-value">{{ missionInfo.name }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">任务类型:</div>
+              <div class="detail-value">{{ missionInfo.type }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">开始时间:</div>
+              <div class="detail-value">{{ new Date(missionInfo.startTime).toLocaleString() }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">预计时长:</div>
+              <div class="detail-value">{{ missionInfo.duration }} 分钟</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">任务区域:</div>
+              <div class="detail-value">{{ locationInfo.name }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">部署无人机:</div>
+              <div class="detail-value">{{ missionInfo.selectedDrones.length }} 架</div>
+            </div>
+          </div>
+          
+          <div class="mission-actions">
+            <button class="action-button">暂停任务</button>
+            <button class="action-button danger">终止任务</button>
+            <button class="action-button info" @click="toggleVideoMonitoring">
+              {{ showVideoMonitoring ? '隐藏视频监控' : '查看视频监控' }}
+            </button>
+          </div>
+          
+          <!-- 无人机状态列表 -->
+          <div class="active-drones">
+            <h4>活动无人机状态</h4>
+            <div class="drone-status-list">
+              <div 
+                v-for="drone in droneList.filter(d => missionInfo.selectedDrones.includes(d.id))" 
+                :key="drone.id"
+                class="drone-status-item"
+              >
+                <div class="drone-status-header">
+                  <div class="drone-name">{{ drone.name }}</div>
+                  <div class="drone-status-badge" :class="drone.status">
+                    {{ drone.status === 'active' ? '执行任务中' : 
+                       drone.status === 'returning' ? '返航中' : 
+                       drone.status === 'idle' ? '待命中' : 
+                       drone.status === 'charging' ? '充电中' : '维护中' }}
+                  </div>
+                </div>
+                <div class="drone-status-details">
+                  <div class="status-detail">
+                    <div class="detail-icon battery"></div>
+                    <div class="progress-bar">
+                      <div class="progress-fill battery" :style="{width: `${drone.batteryLevel}%`}"></div>
+                    </div>
+                    <div class="detail-value">{{ Math.round(drone.batteryLevel) }}%</div>
+                  </div>
+                  <div class="status-detail">
+                    <div class="detail-icon signal"></div>
+                    <div class="progress-bar">
+                      <div class="progress-fill signal" :style="{width: `${drone.signalStrength}%`}"></div>
+                    </div>
+                    <div class="detail-value">{{ Math.round(drone.signalStrength) }}%</div>
+                  </div>
+                </div>
+                <div class="drone-actions">
+                  <button class="small-button" @click="selectDroneForMonitoring(drone.id)">
+                    查看监控
+                  </button>
+                  <button class="small-button" :disabled="drone.status !== 'active'">
+                    召回
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 视频监控面板 -->
+          <div v-if="showVideoMonitoring" class="video-monitoring-panel">
+            <div class="panel-header">
+              <h4>无人机视频监控</h4>
+              <button class="close-button" @click="toggleVideoMonitoring">&times;</button>
+            </div>
+            
+            <div class="video-container">
+              <div 
+                v-for="video in droneVideoStreams" 
+                :key="video.id"
+                class="video-feed-container"
+                :class="{ 
+                  active: video.id === monitoringDroneId,
+                  warning: video.alertLevel === 'warning',
+                  critical: video.alertLevel === 'critical'
+                }"
+                @click="monitoringDroneId = video.id"
+              >
+                <div class="video-header">
+                  <div class="video-title">
+                    {{ video.name }} - {{ getVideoTypeTitle(video.videoType) }}
+                  </div>
+                  <div 
+                    class="alert-indicator" 
+                    :style="{ backgroundColor: getAlertLevelColor(video.alertLevel) }"
+                  ></div>
+                </div>
+                
+                <div class="video-content">
+                  <!-- 模拟视频播放 -->
+                  <div class="video-feed">
+                    <img :src="video.imageUrl" alt="无人机视频流">
+                    
+                    <!-- 特效覆盖层: 根据视频类型显示不同特效 -->
+                    <div 
+                      v-if="video.videoType === 'license-plate'" 
+                      class="effect-overlay license-plate-effect"
+                    >
+                      <!-- 模拟车牌识别框和识别结果 -->
+                      <div class="detection-box">
+                        <div class="detection-title">车牌识别中...</div>
+                        <div class="detection-result">
+                          <span class="detection-value">京A88888</span>
+                          <span class="detection-confidence">置信度: 92%</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      v-if="video.videoType === 'person-detection'" 
+                      class="effect-overlay person-detection-effect"
+                    >
+                      <!-- 模拟人物识别框和识别结果 -->
+                      <div class="detection-box person-box">
+                        <div class="detection-title">人物识别中...</div>
+                        <div class="detection-result">
+                          <span class="detection-value">检测到 5 人</span>
+                          <span class="detection-confidence">置信度: 89%</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      v-if="video.videoType === 'wildfire'" 
+                      class="effect-overlay wildfire-effect"
+                    >
+                      <!-- 模拟火灾检测结果 -->
+                      <div class="detection-box warning-box">
+                        <div class="detection-title">火灾风险检测</div>
+                        <div class="detection-result">
+                          <span class="detection-value warning-text">发现热点异常!</span>
+                          <span class="detection-confidence">风险等级: 高</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      v-if="video.videoType === 'flood'" 
+                      class="effect-overlay flood-effect"
+                    >
+                      <!-- 模拟洪水检测结果 -->
+                      <div class="detection-box warning-box">
+                        <div class="detection-title">洪水风险检测</div>
+                        <div class="detection-result">
+                          <span class="detection-value warning-text">水位上升警告!</span>
+                          <span class="detection-confidence">上升速度: 0.5m/h</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 视频时间戳和坐标 -->
+                    <div class="video-metadata">
+                      <div class="video-timestamp">{{ new Date().toLocaleTimeString() }}</div>
+                      <div class="video-location">{{ video.location }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -2275,5 +2557,349 @@ onBeforeUnmount(() => {
 
 .selected-location p {
   margin: 5px 0;
+}
+
+/* 视频监控相关样式 */
+.video-monitoring-panel {
+  margin-top: 20px;
+  background-color: #132f4c;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #0a1929;
+  border-bottom: 1px solid #1e3a5f;
+}
+
+.panel-header h4 {
+  margin: 0;
+  color: #4fc3f7;
+  font-size: 1.1rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #90caf9;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #ffffff;
+}
+
+.video-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 15px;
+  padding: 15px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.video-feed-container {
+  background-color: #1e3a5f;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.video-feed-container:hover {
+  transform: translateY(-5px);
+}
+
+.video-feed-container.active {
+  border-color: #2196F3;
+}
+
+.video-feed-container.warning {
+  border-color: #FF9800;
+}
+
+.video-feed-container.critical {
+  border-color: #F44336;
+  animation: pulse 2s infinite;
+}
+
+.video-header {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.video-title {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+.alert-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.video-content {
+  position: relative;
+}
+
+.video-feed {
+  width: 100%;
+  aspect-ratio: 16/9;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-feed img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.effect-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.detection-box {
+  position: absolute;
+  background-color: rgba(33, 150, 243, 0.7);
+  border: 2px solid #2196F3;
+  border-radius: 4px;
+  padding: 8px;
+  color: white;
+  font-size: 0.8rem;
+}
+
+.license-plate-effect .detection-box {
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 150px;
+}
+
+.person-detection-effect .detection-box {
+  top: 40%;
+  left: 30%;
+  border-color: #9C27B0;
+  background-color: rgba(156, 39, 176, 0.7);
+}
+
+.warning-box {
+  top: 20px;
+  right: 20px;
+  border-color: #F44336;
+  background-color: rgba(244, 67, 54, 0.7);
+}
+
+.detection-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.detection-result {
+  display: flex;
+  flex-direction: column;
+}
+
+.detection-value {
+  font-weight: bold;
+}
+
+.detection-confidence {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.warning-text {
+  color: #ffeb3b;
+}
+
+.video-metadata {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: white;
+}
+
+.video-timestamp {
+  font-weight: bold;
+}
+
+.video-location {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+  }
+}
+
+/* 无人机状态列表样式 */
+.active-drones {
+  margin-top: 20px;
+}
+
+.active-drones h4 {
+  color: #4fc3f7;
+  margin: 0 0 15px;
+  font-size: 1.1rem;
+}
+
+.drone-status-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.drone-status-item {
+  background-color: #132f4c;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.drone-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.drone-name {
+  font-weight: bold;
+  color: white;
+}
+
+.drone-status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background-color: #304FFE;
+}
+
+.drone-status-badge.active {
+  background-color: #4CAF50;
+}
+
+.drone-status-badge.returning {
+  background-color: #FFC107;
+}
+
+.drone-status-badge.charging {
+  background-color: #FF9800;
+}
+
+.drone-status-badge.maintenance {
+  background-color: #F44336;
+}
+
+.drone-status-details {
+  margin-bottom: 15px;
+}
+
+.status-detail {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.detail-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
+}
+
+.detail-icon.battery {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2367C23A' d='M17 5v2H7V5h10m0-2H7a2 2 0 00-2 2v2a2 2 0 00-2 2v11a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2V3a2 2 0 00-2-2zM7 11h10v9H7v-9z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.detail-icon.signal {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23409EFF' d='M5 20h2v-7H5v7zm4 0h2V9H9v11zm4 0h2V6h-2v14zm4 0h2V3h-2v17z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  flex: 1;
+  overflow: hidden;
+  margin-right: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.progress-fill.battery {
+  background: linear-gradient(to right, #f44336, #ffeb3b, #4caf50);
+}
+
+.progress-fill.signal {
+  background: linear-gradient(to right, #f44336, #ffeb3b, #4caf50);
+}
+
+.detail-value {
+  min-width: 40px;
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+.drone-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.small-button {
+  flex: 1;
+  padding: 6px 12px;
+  background-color: #1976D2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.3s;
+}
+
+.small-button:hover {
+  background-color: #1565C0;
+}
+
+.small-button:disabled {
+  background-color: #455A64;
+  cursor: not-allowed;
 }
 </style> 

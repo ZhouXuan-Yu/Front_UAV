@@ -230,14 +230,26 @@
                       <div class="forecast-day">
                         <div class="forecast-part">
                           <div class="part-title">白天</div>
-                          <div class="part-icon"><el-icon><Sunny /></el-icon></div>
+                          <div class="part-icon">
+                            <el-icon v-if="forecast.dayweather.includes('晴')" :size="24"><Sunny /></el-icon>
+                            <el-icon v-else-if="forecast.dayweather.includes('云') || forecast.dayweather.includes('阴')" :size="24"><Cloudy /></el-icon>
+                            <el-icon v-else-if="forecast.dayweather.includes('雨')" :size="24"><Promotion /></el-icon>
+                            <el-icon v-else-if="forecast.dayweather.includes('雪')" :size="24"><Picture /></el-icon>
+                            <el-icon v-else :size="24"><Sunny /></el-icon>
+                          </div>
                           <div class="part-weather">{{ forecast.dayweather }}</div>
                           <div class="part-temp">{{ forecast.daytemp }}°C</div>
                           <div class="part-wind">{{ forecast.daywind }} {{ forecast.daypower }}级</div>
                         </div>
                         <div class="forecast-part">
                           <div class="part-title">夜间</div>
-                          <div class="part-icon"><el-icon><Moon /></el-icon></div>
+                          <div class="part-icon">
+                            <el-icon v-if="forecast.nightweather.includes('晴')" :size="24"><Moon /></el-icon>
+                            <el-icon v-else-if="forecast.nightweather.includes('云') || forecast.nightweather.includes('阴')" :size="24"><Cloudy /></el-icon>
+                            <el-icon v-else-if="forecast.nightweather.includes('雨')" :size="24"><Promotion /></el-icon>
+                            <el-icon v-else-if="forecast.nightweather.includes('雪')" :size="24"><Picture /></el-icon>
+                            <el-icon v-else :size="24"><Moon /></el-icon>
+                          </div>
                           <div class="part-weather">{{ forecast.nightweather }}</div>
                           <div class="part-temp">{{ forecast.nighttemp }}°C</div>
                           <div class="part-wind">{{ forecast.nightwind }} {{ forecast.nightpower }}级</div>
@@ -482,7 +494,8 @@ import {
   Sunny, Moon, Search, Location, Position, Files,
   Compass, MapLocation, DataAnalysis, Money, Guide, 
   Timer, Odometer, Histogram, WindPower, Cloudy, Close,
-  Delete, SetUp, PictureFilled, Fold, Expand, Monitor
+  Delete, SetUp, PictureFilled, Fold, Expand, Monitor,
+  Promotion, Picture
 } from '@element-plus/icons-vue';
 import GeoApiService from '../../services/GeoApiService';
 // 引入DeepSeek服务
@@ -3077,6 +3090,15 @@ onBeforeUnmount(() => {
   }
 });
 
+// 添加处理面板大小变化的函数
+const handlePanelResize = () => {
+  // 延迟执行，确保DOM已更新
+  setTimeout(() => {
+    // 触发事件通知图表组件重新绘制
+    window.dispatchEvent(new CustomEvent('dashboard-panel-resize'));
+  }, 200);
+};
+
 // 创建ResizeObserver，监听控制面板宽度变化
 let resizeObserver = null;
 
@@ -3088,7 +3110,7 @@ onMounted(() => {
   if (window.ResizeObserver) {
     resizeObserver = new ResizeObserver(() => {
       // 面板大小变化后重绘图表
-      handleChartResize();
+      handlePanelResize();
     });
     
     // 监听控制面板元素
@@ -3098,11 +3120,6 @@ onMounted(() => {
     }
   }
 });
-
-// 添加控制面板宽度控制
-const controlPanelWidth = ref(450); // 初始宽度
-const minWidth = 350; // 最小宽度
-const maxWidth = 800; // 最大宽度
 
 // 添加拖拽调整宽度的功能
 const startResize = (e) => {
@@ -3121,18 +3138,28 @@ const onResize = (e) => {
   controlPanelWidth.value = newWidth;
   
   // 触发所有图表的重绘以适应新宽度
-  nextTick(() => {
-    handleChartResize();
-  });
+  handlePanelResize();
 };
 
 const stopResize = () => {
   document.removeEventListener('mousemove', onResize);
   document.removeEventListener('mouseup', stopResize);
+  
+  // 调整完成后触发一次重绘
+  handlePanelResize();
 };
 
 // 兼容原有的toggleMap函数调用
 const toggleMap = () => toggleMapVisibility();
+
+// 添加控制面板宽度控制
+const controlPanelWidth = ref(450); // 初始宽度
+const minWidth = 350; // 最小宽度
+const maxWidth = 800; // 最大宽度
+
+onMounted(() => {
+  // ... existing code ...
+});
 </script>
 
 <style scoped>
@@ -3424,5 +3451,331 @@ const toggleMap = () => toggleMapVisibility();
 
 .dragging-active .map-container {
   transition: none !important;
+}
+
+.weather-card {
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weather-info {
+  display: flex;
+  padding: 15px;
+}
+
+.weather-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 30px;
+}
+
+.weather-icon {
+  color: #FF9800;
+  margin-bottom: 10px;
+}
+
+.weather-temp {
+  font-size: 36px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.weather-desc {
+  font-size: 18px;
+  color: #606266;
+}
+
+.weather-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  color: #606266;
+  min-width: 70px;
+}
+
+.detail-label .el-icon {
+  margin-right: 5px;
+}
+
+.detail-value {
+  font-weight: 500;
+  color: #333333;
+}
+
+.analysis-section {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-top: 1px solid #ebeef5;
+}
+
+.analysis-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.analysis-header .el-icon {
+  margin-right: 8px;
+  color: #1976d2;
+}
+
+/* 天气预报卡片样式优化 */
+.forecast-list {
+  margin: 10px 0;
+}
+
+.forecast-item {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.forecast-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.forecast-date {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+}
+
+.forecast-date::after {
+  content: "";
+  flex-grow: 1;
+  height: 1px;
+  background-color: #ebeef5;
+  margin-left: 10px;
+}
+
+.forecast-day {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.forecast-part {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #ebeef5;
+  transition: all 0.3s ease;
+}
+
+.forecast-part:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.forecast-part:first-child {
+  background-color: #fff7e6;
+  border-color: #ffe7ba;
+}
+
+.forecast-part:last-child {
+  background-color: #f0f9ff;
+  border-color: #bae7ff;
+}
+
+.part-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  background-color: #1976d2;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.forecast-part:first-child .part-title {
+  background-color: #fa8c16;
+}
+
+.forecast-part:last-child .part-title {
+  background-color: #1890ff;
+}
+
+.part-icon {
+  margin: 5px 0;
+  font-size: 24px;
+}
+
+.part-weather {
+  margin: 5px 0;
+  font-weight: 500;
+}
+
+.part-temp {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 5px 0;
+}
+
+.part-wind {
+  color: #606266;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .forecast-day {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .forecast-part {
+    padding: 8px;
+  }
+  
+  .part-temp {
+    font-size: 1.25rem;
+  }
+  
+  .forecast-date {
+    font-size: 0.9rem;
+  }
+}
+
+/* 实况天气卡片样式优化 */
+.weather-card {
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 15px;
+  background-color: #f0f9ff;
+  border-radius: 8px;
+}
+
+.weather-icon {
+  margin-right: 15px;
+  color: #1976d2;
+}
+
+.weather-temp {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 15px;
+}
+
+.weather-desc {
+  font-size: 1.2rem;
+  color: #606266;
+  margin-left: 5px;
+}
+
+.weather-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  color: #606266;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.detail-label .el-icon {
+  margin-right: 5px;
+}
+
+.detail-value {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .weather-main {
+    flex-direction: column;
+    text-align: center;
+    padding: 10px;
+  }
+  
+  .weather-icon {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .weather-temp {
+    font-size: 2rem;
+    margin: 10px 0;
+  }
+  
+  .weather-details {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  
+  .detail-item {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .detail-label {
+    margin-bottom: 0;
+  }
 }
 </style>

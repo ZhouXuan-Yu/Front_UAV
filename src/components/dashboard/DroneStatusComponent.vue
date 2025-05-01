@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { gsap } from 'gsap';
-import type { MonitoringDevice, DeviceType } from '@/types/devices';
+import type { DeviceType } from '@/types/devices';
 
 // 定义监测设备状态类型
 interface MonitoringDevice {
@@ -539,7 +539,7 @@ const filteredDevices = computed(() => {
   if (currentFilter.value !== 'all') {
     result = result.filter(device => {
       if (currentFilter.value === 'online') return device.status === 'normal';
-      if (currentFilter.value === 'alert') return device.status === 'alert' || device.status === 'warning' || device.status === 'critical';
+      if (currentFilter.value === 'alert') return device.status === 'warning' || device.status === 'critical';
       if (currentFilter.value === 'offline') return device.status === 'offline';
       return true;
     });
@@ -568,7 +568,7 @@ const onlineCount = computed(() =>
 );
 
 const alertCount = computed(() => 
-  monitoringDevices.value.filter(d => d.status === 'alert' || d.status === 'warning' || d.status === 'critical').length
+  monitoringDevices.value.filter(d => d.status === 'warning' || d.status === 'critical').length
 );
 
 const offlineCount = computed(() => 
@@ -594,7 +594,7 @@ const setFilter = (filter: string) => {
   resetPagination();
 };
 
-const setTypeFilter = (type: DeviceType | null) => {
+const setTypeFilter = (type: string | null) => {
   currentTypeFilter.value = type;
   resetPagination();
 };
@@ -616,7 +616,7 @@ const resetPagination = () => {
 };
 
 // 获取设备类型标签
-const getDeviceTypeLabel = (type: DeviceType | string) => {
+const getDeviceTypeLabel = (type: string) => {
   const found = deviceTypes.find(dt => dt.value === type);
   return found ? found.label : '未知设备';
 };
@@ -705,14 +705,15 @@ const getHealthColor = (health: number) => {
           v-for="device in paginatedDevices" 
           :key="device.id" 
           class="status-item"
-          :class="{ 'status-alert': device.status === 'alert', 'status-offline': device.status === 'offline' }"
+          :class="{ 'status-alert': device.status === 'warning' || device.status === 'critical', 'status-offline': device.status === 'offline' }"
+          @click="selectDevice(device)"
         >
           <div class="status-icon">
             <img 
               :src="getDeviceTypeIcon(device.type)" 
               alt="Device icon" 
               class="device-icon"
-              :class="{ 'pulse-alert': device.status === 'alert' }"
+              :class="{ 'pulse-alert': device.status === 'warning' || device.status === 'critical' }"
             />
             <div class="status-indicator" :class="device.status"></div>
           </div>
@@ -735,13 +736,13 @@ const getHealthColor = (health: number) => {
       </div>
       
       <div class="pagination-controls">
-        <button class="pagination-button" :disabled="currentPage === 1" @click="prevPage">上一页</button>
+        <button type="button" class="pagination-button" :disabled="currentPage === 1" @click="prevPage">上一页</button>
         <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>
-        <button class="pagination-button" :disabled="currentPage === totalPages" @click="nextPage">下一页</button>
+        <button type="button" class="pagination-button" :disabled="currentPage === totalPages" @click="nextPage">下一页</button>
         
         <div class="page-size-selector">
           <span>每页显示:</span>
-          <select v-model="pageSize" @change="resetPagination">
+          <select v-model.number="pageSize" @change="resetPagination">
             <option :value="10">10</option>
             <option :value="15">15</option>
             <option :value="20">20</option>
@@ -1101,6 +1102,9 @@ const getHealthColor = (health: number) => {
 .pagination-info {
   margin: 0 15px;
   color: #e3f2fd;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 5px 10px;
+  border-radius: 4px;
 }
 
 .page-size-selector {
@@ -1121,5 +1125,14 @@ const getHealthColor = (health: number) => {
   color: white;
   padding: 5px 10px;
   border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  appearance: menulist-button;
+}
+
+.page-size-selector select option {
+  background-color: #132f4c;
+  color: white;
 }
 </style> 

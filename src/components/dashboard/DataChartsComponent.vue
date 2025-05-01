@@ -225,14 +225,23 @@ onMounted(() => {
   if (shouldShowChart('risk')) {
     initRiskChart();
   }
-
+  
   // 全局显示时初始化所有图表
   if (props.chartType === 'all') {
-    // ... 其他图表初始化
+    // 给DOM一些时间加载
+    setTimeout(() => {
+      initBatteryChart();
+      initSignalChart();
+      initSpeedChart();
+      initRecognitionChart();
+      initPersonActivityChart();
+      initTaskChart();
+      initRiskChart();
+    }, 300);
   }
   
   // 启动数据更新定时器
-  startUpdateTimer();
+  updateTimer = window.setInterval(updateChartData, props.updateInterval);
   
   // 添加窗口大小变化监听，响应式调整图表
   window.addEventListener('resize', handleResize);
@@ -1132,7 +1141,30 @@ const initRiskChart = () => {
       
       <!-- 图表网格 -->
       <div class="charts-grid">
-        <!-- 此处保留原有的综合展示布局 -->
+        <div class="grid-item">
+          <h3>电量趋势</h3>
+          <div id="battery-chart" class="chart"></div>
+        </div>
+        <div class="grid-item">
+          <h3>信号强度</h3>
+          <div id="signal-chart" class="chart"></div>
+        </div>
+        <div class="grid-item">
+          <h3>飞行速度</h3>
+          <div id="speed-chart" class="chart"></div>
+        </div>
+        <div class="grid-item">
+          <h3>人物识别</h3>
+          <div id="recognition-chart" class="chart"></div>
+        </div>
+        <div class="grid-item">
+          <h3>风险分析</h3>
+          <div id="risk-chart" class="chart"></div>
+        </div>
+        <div class="grid-item">
+          <h3>任务执行</h3>
+          <div id="task-chart" class="chart"></div>
+        </div>
       </div>
     </template>
   </div>
@@ -1150,6 +1182,8 @@ const initRiskChart = () => {
   width: 100%;
   height: 100%;
   position: relative;
+  min-height: 280px;
+  overflow: hidden;
   background-color: rgba(10, 25, 41, 0.5);
   border-radius: 6px;
 }
@@ -1157,6 +1191,7 @@ const initRiskChart = () => {
 .chart {
   width: 100%;
   height: 100%;
+  min-height: 280px;
 }
 
 .chart-loading {
@@ -1213,17 +1248,34 @@ const initRiskChart = () => {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 20px;
-  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-item {
+  background-color: rgba(10, 25, 41, 0.5);
+  border-radius: 6px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.grid-item h3 {
+  font-size: 1rem;
+  color: #e3f2fd;
+  margin-top: 0;
+  margin-bottom: 10px;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .charts-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(6, 250px);
+    grid-template-rows: repeat(6, 280px);
   }
 }
 </style> 

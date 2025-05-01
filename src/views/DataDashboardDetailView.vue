@@ -282,8 +282,8 @@ const refreshData = () => {
             <!-- 数据图表 -->
             <div class="dashboard-card charts-card">
               <h2 class="card-title">数据分析</h2>
-              <DataChartsComponent class="card-content" />
-              </div>
+              <DataChartsComponent class="card-content" chartType="all" />
+            </div>
             </div>
           </div>
         </section>
@@ -561,7 +561,7 @@ const refreshData = () => {
 
         <!-- 地理服务标签页 -->
         <section v-if="activeTab === 'geo-api'" class="tab-content">
-          <GeoApiDashboard style="height: 800px;" />
+          <GeoApiDashboard style="height: 900px;" />
         </section>
       </main>
       
@@ -786,7 +786,7 @@ const refreshData = () => {
 .charts-card {
   grid-column: 1 / span 2;
   grid-row: 3;
-  height: 400px;
+  height: 500px;
 }
 
 .card-title {

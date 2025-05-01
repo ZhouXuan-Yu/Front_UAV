@@ -1,89 +1,121 @@
 /**
  * 文件名: MarkdownRenderer.vue
- * 描述: Markdown内容渲染组件
- * 功能: 将Markdown格式的文本渲染为HTML格式显示
+ * 描述: 简化版Markdown内容渲染组件
+ * 功能: 将Markdown格式的文本基本渲染为可读格式
  */
 
 <template>
-  <div class="markdown-content" v-html="renderedContent"></div>
+  <div class="markdown-content">
+    <div v-for="(block, index) in parsedContent" :key="index">
+      <component 
+        :is="block.tag" 
+        :class="block.className"
+        v-html="formatText(block.content)"
+      ></component>
+    </div>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
-
-// 定义组件属性
-const props = defineProps({
-  // Markdown内容
-  content: {
-    type: String,
-    default: '',
-  },
-  // 是否启用链接，默认为true
-  enableLinks: {
-    type: Boolean,
-    default: true,
-  },
-  // 是否允许HTML，默认为false
-  allowHtml: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-// 渲染后的内容
-const renderedContent = ref('');
-
-// 解析和渲染Markdown内容
-const renderMarkdown = () => {
-  if (!props.content) {
-    renderedContent.value = '';
-    return;
-  }
-
-  try {
-    // 配置marked选项
-    marked.setOptions({
-      gfm: true, // 启用GitHub风格Markdown
-      breaks: true, // 将换行符渲染为<br>
-      headerIds: true, // 为标题添加id
-      smartLists: true, // 使用更智能的列表行为
-    });
-
-    // 渲染Markdown为HTML
-    let html = marked(props.content);
-
-    // 如果不允许链接，禁用所有a标签
-    if (!props.enableLinks) {
-      html = html.replace(/<a /g, '<span ').replace(/<\/a>/g, '</span>');
+<script>
+export default {
+  name: 'MarkdownRenderer',
+  props: {
+    content: {
+      type: String,
+      default: ''
     }
-
-    // 使用DOMPurify清理HTML以防止XSS攻击
-    renderedContent.value = props.allowHtml 
-      ? DOMPurify.sanitize(html)
-      : DOMPurify.sanitize(html, { ALLOWED_TAGS: [
-          'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
-          'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'abbr', 'code', 'hr', 'br', 
-          'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'span',
-          'img'
-        ]});
-  } catch (error) {
-    console.error('Markdown渲染失败:', error);
-    // 如果渲染失败，直接显示原始内容
-    renderedContent.value = `<p>${props.content}</p>`;
+  },
+  
+  computed: {
+    parsedContent() {
+      if (!this.content) return [];
+      
+      const blocks = [];
+      const lines = this.content.split('\n');
+      let currentList = null;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        
+        // 跳过空行
+        if (trimmed === '') {
+          currentList = null;
+          continue;
+        }
+        
+        // 处理标题 (# 到 ######)
+        if (/^#{1,6}\s/.test(trimmed)) {
+          const level = trimmed.match(/^(#{1,6})\s/)?.[1].length || 1;
+          const content = trimmed.replace(/^#{1,6}\s/, '');
+          blocks.push({
+            tag: `h${level}`,
+            className: `md-h${level}`,
+            content
+          });
+          continue;
+        }
+        
+        // 处理无序列表 (- 或 *)
+        if (/^[-*]\s/.test(trimmed)) {
+          const content = trimmed.substring(2);
+          
+          if (!currentList) {
+            currentList = {
+              tag: 'ul',
+              className: 'md-ul',
+              content: `<li class="md-li">${content}</li>`
+            };
+            blocks.push(currentList);
+          } else {
+            currentList.content += `<li class="md-li">${content}</li>`;
+          }
+          continue;
+        }
+        
+        // 处理引用块 (>)
+        if (trimmed.startsWith('> ')) {
+          const content = trimmed.substring(2);
+          blocks.push({
+            tag: 'blockquote',
+            className: 'md-blockquote',
+            content
+          });
+          continue;
+        }
+        
+        // 默认为段落
+        blocks.push({
+          tag: 'p',
+          className: 'md-p',
+          content: trimmed
+        });
+      }
+      
+      return blocks;
+    }
+  },
+  
+  methods: {
+    formatText(text) {
+      // 处理粗体 **text** 或 __text__
+      let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/__(.*?)__/g, '<strong>$1</strong>');
+      
+      // 处理斜体 *text* 或 _text_
+      formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>')
+                       .replace(/_(.*?)_/g, '<em>$1</em>');
+      
+      // 处理链接 [text](url)
+      formatted = formatted.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
+      
+      // 处理行内代码 `code`
+      formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
+      
+      return formatted;
+    }
   }
-};
-
-// 监听内容变化
-watch(() => props.content, () => {
-  renderMarkdown();
-}, { immediate: true });
-
-// 组件挂载时渲染内容
-onMounted(() => {
-  renderMarkdown();
-});
+}
 </script>
 
 <style scoped>
@@ -93,76 +125,66 @@ onMounted(() => {
   color: #606266;
 }
 
-/* Markdown内容样式 */
-:deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
+.md-h1, .md-h2, .md-h3, .md-h4, .md-h5, .md-h6 {
   margin-top: 24px;
   margin-bottom: 16px;
   font-weight: 600;
   line-height: 1.25;
 }
 
-:deep(h1) {
+.md-h1 {
   font-size: 1.7em;
   padding-bottom: 0.3em;
   border-bottom: 1px solid #eaecef;
 }
 
-:deep(h2) {
+.md-h2 {
   font-size: 1.5em;
   padding-bottom: 0.3em;
   border-bottom: 1px solid #eaecef;
 }
 
-:deep(h3) {
+.md-h3 {
   font-size: 1.25em;
 }
 
-:deep(h4) {
+.md-h4 {
   font-size: 1em;
 }
 
-:deep(h5) {
-  font-size: 0.875em;
-}
-
-:deep(h6) {
-  font-size: 0.85em;
-  color: #6a737d;
-}
-
-:deep(a) {
-  color: #1976d2;
-  text-decoration: none;
-}
-
-:deep(a:hover) {
-  text-decoration: underline;
-}
-
-:deep(p) {
+.md-p {
   margin-top: 0;
   margin-bottom: 16px;
 }
 
-:deep(blockquote) {
+.md-blockquote {
   margin: 0 0 16px;
   padding: 0 16px;
   color: #6a737d;
   border-left: 4px solid #dfe2e5;
 }
 
-:deep(ul), :deep(ol) {
+.md-ul {
   padding-left: 2em;
   margin-top: 0;
   margin-bottom: 16px;
 }
 
-:deep(li) {
+.md-li {
   margin-top: 0.25em;
 }
 
-:deep(code) {
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+.markdown-content :deep(a) {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.markdown-content :deep(a:hover) {
+  text-decoration: underline;
+}
+
+.markdown-content :deep(code) {
+  font-family: monospace;
   padding: 0.2em 0.4em;
   margin: 0;
   font-size: 85%;
@@ -170,57 +192,11 @@ onMounted(() => {
   border-radius: 3px;
 }
 
-:deep(pre) {
-  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-  padding: 16px;
-  overflow: auto;
-  font-size: 85%;
-  line-height: 1.45;
-  background-color: #f6f8fa;
-  border-radius: 3px;
-  margin-bottom: 16px;
+.markdown-content :deep(strong) {
+  font-weight: bold;
 }
 
-:deep(pre code) {
-  background-color: transparent;
-  padding: 0;
-}
-
-:deep(hr) {
-  height: 0.25em;
-  padding: 0;
-  margin: 24px 0;
-  background-color: #e1e4e8;
-  border: 0;
-}
-
-:deep(table) {
-  border-spacing: 0;
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-:deep(table tr) {
-  background-color: #fff;
-  border-top: 1px solid #c6cbd1;
-}
-
-:deep(table tr:nth-child(2n)) {
-  background-color: #f6f8fa;
-}
-
-:deep(table th), :deep(table td) {
-  padding: 6px 13px;
-  border: 1px solid #dfe2e5;
-}
-
-:deep(table th) {
-  font-weight: 600;
-}
-
-:deep(img) {
-  max-width: 100%;
-  box-sizing: content-box;
+.markdown-content :deep(em) {
+  font-style: italic;
 }
 </style> 

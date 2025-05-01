@@ -40,57 +40,61 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, watch } from 'vue';
-
-// 定义组件属性
-const props = defineProps({
-  // 进度标题
-  title: {
-    type: String,
-    default: '处理进度'
+<script>
+export default {
+  name: 'ProgressBar',
+  props: {
+    // 进度标题
+    title: {
+      type: String,
+      default: '处理进度'
+    },
+    // 当前进度(0-100)
+    progress: {
+      type: Number,
+      default: 0,
+      validator: (val) => val >= 0 && val <= 100
+    },
+    // 提示消息
+    message: {
+      type: String,
+      default: ''
+    },
+    // 是否已完成
+    completed: {
+      type: Boolean,
+      default: false
+    },
+    // 是否失败
+    failed: {
+      type: Boolean,
+      default: false
+    }
   },
-  // 当前进度(0-100)
-  progress: {
-    type: Number,
-    default: 0,
-    validator: (val: number) => val >= 0 && val <= 100
+  
+  computed: {
+    // 计算当前进度文本
+    progressText() {
+      if (this.completed) {
+        return '100%';
+      } else if (this.failed) {
+        return '失败';
+      } else {
+        return `${Math.round(this.progress)}%`;
+      }
+    }
   },
-  // 提示消息
-  message: {
-    type: String,
-    default: ''
-  },
-  // 是否已完成
-  completed: {
-    type: Boolean,
-    default: false
-  },
-  // 是否失败
-  failed: {
-    type: Boolean,
-    default: false
+  
+  watch: {
+    // 监听完成状态
+    completed(newVal) {
+      if (newVal && this.progress < 100) {
+        // 如果标记为完成但进度不到100%，触发事件
+        console.log('任务已完成，但进度不足100%');
+      }
+    }
   }
-});
-
-// 计算当前进度文本
-const progressText = computed(() => {
-  if (props.completed) {
-    return '100%';
-  } else if (props.failed) {
-    return '失败';
-  } else {
-    return `${Math.round(props.progress)}%`;
-  }
-});
-
-// 监听完成状态
-watch(() => props.completed, (newVal) => {
-  if (newVal && props.progress < 100) {
-    // 如果标记为完成但进度不到100%，触发事件
-    console.log('任务已完成，但进度不足100%');
-  }
-});
+}
 </script>
 
 <style scoped>

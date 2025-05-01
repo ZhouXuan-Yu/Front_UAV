@@ -475,7 +475,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 import { ref, reactive, onMounted, watch, nextTick, computed, onBeforeUnmount } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
@@ -486,12 +486,12 @@ import {
 } from '@element-plus/icons-vue';
 import GeoApiService from '../../services/GeoApiService';
 // 引入DeepSeek服务
-import DeepSeekService, { ProgressCallback, CompletionCallback, RequestStatus } from '../../services/DeepSeekService';
+import DeepSeekService from '../../services/DeepSeekService.js';
 // 引入新组件
-import WeatherVisualization from '../weather/WeatherVisualization.vue';
-import POIAnalysisComponent from '../poi/POIAnalysisComponent.vue';
 import MarkdownRenderer from '../common/MarkdownRenderer.vue';
 import ProgressBar from '../common/ProgressBar.vue';
+import WeatherVisualization from '../weather/WeatherVisualization.vue';
+import POIAnalysisComponent from '../poi/POIAnalysisComponent.vue';
 // 引入echarts
 import * as echarts from 'echarts/core';
 import { PieChart, BarChart, LineChart } from 'echarts/charts';
@@ -516,21 +516,14 @@ echarts.use([
 ]);
 
 // 如果需要，声明全局类型
-declare global {
-  interface Window {
-    _AMapSecurityConfig: {
-      securityJsCode: string;
-    };
-    AMap: any;
-  }
-}
+/* global AMap */
 
 // 当前激活的标签页
 const activeTab = ref('poi');
 
 // 地图状态
 const mapType = ref('normal'); // 地图类型: normal, satellite, night
-let map: any = null; // 地图实例
+let map = null; // 地图实例
 
 // 加载状态
 const loading = ref(false);
@@ -601,13 +594,13 @@ const routeForm = reactive({
 });
 
 // 查询结果
-const poiResult = ref<any>({ status: '0', pois: [] });
-const weatherResult = ref<any>({ status: '0' });
-const districtResult = ref<any>({ status: '0' });
-const trafficResult = ref<any>({ status: '0' });
+const poiResult = ref({ status: '0', pois: [] });
+const weatherResult = ref({ status: '0' });
+const districtResult = ref({ status: '0' });
+const trafficResult = ref({ status: '0' });
 
 // 添加路线规划结果
-const routeResult = ref<any>({ status: '0', steps: [] });
+const routeResult = ref({ status: '0', steps: [] });
 
 // 高德地图API密钥配置
 const API_KEYS = [
@@ -623,7 +616,7 @@ const AMAP_SECRET_KEY = '您申请的安全密钥'; // 替换为您的安全密�
 const isMapVisible = ref(true);
 
 // 错误提示函数
-const showError = (message: string) => {
+const showError = (message) => {
   ElMessage({
     message,
     type: 'error',
@@ -632,14 +625,14 @@ const showError = (message: string) => {
 };
 
 // 格式化距离
-const formatDistance = (meters: string | number | undefined): string => {
+const formatDistance = (meters) => {
   if (!meters) return '0 km';
   const distance = Number(meters);
   return distance >= 1000 ? `${(distance / 1000).toFixed(1)} km` : `${distance} m`;
 };
 
 // 格式化时间
-const formatDuration = (seconds: string | number | undefined): string => {
+const formatDuration = (seconds) => {
   if (!seconds) return '0 分钟';
   const duration = Number(seconds);
   const hours = Math.floor(duration / 3600);
@@ -653,14 +646,14 @@ const formatDuration = (seconds: string | number | undefined): string => {
 };
 
 // 格式化日期
-const formatDate = (dateStr: string): string => {
+const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
 // 生成智能分析，针对不同类型分开处理
-const generateAnalysis = (type: string, data: any): string => {
+const generateAnalysis = (type, data) => {
   if (!data) return '暂无数据分析';
   
   if (type === 'poi') {
@@ -801,7 +794,7 @@ ${data.description || ''}
   } else if (type === 'route') {
     // 路线规划智能分析
     return `根据您的起点和终点，我们规划了最佳路线，全程约${(data.distance/1000).toFixed(1)}公里，预计耗时${Math.ceil(data.duration/60)}分钟。
-路线主要经过${data.steps.slice(0, 3).map((step: any) => step.road || '未命名道路').join('、')}等道路。
+路线主要经过${data.steps.slice(0, 3).map(step => step.road || '未命名道路').join('、')}等道路。
 当前道路整体通畅度良好，建议您按规划路线行驶，注意途中可能的限行区域和拥堵路段。`;
   }
   
@@ -814,7 +807,7 @@ const initMCPService = () => {
     const mcpAPIBase = '/api/v1/mcp';
     
     return {
-      async callMCP(action: string, params: any): Promise<any> {
+      async callMCP(action, params) {
         try {
           console.log(`调用MCP服务: ${action}`, params);
           
@@ -876,7 +869,7 @@ const initMap = () => {
 
 // 加载高德地图脚本
 const loadAMapScript = () => {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
       console.log('开始加载AMap脚本');
       
@@ -992,7 +985,7 @@ const createMap = () => {
 };
 
 // 切换地图类型
-const switchMapType = (type: string) => {
+const switchMapType = (type) => {
   if (!map) {
     initMap();
     setTimeout(() => switchMapType(type), 500);
@@ -1044,7 +1037,7 @@ const handlePoiSearch = async () => {
     };
     
     // 优先使用MCP服务，包含智能分析功能
-    let response: any;
+    let response;
     if (mcpService) {
       // 明确使用search_poi端点
       response = await mcpService.callMCP('search_poi', poiSearchParams);
@@ -1069,7 +1062,7 @@ const handlePoiSearch = async () => {
       
       try {
         // 定义进度回调函数
-        const onProgress: ProgressCallback = (progress, message) => {
+        const onProgress = (progress, message) => {
           deepseekProgress.poi.progress = progress;
           if (message) {
             deepseekProgress.poi.message = message;
@@ -1077,7 +1070,7 @@ const handlePoiSearch = async () => {
         };
         
         // 定义完成回调函数
-        const onCompletion: CompletionCallback = (result) => {
+        const onCompletion = (result) => {
           deepseekProgress.poi.completed = true;
           deepseekProgress.poi.active = false;
           
@@ -1144,7 +1137,7 @@ const handlePoiSearch = async () => {
           };
           
           // 添加所有标记
-          const markers = response.pois.map((poi: any, index: number) => {
+          const markers = response.pois.map((poi, index) => {
             if (poi.location) {
               const position = poi.location.split(',');
               return new window.AMap.Marker({
@@ -1207,7 +1200,7 @@ const handleWeatherSearch = async () => {
     };
     
     // 优先使用MCP服务进行天气查询
-    let response: any;
+    let response;
     let source = 'mcp';
     
     if (mcpService) {
@@ -1264,7 +1257,7 @@ const handleWeatherSearch = async () => {
         
         try {
           // 定义进度回调函数
-          const onProgress: ProgressCallback = (progress, message) => {
+          const onProgress = (progress, message) => {
             deepseekProgress.weather.progress = progress;
             if (message) {
               deepseekProgress.weather.message = message;
@@ -1272,7 +1265,7 @@ const handleWeatherSearch = async () => {
           };
           
           // 定义完成回调函数
-          const onCompletion: CompletionCallback = (result) => {
+          const onCompletion = (result) => {
             deepseekProgress.weather.completed = true;
             deepseekProgress.weather.active = false;
             
@@ -1325,7 +1318,7 @@ const handleWeatherSearch = async () => {
         
         try {
           // 定义进度回调函数
-          const onProgress: ProgressCallback = (progress, message) => {
+          const onProgress = (progress, message) => {
             deepseekProgress.forecast.progress = progress;
             if (message) {
               deepseekProgress.forecast.message = message;
@@ -1333,7 +1326,7 @@ const handleWeatherSearch = async () => {
           };
           
           // 定义完成回调函数
-          const onCompletion: CompletionCallback = (result) => {
+          const onCompletion = (result) => {
             deepseekProgress.forecast.completed = true;
             deepseekProgress.forecast.active = false;
             
@@ -1363,7 +1356,7 @@ const handleWeatherSearch = async () => {
           deepseekProgress.forecast.message = `分析失败: ${error instanceof Error ? error.message : String(error)}`;
           
           // 失败时使用本地生成简单模拟分析
-          weatherResult.value.forecast_advice = `未来几天${weatherForm.city}天气整体${response.forecasts[0].casts[0].dayweather.includes('雨') ? '多雨潮湿' : '晴好干燥'}，温度在${Math.min(...response.forecasts[0].casts.map((c: any) => parseInt(c.nighttemp)))}°C至${Math.max(...response.forecasts[0].casts.map((c: any) => parseInt(c.daytemp)))}°C之间波动。建议合理安排户外活动，注意防晒和保暖。`;
+          weatherResult.value.forecast_advice = `未来几天${weatherForm.city}天气整体${response.forecasts[0].casts[0].dayweather.includes('雨') ? '多雨潮湿' : '晴好干燥'}，温度在${Math.min(...response.forecasts[0].casts.map(c => parseInt(c.nighttemp)))}°C至${Math.max(...response.forecasts[0].casts.map(c => parseInt(c.daytemp)))}°C之间波动。建议合理安排户外活动，注意防晒和保暖。`;
           
           ElMessage({
             message: '使用本地模型生成天气预报分析',
@@ -1389,7 +1382,7 @@ const handleWeatherSearch = async () => {
 };
 
 // 生成模拟天气数据
-const generateMockWeatherData = (city: string): any => {
+const generateMockWeatherData = (city) => {
   // 当前日期时间
   const now = new Date();
   const reporttime = now.toISOString().replace('T', ' ').slice(0, 19);
@@ -1439,7 +1432,7 @@ const generateMockWeatherData = (city: string): any => {
 };
 
 // 在地图上显示城市位置和天气信息
-const showCityOnMap = async (cityName: string, weatherData: any) => {
+const showCityOnMap = async (cityName, weatherData) => {
   if (!isMapVisible.value) {
     // 如果地图未显示，提示用户可以展开地图查看结果
     ElMessage({
@@ -1580,7 +1573,7 @@ const handleTrafficSearch = async () => {
     console.log('交通态势查询参数:', trafficParams);
     
     // 优先使用MCP服务
-    let response: any;
+    let response;
     let source = 'mcp';
     let retryCount = 0;
     const maxRetries = 2;
@@ -1661,7 +1654,7 @@ const handleTrafficSearch = async () => {
         
         try {
           // 定义进度回调函数
-          const onProgress: ProgressCallback = (progress, message) => {
+          const onProgress = (progress, message) => {
             deepseekProgress.traffic.progress = progress;
             if (message) {
               deepseekProgress.traffic.message = message;
@@ -1669,7 +1662,7 @@ const handleTrafficSearch = async () => {
           };
           
           // 定义完成回调函数
-          const onCompletion: CompletionCallback = (result) => {
+          const onCompletion = (result) => {
             deepseekProgress.traffic.completed = true;
             deepseekProgress.traffic.active = false;
             
@@ -1764,7 +1757,7 @@ const handleTrafficSearch = async () => {
 };
 
 // 生成模拟交通态势数据
-const generateMockTrafficData = (rectangle: string): any => {
+const generateMockTrafficData = (rectangle) => {
   try {
     // 解析矩形区域
     const [sw, ne] = rectangle.split(';');
@@ -1843,7 +1836,7 @@ const generateMockTrafficData = (rectangle: string): any => {
 };
 
 // 验证矩形区域格式
-const validateRectangleFormat = (rectangle: string): boolean => {
+const validateRectangleFormat = (rectangle) => {
   // 格式为"左下经度,左下纬度;右上经度,右上纬度"
   const regex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?;-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
   
@@ -1874,7 +1867,7 @@ const validateRectangleFormat = (rectangle: string): boolean => {
 };
 
 // 显示位置在地图上
-const showOnMap = (location: string, title: string = '位置') => {
+const showOnMap = (location, title = '位置') => {
   if (!map) {
     // 不传参数调用toggleMap，使用默认行为
     toggleMap();
@@ -1928,7 +1921,7 @@ const showOnMap = (location: string, title: string = '位置') => {
 };
 
 // 在地图上显示区域
-const showDistrictOnMap = (district: any) => {
+const showDistrictOnMap = (district) => {
   if (!map) {
     // 不传参数调用toggleMap，使用默认行为
     toggleMap();
@@ -1947,13 +1940,13 @@ const showDistrictOnMap = (district: any) => {
     subdistrict: 0
   });
   
-  districtSearch.search(district.name, (status: string, result: any) => {
+  districtSearch.search(district.name, (status, result) => {
     if (status === 'complete') {
       // 获取行政区边界信息
       const bounds = result.districtList[0].boundaries;
       if (bounds) {
         // 创建多边形
-        const polygons = bounds.map((boundary: any) => {
+        const polygons = bounds.map(boundary => {
           return new window.AMap.Polygon({
             path: boundary,
             strokeColor: '#1976d2',
@@ -2129,7 +2122,7 @@ watch(activeTab, (newVal) => {
 });
 
 // 调用高德地图API
-const callAmapAPI = async (endpoint: string, params: any): Promise<any> => {
+const callAmapAPI = async (endpoint, params) => {
   // 尝试使用所有可用的API密钥
   for (let keyIndex = 0; keyIndex < API_KEYS.length; keyIndex++) {
     CURRENT_KEY_INDEX.value = keyIndex;
@@ -2198,7 +2191,7 @@ const callAmapAPI = async (endpoint: string, params: any): Promise<any> => {
         }
         
         return result;
-      } catch (fetchError: any) {
+      } catch (fetchError) {
         clearTimeout(timeoutId);
         if (fetchError.name === 'AbortError') {
           throw new Error('API请求超时');
@@ -2231,7 +2224,7 @@ const callAmapAPI = async (endpoint: string, params: any): Promise<any> => {
 };
 
 // 创建自定义信息窗体
-const createInfoWindow = (title: string, content: string) => {
+const createInfoWindow = (title, content) => {
   return new window.AMap.InfoWindow({
     isCustom: true,
     content: `
@@ -2263,7 +2256,7 @@ const toggleMapVisibility = () => {
 };
 
 // 显示路径规划结果
-const displayRoute = async (routeData: any) => {
+const displayRoute = async (routeData) => {
   try {
     if (!map) {
       console.error('地图未初始化');
@@ -2299,8 +2292,8 @@ const displayRoute = async (routeData: any) => {
     });
 
     // 收集路径点并创建路线
-    const pathPoints = path.steps.flatMap((step: any) => {
-      return step.polyline.split(';').map((point: string) => {
+    const pathPoints = path.steps.flatMap(step => {
+      return step.polyline.split(';').map(point => {
         const [lng, lat] = point.split(',').map(Number);
         return [lng, lat];
       });
@@ -2379,16 +2372,16 @@ const handleRouteSearch = async () => {
 };
 
 // 图表引用
-const poiDistChart = ref<HTMLElement | null>(null);
-const poiRatingChart = ref<HTMLElement | null>(null);
-const poiCrowdChart = ref<HTMLElement | null>(null);
-const poiTypeChart = ref<HTMLElement | null>(null);
+const poiDistChart = ref(null);
+const poiRatingChart = ref(null);
+const poiCrowdChart = ref(null);
+const poiTypeChart = ref(null);
 
 // 存储echarts实例
-let poiDistChartInstance: echarts.ECharts | null = null;
-let poiRatingChartInstance: echarts.ECharts | null = null;
-let poiCrowdChartInstance: echarts.ECharts | null = null;
-let poiTypeChartInstance: echarts.ECharts | null = null;
+let poiDistChartInstance = null;
+let poiRatingChartInstance = null;
+let poiCrowdChartInstance = null;
+let poiTypeChartInstance = null;
 
 // 渲染POI分析图表
 const renderPoiCharts = () => {
@@ -2415,8 +2408,8 @@ const renderPoiDistChart = () => {
   }
   
   // 提取区域数据 - 这里使用adname作为区域标识
-  const areaDistribution: Record<string, number> = {};
-  poiResult.value.pois.forEach((poi: any) => {
+  const areaDistribution = {};
+  poiResult.value.pois.forEach(poi => {
     const area = poi.adname || '未知区域';
     areaDistribution[area] = (areaDistribution[area] || 0) + 1;
   });
@@ -2552,7 +2545,7 @@ const renderPoiRatingChart = () => {
       axisPointer: {
         type: 'shadow'
       },
-      formatter: function(params: any) {
+      formatter: function(params) {
         const rating = params[0].name;
         const count = params[0].value;
         const percentage = ((count / totalRatings) * 100).toFixed(1);
@@ -2579,7 +2572,7 @@ const renderPoiRatingChart = () => {
         type: 'bar',
         data: distributions.map(item => item.count),
         itemStyle: {
-          color: function(params: any) {
+          color: function(params) {
             // 根据评分设置不同颜色
             const colorList = ['#FF4500', '#FF8C00', '#FFD700', '#4CAF50', '#1E88E5'];
             return colorList[params.dataIndex];
@@ -2599,7 +2592,7 @@ const renderPoiRatingChart = () => {
 };
 
 // 分析POI周围人流趋势
-const analyzePoiCrowdTrend = (poiType: string, poiLocation: { lng: number, lat: number }) => {
+const analyzePoiCrowdTrend = (poiType, poiLocation) => {
   // 基于POI类型获取可能影响人流量的附近设施
   let nearbyFacilities = [];
   
@@ -2735,7 +2728,7 @@ const renderPoiCrowdChart = () => {
   }
 
   // 根据不同类型生成不同的人流量曲线 - 使用实际人数（千人级别）
-  let crowdData: number[] = [];
+  let crowdData = [];
   
   if (mainType.includes('餐厅') || mainType.includes('美食')) {
     // 餐厅人流高峰在午餐和晚餐时间
@@ -2869,7 +2862,7 @@ const renderPoiCrowdChart = () => {
     },
     tooltip: {
       trigger: 'axis',
-      formatter: function(params: any) {
+      formatter: function(params) {
         const time = params[0].name;
         const value = params[0].value;
         // 计算拥挤度百分比
@@ -2913,7 +2906,7 @@ const renderPoiCrowdChart = () => {
     yAxis: {
       type: 'value',
       axisLabel: {
-        formatter: function(value: number) {
+        formatter: function(value) {
           // 格式化为千位分隔的数字
           return value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value;
         },
@@ -3003,8 +2996,8 @@ const renderPoiTypeChart = () => {
   }
   
   // 提取场所类型数据
-  const typeDistribution: Record<string, number> = {};
-  poiResult.value.pois.forEach((poi: any) => {
+  const typeDistribution = {};
+  poiResult.value.pois.forEach(poi => {
     // 只取第一个分类作为主分类
     const type = poi.type ? poi.type.split(';')[0] : '其他';
     typeDistribution[type] = (typeDistribution[type] || 0) + 1;
@@ -3085,7 +3078,7 @@ onBeforeUnmount(() => {
 });
 
 // 创建ResizeObserver，监听控制面板宽度变化
-let resizeObserver: ResizeObserver | null = null;
+let resizeObserver = null;
 
 onMounted(() => {
   // 添加窗口大小变化监听
@@ -3112,13 +3105,13 @@ const minWidth = 350; // 最小宽度
 const maxWidth = 800; // 最大宽度
 
 // 添加拖拽调整宽度的功能
-const startResize = (e: MouseEvent) => {
+const startResize = (e) => {
   e.preventDefault();
   document.addEventListener('mousemove', onResize);
   document.addEventListener('mouseup', stopResize);
 };
 
-const onResize = (e: MouseEvent) => {
+const onResize = (e) => {
   let newWidth = e.clientX;
   
   // 设置最小/最大宽度限制

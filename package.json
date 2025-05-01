@@ -1,5 +1,5 @@
 {
-  "name": "vue-vite",
+  "name": "skydio-clone",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -23,6 +23,7 @@
     "gsap": "^3.12.7",
     "html2canvas": "^1.4.1",
     "openai": "^4.96.0",
+    "skydio-clone": "file:",
     "three": "^0.175.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",

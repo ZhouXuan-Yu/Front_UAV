@@ -9,7 +9,7 @@
  */
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, defineProps, defineExpose, watch, reactive, defineEmits, computed, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, reactive, computed, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 // 导入Element Plus消息组件
 import { ElMessage, ElLoading } from 'element-plus';

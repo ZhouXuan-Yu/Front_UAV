@@ -11,12 +11,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { gsap } from 'gsap';
+import type { MonitoringDevice, DeviceType } from '@/types/devices';
 
 // 定义监测设备状态类型
 interface MonitoringDevice {
   id: string;
   name: string;
-  type: 'camera' | 'license-plate' | 'person-detection' | 'wildfire' | 'flood';
+  type: 'camera' | 'license-plate' | 'person-detection' | 'wildfire' | 'night-street' | 'night-vehicle' | 'long-distance';
   health: number; // 0-100
   temperature: number;
   batteryLevel?: number;
@@ -38,12 +39,34 @@ const getDeviceTypeName = (type: string): string => {
       return '人物识别';
     case 'wildfire':
       return '火灾监测';
-    case 'flood':
-      return '洪水监测';
+    case 'night-street':
+      return '夜间街道巡视';
+    case 'night-vehicle':
+      return '夜间车辆检测';
+    case 'long-distance':
+      return '远距离监控';
     default:
       return '未知设备';
   }
 };
+
+// 设备类型定义
+const deviceTypes = [
+  { value: null, label: '全部设备' },
+  { value: 'camera', label: '标准摄像头' },
+  { value: 'license-plate', label: '车牌识别' },
+  { value: 'person-detection', label: '人物识别' },
+  { value: 'wildfire', label: '火灾监测' },
+  { value: 'night-street', label: '夜间街道巡视' },
+  { value: 'night-vehicle', label: '夜间车辆检测' },
+  { value: 'long-distance', label: '远距离监控' }
+];
+
+// 当前筛选状态
+const currentFilter = ref('all');
+const currentTypeFilter = ref(null);
+const currentPage = ref(1);
+const pageSize = ref(10);
 
 // 模拟数据
 const monitoringDevices = ref<MonitoringDevice[]>([
@@ -106,36 +129,281 @@ const monitoringDevices = ref<MonitoringDevice[]>([
   },
   {
     id: 'device-06',
-    name: '洪水监测 E1',
-    type: 'flood',
+    name: '夜间街道 E1',
+    type: 'night-street',
     health: 91,
     temperature: 37.2,
     signalStrength: 89,
-    location: '河流上游',
+    location: '市中心商业区',
     status: 'normal',
-    details: '水位监测，流速测量，降水量分析'
+    details: '红外夜视系统，行人流量分析，异常行为识别'
   },
   {
     id: 'device-07',
-    name: '洪水监测 E2',
-    type: 'flood',
+    name: '夜间车辆 F1',
+    type: 'night-vehicle',
     health: 42,
     temperature: 40.5,
     signalStrength: 65,
-    location: '河流下游',
+    location: '环城高速',
     status: 'critical',
-    details: '水位监测，流速测量，降水量分析，当前需要维修'
+    details: '夜间车辆检测系统，车型识别，超速监测，轨迹跟踪'
   },
   {
     id: 'device-08',
+    name: '远距离监控 G1',
+    type: 'long-distance',
+    health: 78,
+    temperature: 42.3,
+    signalStrength: 85,
+    location: '城市边界区',
+    status: 'normal',
+    details: '远距离高清监控，30倍光学变焦，红外夜视，全天候监测'
+  },
+  {
+    id: 'device-09',
+    name: '摄像头 A2',
+    type: 'camera',
+    health: 89,
+    temperature: 37.8,
+    signalStrength: 93,
+    location: '火车站广场',
+    status: 'normal',
+    details: '全景高清摄像头，智能追踪，360度旋转'
+  },
+  {
+    id: 'device-10',
+    name: '摄像头 A3',
+    type: 'camera',
+    health: 76,
+    temperature: 43.2,
+    signalStrength: 81,
+    location: '购物中心入口',
+    status: 'warning',
+    details: '双目立体视觉摄像头，人流统计，密度监测'
+  },
+  {
+    id: 'device-11',
+    name: '摄像头 A4',
+    type: 'camera',
+    health: 94,
+    temperature: 36.5,
+    signalStrength: 94,
+    location: '体育场北门',
+    status: 'normal',
+    details: '超高清摄像头，智能异常检测，远程控制'
+  },
+  {
+    id: 'device-12',
+    name: '车牌识别 B2',
+    type: 'license-plate',
+    health: 82,
+    temperature: 41.7,
+    batteryLevel: 72,
+    signalStrength: 88,
+    location: '地下停车场入口',
+    status: 'normal',
+    details: '智能车牌识别系统，人脸比对，车辆信息匹配'
+  },
+  {
+    id: 'device-13',
+    name: '车牌识别 B3',
+    type: 'license-plate',
+    health: 65,
+    temperature: 47.8,
+    batteryLevel: 53,
+    signalStrength: 79,
+    location: '商业区停车场',
+    status: 'warning',
+    details: '高速车牌识别系统，车型分类，违章拍摄'
+  },
+  {
+    id: 'device-14',
+    name: '车牌识别 B4',
+    type: 'license-plate',
+    health: 87,
+    temperature: 39.9,
+    batteryLevel: 78,
+    signalStrength: 90,
+    location: '高速路口检查站',
+    status: 'normal',
+    details: '全天候车牌识别系统，多角度识别，防伪验证'
+  },
+  {
+    id: 'device-15',
     name: '人物识别 C2',
+    type: 'person-detection',
+    health: 91,
+    temperature: 40.2,
+    signalStrength: 92,
+    location: '步行街中心',
+    status: 'normal',
+    details: '智能人物跟踪系统，行为分析，异常识别'
+  },
+  {
+    id: 'device-16',
+    name: '人物识别 C3',
+    type: 'person-detection',
+    health: 81,
+    temperature: 42.8,
+    signalStrength: 87,
+    location: '公园东区',
+    status: 'normal',
+    details: '多目标人物识别系统，人群密度监测，行为预测'
+  },
+  {
+    id: 'device-17',
+    name: '人物识别 C4',
+    type: 'person-detection',
+    health: 74,
+    temperature: 44.5,
+    signalStrength: 83,
+    location: '儿童游乐区',
+    status: 'warning',
+    details: '特殊人群识别系统，儿童安全监测，走失预警'
+  },
+  {
+    id: 'device-18',
+    name: '火灾监测 D3',
+    type: 'wildfire',
+    health: 92,
+    temperature: 37.5,
+    signalStrength: 94,
+    location: '城市公园林区',
+    status: 'normal',
+    details: '先进热成像系统，早期火灾预警，自动报警'
+  },
+  {
+    id: 'device-19',
+    name: '火灾监测 D4',
+    type: 'wildfire',
+    health: 31,
+    temperature: 62.4,
+    signalStrength: 64,
+    location: '森林保护区东部',
+    status: 'critical',
+    details: '多光谱火灾监测系统，烟雾分析，风向预测'
+  },
+  {
+    id: 'device-20',
+    name: '夜间街道 E2',
+    type: 'night-street',
+    health: 87,
+    temperature: 39.1,
+    signalStrength: 91,
+    location: '大学校园周边',
+    status: 'normal',
+    details: '高感光夜视系统，低光照监控，声音感应'
+  },
+  {
+    id: 'device-21',
+    name: '夜间街道 E3',
+    type: 'night-street',
+    health: 83,
+    temperature: 41.2,
+    signalStrength: 88,
+    location: '住宅区小巷',
+    status: 'normal',
+    details: '智能夜间巡逻系统，异常行为检测，自动警报'
+  },
+  {
+    id: 'device-22',
+    name: '夜间街道 E4',
+    type: 'night-street',
+    health: 58,
+    temperature: 51.3,
+    signalStrength: 71,
+    location: '工业区边缘',
+    status: 'warning',
+    details: '复合式夜间监控系统，热成像+红外，全天候监测'
+  },
+  {
+    id: 'device-23',
+    name: '夜间车辆 F2',
+    type: 'night-vehicle',
+    health: 84,
+    temperature: 38.7,
+    signalStrength: 89,
+    location: '城市快速路',
+    status: 'normal',
+    details: '夜间车辆监测系统，超速检测，轨迹追踪'
+  },
+  {
+    id: 'device-24',
+    name: '夜间车辆 F3',
+    type: 'night-vehicle',
+    health: 76,
+    temperature: 43.5,
+    signalStrength: 82,
+    location: '郊区公路',
+    status: 'warning',
+    details: '先进夜视系统，车辆分类，异常驾驶行为检测'
+  },
+  {
+    id: 'device-25',
+    name: '夜间车辆 F4',
+    type: 'night-vehicle',
+    health: 93,
+    temperature: 36.9,
+    signalStrength: 95,
+    location: '机场高速',
+    status: 'normal',
+    details: '全天候车辆监控系统，车牌识别，速度监测'
+  },
+  {
+    id: 'device-26',
+    name: '远距离监控 G2',
+    type: 'long-distance',
+    health: 88,
+    temperature: 39.5,
+    signalStrength: 90,
+    location: '城市制高点',
+    status: 'normal',
+    details: '超远距离监控系统，50倍光学变焦，高清成像'
+  },
+  {
+    id: 'device-27',
+    name: '远距离监控 G3',
+    type: 'long-distance',
+    health: 69,
+    temperature: 46.8,
+    signalStrength: 77,
+    location: '山顶观测站',
+    status: 'warning',
+    details: '全景远距离监控，360度视角，气象适应性强'
+  },
+  {
+    id: 'device-28',
+    name: '远距离监控 G4',
+    type: 'long-distance',
+    health: 24,
+    temperature: 59.7,
+    signalStrength: 48,
+    location: '湖泊监测点',
+    status: 'critical',
+    details: '水域远距离监控系统，防水设计，船只识别跟踪'
+  },
+  {
+    id: 'device-29',
+    name: '摄像头 A5',
+    type: 'camera',
+    health: 0,
+    temperature: 0,
+    signalStrength: 0,
+    location: '城市东门',
+    status: 'offline',
+    details: '智能摄像头系统，人流统计，交通监控'
+  },
+  {
+    id: 'device-30',
+    name: '人物识别 C5',
     type: 'person-detection',
     health: 0,
     temperature: 0,
     signalStrength: 0,
-    location: '公园东区',
+    location: '商业街区',
     status: 'offline',
-    details: 'AI人物识别系统，面部特征检测，行为分析'
+    details: '高精度人物识别系统，行为分析，VIP识别'
   }
 ]);
 
@@ -259,243 +527,225 @@ onMounted(() => {
   // 开始模拟数据更新
   updateDevicesData();
 });
+
+// 计算属性 - 设备列表
+const devices = computed(() => monitoringDevices.value);
+
+// 根据状态和类型筛选设备
+const filteredDevices = computed(() => {
+  let result = [...monitoringDevices.value];
+  
+  // 按状态筛选
+  if (currentFilter.value !== 'all') {
+    result = result.filter(device => {
+      if (currentFilter.value === 'online') return device.status === 'normal';
+      if (currentFilter.value === 'alert') return device.status === 'alert' || device.status === 'warning' || device.status === 'critical';
+      if (currentFilter.value === 'offline') return device.status === 'offline';
+      return true;
+    });
+  }
+  
+  // 按类型筛选
+  if (currentTypeFilter.value !== null) {
+    result = result.filter(device => device.type === currentTypeFilter.value);
+  }
+  
+  return result;
+});
+
+// 分页相关计算属性
+const totalPages = computed(() => Math.ceil(filteredDevices.value.length / pageSize.value));
+
+const paginatedDevices = computed(() => {
+  const startIndex = (currentPage.value - 1) * pageSize.value;
+  const endIndex = startIndex + pageSize.value;
+  return filteredDevices.value.slice(startIndex, endIndex);
+});
+
+// 设备状态计数
+const onlineCount = computed(() => 
+  monitoringDevices.value.filter(d => d.status === 'normal').length
+);
+
+const alertCount = computed(() => 
+  monitoringDevices.value.filter(d => d.status === 'alert' || d.status === 'warning' || d.status === 'critical').length
+);
+
+const offlineCount = computed(() => 
+  monitoringDevices.value.filter(d => d.status === 'offline').length
+);
+
+// 百分比计算
+const onlinePercentage = computed(() => 
+  Math.round((onlineCount.value / monitoringDevices.value.length) * 100)
+);
+
+const alertPercentage = computed(() => 
+  Math.round((alertCount.value / monitoringDevices.value.length) * 100)
+);
+
+const offlinePercentage = computed(() => 
+  Math.round((offlineCount.value / monitoringDevices.value.length) * 100)
+);
+
+// 方法
+const setFilter = (filter: string) => {
+  currentFilter.value = filter;
+  resetPagination();
+};
+
+const setTypeFilter = (type: DeviceType | null) => {
+  currentTypeFilter.value = type;
+  resetPagination();
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const resetPagination = () => {
+  currentPage.value = 1;
+};
+
+// 获取设备类型标签
+const getDeviceTypeLabel = (type: DeviceType | string) => {
+  const found = deviceTypes.find(dt => dt.value === type);
+  return found ? found.label : '未知设备';
+};
+
+// 获取设备图标
+const getDeviceTypeIcon = (type: DeviceType | string) => {
+  const icons: Record<string, string> = {
+    'camera': '/icons/camera.svg',
+    'license-plate': '/icons/license-plate.svg',
+    'person-detection': '/icons/person.svg',
+    'wildfire': '/icons/fire.svg',
+    'night-street': '/icons/night.svg',
+    'night-vehicle': '/icons/car.svg',
+    'long-distance': '/icons/telescope.svg'
+  };
+  
+  return icons[type as string] || '/icons/device.svg';
+};
+
+// 获取健康度颜色
+const getHealthColor = (health: number) => {
+  if (health >= 80) return '#4CAF50';
+  if (health >= 60) return '#FFC107';
+  if (health >= 40) return '#FF9800';
+  return '#F44336';
+};
 </script>
 
 <template>
-  <div class="monitoring-devices-container">
-    <div class="header-section">
-      <h2 class="title">监控设备状态</h2>
-      
-      <div class="stats-bar">
-        <div class="stat-item">
-          <div class="stat-value">{{ deviceStats.total }}</div>
-          <div class="stat-label">设备总数</div>
+  <div class="drone-status-component">
+    <div class="status-header">
+      <div class="status-title">监控设备状态</div>
+      <div class="status-filter">
+        <div class="status-filter-item" :class="{ active: currentFilter === 'all' }" @click="setFilter('all')">
+          全部设备 <span class="count">{{ devices.length }}</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-value online">{{ deviceStats.online }}</div>
-          <div class="stat-label">在线设备</div>
+        <div class="status-filter-item" :class="{ active: currentFilter === 'online' }" @click="setFilter('online')">
+          在线设备 <span class="count">{{ onlineCount }}</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-value warning">{{ deviceStats.warning }}</div>
-          <div class="stat-label">警告状态</div>
+        <div class="status-filter-item" :class="{ active: currentFilter === 'alert' }" @click="setFilter('alert')">
+          告警状态 <span class="count">{{ alertCount }}</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-value critical">{{ deviceStats.critical }}</div>
-          <div class="stat-label">危险状态</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value offline">{{ deviceStats.offline }}</div>
-          <div class="stat-label">离线设备</div>
+        <div class="status-filter-item" :class="{ active: currentFilter === 'offline' }" @click="setFilter('offline')">
+          离线设备 <span class="count">{{ offlineCount }}</span>
         </div>
       </div>
-      
-      <div class="filter-buttons">
-        <button 
-          class="filter-button"
-          :class="{ active: selectedType === null }"
-          @click="toggleTypeFilter(null)"
+      <div class="status-filter-buttons">
+        <span 
+          v-for="(type, index) in deviceTypes" 
+          :key="index" 
+          class="filter-button" 
+          :class="{ active: currentTypeFilter === type.value }"
+          @click="setTypeFilter(type.value)"
         >
-          全部设备
-        </button>
-        <button 
-          class="filter-button"
-          :class="{ active: selectedType === 'camera' }"
-          @click="toggleTypeFilter('camera')"
-        >
-          标准摄像头
-        </button>
-        <button 
-          class="filter-button"
-          :class="{ active: selectedType === 'license-plate' }"
-          @click="toggleTypeFilter('license-plate')"
-        >
-          车牌识别
-        </button>
-        <button 
-          class="filter-button"
-          :class="{ active: selectedType === 'person-detection' }"
-          @click="toggleTypeFilter('person-detection')"
-        >
-          人物识别
-        </button>
-        <button 
-          class="filter-button"
-          :class="{ active: selectedType === 'wildfire' }"
-          @click="toggleTypeFilter('wildfire')"
-        >
-          火灾监测
-        </button>
-        <button 
-          class="filter-button"
-          :class="{ active: selectedType === 'flood' }"
-          @click="toggleTypeFilter('flood')"
-        >
-          洪水监测
-        </button>
+          {{ type.label }}
+        </span>
       </div>
     </div>
     
-    <div class="devices-grid">
-      <div 
-        v-for="device in filterByType(selectedType)" 
-        :key="device.id"
-        class="device-item"
-        :class="{ 
-          'warning': device.status === 'warning',
-          'critical': device.status === 'critical',
-          'offline': device.status === 'offline'
-        }"
-        @click="selectDevice(device)"
-      >
-        <div class="device-header">
-          <div class="device-title">
-            <span class="device-name">{{ device.name }}</span>
-            <span class="device-type">{{ getDeviceTypeName(device.type) }}</span>
+    <div class="status-summary">
+      <div class="status-count">
+        <span class="value">{{ filteredDevices.length }}</span>
+        <span class="label">设备总数</span>
+      </div>
+      <div class="status-chart">
+        <div class="chart-bar-container">
+          <div class="chart-bar online" :style="{ width: `${onlinePercentage}%` }">
+            <span class="bar-label">在线</span>
+            <span class="bar-value">{{ onlineCount }}</span>
           </div>
-          <span class="status-indicator" :style="{ backgroundColor: getStatusColor(device.status) }"></span>
-        </div>
-        
-        <div class="device-details">
-          <div class="health-bar">
-            <div class="health-bar-label">
-              健康度: {{ device.status === 'offline' ? '离线' : `${Math.round(device.health)}%` }}
-            </div>
-            <div class="health-bar-track">
-              <div 
-                class="health-bar-fill" 
-                :style="{ 
-                  width: `${device.health}%`, 
-                  backgroundColor: getStatusColor(device.status) 
-                }"
-              ></div>
-            </div>
+          <div class="chart-bar alert" :style="{ width: `${alertPercentage}%` }">
+            <span class="bar-label">告警</span>
+            <span class="bar-value">{{ alertCount }}</span>
           </div>
-          
-          <div class="device-info">
-            <div class="info-row">
-              <span class="info-label">位置:</span>
-              <span class="info-value">{{ device.location }}</span>
-            </div>
-            
-            <div class="info-row" v-if="device.status !== 'offline'">
-              <span class="info-label">温度:</span>
-              <span class="info-value">{{ device.temperature.toFixed(1) }}°C</span>
-            </div>
-            
-            <div class="info-row" v-if="device.signalStrength !== undefined && device.status !== 'offline'">
-              <span class="info-label">信号:</span>
-              <span class="info-value">{{ Math.round(device.signalStrength) }}%</span>
-            </div>
+          <div class="chart-bar offline" :style="{ width: `${offlinePercentage}%` }">
+            <span class="bar-label">离线</span>
+            <span class="bar-value">{{ offlineCount }}</span>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- 设备详情对话框 -->
-    <div v-if="showDetails && selectedDevice" class="device-details-modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>{{ selectedDevice.name }} 详情</h3>
-          <button class="close-button" @click="closeDetails">×</button>
+    <div class="status-list-container">
+      <div class="status-list">
+        <div 
+          v-for="device in paginatedDevices" 
+          :key="device.id" 
+          class="status-item"
+          :class="{ 'status-alert': device.status === 'alert', 'status-offline': device.status === 'offline' }"
+        >
+          <div class="status-icon">
+            <img 
+              :src="getDeviceTypeIcon(device.type)" 
+              alt="Device icon" 
+              class="device-icon"
+              :class="{ 'pulse-alert': device.status === 'alert' }"
+            />
+            <div class="status-indicator" :class="device.status"></div>
+          </div>
+          <div class="status-details">
+            <div class="device-name">{{ device.name }}</div>
+            <div class="device-type">{{ getDeviceTypeLabel(device.type) }}</div>
+            <div class="device-health">
+              <span class="health-label">健康度:</span>
+              <div class="health-bar-container">
+                <div class="health-bar" :style="{ width: `${device.health}%`, backgroundColor: getHealthColor(device.health) }"></div>
+              </div>
+              <span class="health-value">{{ device.health }}%</span>
+            </div>
+          </div>
+          <div class="device-location">
+            <i class="el-icon-location"></i>
+            {{ device.location }}
+          </div>
         </div>
+      </div>
+      
+      <div class="pagination-controls">
+        <button class="pagination-button" :disabled="currentPage === 1" @click="prevPage">上一页</button>
+        <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>
+        <button class="pagination-button" :disabled="currentPage === totalPages" @click="nextPage">下一页</button>
         
-        <div class="modal-body">
-          <div class="detail-section">
-            <div class="detail-row">
-              <span class="detail-label">设备类型:</span>
-              <span class="detail-value">{{ getDeviceTypeName(selectedDevice.type) }}</span>
-            </div>
-            
-            <div class="detail-row">
-              <span class="detail-label">状态:</span>
-              <span 
-                class="detail-value status"
-                :style="{ color: getStatusColor(selectedDevice.status) }"
-              >
-                {{ 
-                  selectedDevice.status === 'normal' ? '正常' : 
-                  selectedDevice.status === 'warning' ? '警告' : 
-                  selectedDevice.status === 'critical' ? '危险' : '离线'
-                }}
-              </span>
-            </div>
-            
-            <div class="detail-row">
-              <span class="detail-label">位置:</span>
-              <span class="detail-value">{{ selectedDevice.location }}</span>
-            </div>
-            
-            <template v-if="selectedDevice.status !== 'offline'">
-              <div class="detail-row">
-                <span class="detail-label">健康度:</span>
-                <span class="detail-value">
-                  {{ Math.round(selectedDevice.health) }}% ({{ getHealthDescription(selectedDevice.health) }})
-                </span>
-              </div>
-              
-              <div class="detail-row">
-                <span class="detail-label">温度:</span>
-                <span 
-                  class="detail-value"
-                  :class="{
-                    'warning-text': selectedDevice.temperature > 50,
-                    'critical-text': selectedDevice.temperature > 60
-                  }"
-                >
-                  {{ selectedDevice.temperature.toFixed(1) }}°C
-                  {{ selectedDevice.temperature > 60 ? ' (过热!)' : selectedDevice.temperature > 50 ? ' (偏高)' : '' }}
-                </span>
-              </div>
-              
-              <div v-if="selectedDevice.batteryLevel !== undefined" class="detail-row">
-                <span class="detail-label">电量:</span>
-                <span 
-                  class="detail-value"
-                  :class="{ 'warning-text': selectedDevice.batteryLevel < 30 }"
-                >
-                  {{ Math.round(selectedDevice.batteryLevel) }}%
-                  {{ selectedDevice.batteryLevel < 20 ? ' (电量不足!)' : '' }}
-                </span>
-              </div>
-              
-              <div v-if="selectedDevice.signalStrength !== undefined" class="detail-row">
-                <span class="detail-label">信号强度:</span>
-                <span 
-                  class="detail-value"
-                  :class="{ 'warning-text': selectedDevice.signalStrength < 50 }"
-                >
-                  {{ Math.round(selectedDevice.signalStrength) }}%
-                  {{ selectedDevice.signalStrength < 40 ? ' (信号弱)' : '' }}
-                </span>
-              </div>
-            </template>
-            
-            <div v-if="selectedDevice.lastMaintenance" class="detail-row">
-              <span class="detail-label">上次维护:</span>
-              <span class="detail-value">{{ selectedDevice.lastMaintenance }}</span>
-            </div>
-          </div>
-          
-          <div class="detail-description">
-            <h4>技术参数</h4>
-            <p>{{ selectedDevice.details }}</p>
-          </div>
-          
-          <div class="action-buttons">
-            <button 
-              class="action-button primary" 
-              :disabled="selectedDevice.status === 'offline'"
-            >
-              查看实时画面
-            </button>
-            <button class="action-button">历史记录</button>
-            <button 
-              class="action-button warning" 
-              :disabled="selectedDevice.status === 'offline'"
-            >
-              标记为待修
-            </button>
-          </div>
+        <div class="page-size-selector">
+          <span>每页显示:</span>
+          <select v-model="pageSize" @change="resetPagination">
+            <option :value="10">10</option>
+            <option :value="15">15</option>
+            <option :value="20">20</option>
+          </select>
         </div>
       </div>
     </div>
@@ -503,376 +753,373 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.monitoring-devices-container {
-  background-color: #0a1929;
-  color: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  position: relative;
+.drone-status-component {
   height: 100%;
-  min-height: 400px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
+  padding: 0;
+  color: #e3f2fd;
 }
 
-.header-section {
-  margin-bottom: 20px;
-}
-
-.title {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  color: #4fc3f7;
-  border-bottom: 1px solid #1e3a5f;
-  padding-bottom: 10px;
-}
-
-.stats-bar {
-  display: flex;
-  justify-content: space-between;
-  background-color: #132f4c;
-  border-radius: 8px;
+.status-header {
   padding: 15px;
-  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  font-size: 1.5rem;
+.status-title {
+  font-size: 1.25rem;
   font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  color: #90caf9;
-}
-
-.stat-value.online {
-  color: #4CAF50;
-}
-
-.stat-value.warning {
-  color: #FF9800;
-}
-
-.stat-value.critical {
-  color: #F44336;
-}
-
-.stat-value.offline {
-  color: #9E9E9E;
-}
-
-.filter-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.filter-button {
-  background-color: #132f4c;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 0.9rem;
-}
-
-.filter-button:hover {
-  background-color: #1e3a5f;
-}
-
-.filter-button.active {
-  background-color: #1976d2;
-}
-
-.devices-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 15px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.device-item {
-  background-color: #132f4c;
-  border-radius: 8px;
-  padding: 15px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border-left: 4px solid #4CAF50;
-}
-
-.device-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.device-item.warning {
-  border-left-color: #FF9800;
-}
-
-.device-item.critical {
-  border-left-color: #F44336;
-  animation: pulse 2s infinite;
-}
-
-.device-item.offline {
-  border-left-color: #9E9E9E;
-  opacity: 0.7;
-}
-
-.device-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 15px;
 }
 
-.device-title {
+.status-filter {
   display: flex;
-  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-.device-name {
-  font-weight: bold;
-  font-size: 1.1rem;
+.status-filter-item {
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
 }
 
-.device-type {
+.status-filter-item:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.status-filter-item.active {
+  background-color: #3b82f6;
+}
+
+.count {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 2px 8px;
+  margin-left: 5px;
   font-size: 0.8rem;
-  color: #90caf9;
-  margin-top: 3px;
 }
 
-.status-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.device-details {
+.status-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 10px;
 }
 
-.health-bar {
-  margin-bottom: 15px;
+.filter-button {
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
 }
 
-.health-bar-label {
+.filter-button:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.filter-button.active {
+  background-color: #5c6bc0;
+}
+
+.status-summary {
+  display: flex;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-count {
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+  width: 90px;
+}
+
+.status-count .value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+}
+
+.status-count .label {
   font-size: 0.9rem;
-  margin-bottom: 5px;
+  color: #90caf9;
 }
 
-.health-bar-track {
-  height: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
+.status-chart {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.chart-bar-container {
+  width: 100%;
+  height: 28px;
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+  display: flex;
   overflow: hidden;
 }
 
-.health-bar-fill {
+.chart-bar {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s ease, background-color 0.5s ease;
-}
-
-.device-info {
-  font-size: 0.9rem;
-}
-
-.info-row {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-}
-
-.info-label {
-  color: #90caf9;
-}
-
-/* 详情模态窗口 */
-.device-details-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
+  padding: 0 10px;
+  position: relative;
+  transition: width 0.5s ease-in-out;
+  min-width: 60px;
 }
 
-.modal-content {
-  background-color: #132f4c;
-  border-radius: 8px;
-  min-width: 500px;
-  max-width: 800px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+.chart-bar.online {
+  background-color: #4caf50;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #1e3a5f;
+.chart-bar.alert {
+  background-color: #ff9800;
 }
 
-.modal-header h3 {
-  margin: 0;
-  color: #4fc3f7;
+.chart-bar.offline {
+  background-color: #f44336;
 }
 
-.close-button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  line-height: 1;
-  color: #ccc;
-  cursor: pointer;
+.bar-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-right: 5px;
 }
 
-.close-button:hover {
+.bar-value {
+  font-size: 0.8rem;
+  font-weight: bold;
   color: white;
 }
 
-.modal-body {
-  padding: 20px;
-}
-
-.detail-section {
-  margin-bottom: 20px;
-}
-
-.detail-row {
-  display: flex;
-  margin-bottom: 10px;
-}
-
-.detail-label {
-  width: 100px;
-  color: #90caf9;
-  font-weight: bold;
-}
-
-.detail-value {
+.status-list-container {
   flex: 1;
-}
-
-.detail-value.status {
-  font-weight: bold;
-}
-
-.warning-text {
-  color: #FF9800;
-}
-
-.critical-text {
-  color: #F44336;
-}
-
-.detail-description {
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-.detail-description h4 {
-  margin-top: 0;
-  color: #4fc3f7;
-  margin-bottom: 10px;
-}
-
-.action-buttons {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.action-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  background-color: #1e3a5f;
-  color: white;
+.status-list {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-gap: 10px;
+}
+
+.status-item {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: background-color 0.3s;
+  border-left: 4px solid transparent;
 }
 
-.action-button:hover:not(:disabled) {
-  background-color: #27496d;
+.status-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
 }
 
-.action-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.status-item.status-alert {
+  border-left-color: #ff9800;
+  animation: pulse 2s infinite;
 }
 
-.action-button.primary {
-  background-color: #1976d2;
-}
-
-.action-button.primary:hover:not(:disabled) {
-  background-color: #1565c0;
-}
-
-.action-button.warning {
-  background-color: #d32f2f;
-}
-
-.action-button.warning:hover:not(:disabled) {
-  background-color: #c62828;
+.status-item.status-offline {
+  border-left-color: #f44336;
+  opacity: 0.7;
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4);
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+    box-shadow: 0 0 0 6px rgba(255, 152, 0, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
   }
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .stats-bar {
-    flex-wrap: wrap;
+.status-icon {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.device-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  margin-right: 10px;
+}
+
+.device-icon.pulse-alert {
+  animation: iconPulse 1.5s infinite;
+}
+
+@keyframes iconPulse {
+  0% {
+    opacity: 1;
   }
-  
-  .stat-item {
-    flex-basis: 33%;
-    margin-bottom: 10px;
+  50% {
+    opacity: 0.6;
   }
-  
-  .filter-buttons {
-    justify-content: center;
+  100% {
+    opacity: 1;
   }
-  
-  .filter-button {
-    flex: 1;
-    min-width: 100px;
-  }
-  
-  .modal-content {
-    width: 90%;
-    min-width: auto;
-  }
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.status-indicator.normal {
+  background-color: #4caf50;
+}
+
+.status-indicator.alert {
+  background-color: #ff9800;
+}
+
+.status-indicator.offline {
+  background-color: #f44336;
+}
+
+.status-details {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.device-name {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.device-type {
+  font-size: 0.85rem;
+  color: #90caf9;
+  margin-bottom: 8px;
+}
+
+.device-health {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.health-label {
+  font-size: 0.85rem;
+  margin-right: 8px;
+  color: #e3f2fd;
+}
+
+.health-bar-container {
+  height: 6px;
+  width: 100px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-right: 8px;
+}
+
+.health-bar {
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.health-value {
+  font-size: 0.85rem;
+  color: #e3f2fd;
+}
+
+.device-location {
+  font-size: 0.85rem;
+  color: #b3e5fc;
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.device-location i {
+  margin-right: 5px;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pagination-button {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  margin: 0 15px;
+  color: #e3f2fd;
+}
+
+.page-size-selector {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  color: #e3f2fd;
+}
+
+.page-size-selector span {
+  margin-right: 8px;
+  font-size: 0.9rem;
+}
+
+.page-size-selector select {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
 </style> 

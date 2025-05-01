@@ -8,7 +8,7 @@
  */
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, defineProps, defineEmits, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import html2canvas from 'html2canvas';
 

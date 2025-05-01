@@ -9,6 +9,7 @@
  */
 
 import { createApp } from "vue";
+import { createPinia } from "pinia";
 import "./assets/main.css";
 import App from "./App.vue";
 import router from './router';
@@ -29,6 +30,10 @@ AOS.init({
 });
 
 const app = createApp(App);
+
+// 创建和使用Pinia
+const pinia = createPinia();
+app.use(pinia);
 
 // 注册Element Plus
 app.use(ElementPlus);

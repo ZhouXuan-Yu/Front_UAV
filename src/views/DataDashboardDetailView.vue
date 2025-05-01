@@ -9,8 +9,10 @@
  */
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import ThreeDronePathComponent from '@/components/dashboard/ThreeDronePathComponent.vue';
+import { ref, onMounted, reactive } from 'vue';
+import { ElMessage } from 'element-plus';
+import { QuestionFilled, Filter, Refresh, Download } from '@element-plus/icons-vue';
+// import ThreeDronePathComponent from '@/components/dashboard/ThreeDronePathComponent.vue';
 import DroneStatusComponent from '@/components/dashboard/DroneStatusComponent.vue';
 // import MapComponent from '@/components/dashboard/MapComponent.vue';
 import FixedMapComponent from '@/components/dashboard/FixedMapComponent.vue';
@@ -18,9 +20,59 @@ import DataChartsComponent from '@/components/dashboard/DataChartsComponent.vue'
 import VideoMonitoringComponent from '@/components/dashboard/VideoMonitoringComponent.vue';
 import GeoApiDashboard from '@/components/dashboard/GeoApiDashboard.vue';
 import DroneMapTracker from '@/components/dashboard/DroneMapTracker.vue';
+// 新增导入高级分析组件
+import DataDrilldownComponent from '@/components/dashboard/DataDrilldownComponent.vue';
+import DataComparisonComponent from '@/components/dashboard/DataComparisonComponent.vue';
+import InteractiveFilteringComponent from '@/components/dashboard/InteractiveFilteringComponent.vue';
+// import ThreeDVisualizationComponent from '@/components/visualization/ThreeDVisualizationComponent.vue';
+import AnomalyDetectionComponent from '@/components/dashboard/AnomalyDetectionComponent.vue';
+// import CustomDashboardComponent from '@/components/dashboard/CustomDashboardComponent.vue';
+
+// 导入AI服务
+import { useVisualizationStore } from '@/store/visualization';
 
 const loading = ref(true);
 const activeTab = ref('overview');
+// 添加数据分析日期选择器变量
+const analyticsDate = ref(new Date());
+
+// 高级分析相关状态
+const analysisMode = ref('charts'); // 'charts', 'drilldown', 'comparison', 'ai'
+const drilldownType = ref('person'); // 'person', 'vehicle'
+const drilldownRegion = ref('central');
+const comparisonMode = ref('time'); // 'time', 'region', 'custom'
+// const visualizationType = ref('heatmap'); // 'heatmap', 'surface', 'timeAnimation'
+
+// 筛选面板状态
+const showFilterPanel = ref(false);
+
+// 筛选配置
+const filterConfig = reactive({
+  dateRange: [
+    new Date(new Date().setDate(new Date().getDate() - 7)),
+    new Date()
+  ],
+  regions: ['central'],
+  dataTypes: ['person', 'vehicle', 'risk'],
+  deviceStatus: true
+});
+
+// 区域选项
+const regionOptions = [
+  { value: 'central', label: '中心区域' },
+  { value: 'north', label: '北部区域' },
+  { value: 'south', label: '南部区域' },
+  { value: 'east', label: '东部区域' },
+  { value: 'west', label: '西部区域' }
+];
+
+// 数据类型选项
+const dataTypeOptions = [
+  { value: 'person', label: '人员监测' },
+  { value: 'vehicle', label: '车辆监测' },
+  { value: 'risk', label: '风险事件' },
+  { value: 'drone', label: '无人机状态' }
+];
 
 // 模拟加载过程
 onMounted(() => {
@@ -32,6 +84,63 @@ onMounted(() => {
 // 切换标签页
 const switchTab = (tab: string) => {
   activeTab.value = tab;
+};
+
+// 切换分析模式
+const switchAnalysisMode = (mode: string) => {
+  analysisMode.value = mode;
+};
+
+// 导出钻取数据
+const handleExportDrilldownData = (data: any) => {
+  console.log('导出钻取数据', data);
+  // 在实际应用中，这里可以调用下载或保存逻辑
+};
+
+// 显示提示消息
+const showTip = (message: string) => {
+  ElMessage({
+    message,
+    type: 'info'
+  });
+};
+
+// 应用筛选条件
+const applyFilters = () => {
+  showFilterPanel.value = false;
+  
+  ElMessage({
+    message: '筛选条件已应用',
+    type: 'success'
+  });
+  
+  // 在实际项目中，这里会将筛选条件传递给各个组件或调用API重新获取数据
+};
+
+// 重置筛选条件
+const resetFilters = () => {
+  filterConfig.dateRange = [
+    new Date(new Date().setDate(new Date().getDate() - 7)),
+    new Date()
+  ];
+  filterConfig.regions = ['central'];
+  filterConfig.dataTypes = ['person', 'vehicle', 'risk'];
+  filterConfig.deviceStatus = true;
+  
+  ElMessage({
+    message: '筛选条件已重置',
+    type: 'info'
+  });
+};
+
+// 刷新数据
+const refreshData = () => {
+  ElMessage({
+    message: '数据已更新',
+    type: 'success'
+  });
+  
+  // 实际项目中刷新数据的逻辑
 };
 </script>
 
@@ -144,11 +253,18 @@ const switchTab = (tab: string) => {
             </div>
           </div>
           
+          <div class="overview-dashboard">
           <div class="dashboard-grid">
-            <!-- 3D路径可视化 -->
-            <div class="dashboard-card drone-path-card">
+              <!-- 3D路径可视化 - 已移除 -->
+              <!-- <div class="dashboard-card drone-path-card">
               <h2 class="card-title">无人机飞行路径</h2>
               <ThreeDronePathComponent class="card-content" />
+              </div> -->
+              
+              <!-- 添加替代卡片 -->
+              <div class="dashboard-card drone-status-card">
+                <h2 class="card-title">无人机状态一览</h2>
+                <DroneStatusComponent class="card-content" />
             </div>
             
             <!-- 视频监控组件 -->
@@ -167,6 +283,7 @@ const switchTab = (tab: string) => {
             <div class="dashboard-card charts-card">
               <h2 class="card-title">数据分析</h2>
               <DataChartsComponent class="card-content" />
+              </div>
             </div>
           </div>
         </section>
@@ -183,7 +300,253 @@ const switchTab = (tab: string) => {
         
         <!-- 数据分析标签页 -->
         <section v-if="activeTab === 'analytics'" class="tab-content">
-          <DataChartsComponent style="height: 800px;" />
+          <div class="analytics-header">
+            <h2>数据分析平台</h2>
+            <p class="analytics-description">
+              通过高级数据分析技术，为运营提供实时决策支持和趋势洞察
+            </p>
+            <div class="analytics-actions">
+              <el-button-group>
+                <el-button 
+                  :type="analysisMode === 'charts' ? 'primary' : ''" 
+                  size="small" 
+                  @click="switchAnalysisMode('charts')"
+                >
+                  基础图表
+                </el-button>
+                <el-button 
+                  :type="analysisMode === 'drilldown' ? 'primary' : ''" 
+                  size="small" 
+                  @click="switchAnalysisMode('drilldown')"
+                >
+                  数据钻取
+                </el-button>
+                <el-button 
+                  :type="analysisMode === 'comparison' ? 'primary' : ''" 
+                  size="small" 
+                  @click="switchAnalysisMode('comparison')"
+                >
+                  数据对比
+                </el-button>
+                <el-button 
+                  :type="analysisMode === 'ai' ? 'primary' : ''" 
+                  size="small" 
+                  @click="switchAnalysisMode('ai')"
+                >
+                  异常检测
+                </el-button>
+              </el-button-group>
+              
+              <div class="action-buttons">
+                <el-button size="small" @click="showFilterPanel = !showFilterPanel">
+                  <el-icon><Filter /></el-icon>
+                  筛选
+                </el-button>
+                <el-button size="small" @click="refreshData">
+                  <el-icon><Refresh /></el-icon>
+                  刷新
+                </el-button>
+                <el-button size="small">
+                  <el-icon><Download /></el-icon>
+                  导出
+                </el-button>
+              </div>
+              
+              <el-date-picker
+                v-model="analyticsDate"
+                type="date"
+                placeholder="选择日期"
+                size="small"
+                style="width: 160px;"
+              ></el-date-picker>
+            </div>
+          </div>
+          
+          <!-- 筛选面板 -->
+          <div v-if="showFilterPanel" class="filter-panel">
+            <div class="filter-panel-header">
+              <h3>数据筛选</h3>
+              <el-button type="text" @click="showFilterPanel = false">关闭</el-button>
+            </div>
+            
+            <div class="filter-panel-content">
+              <div class="filter-row">
+                <div class="filter-group">
+                  <span class="filter-label">时间范围</span>
+                  <el-date-picker
+                    v-model="filterConfig.dateRange"
+                    type="daterange"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    size="default"
+                    style="width: 100%"
+                  />
+                </div>
+                
+                <div class="filter-group">
+                  <span class="filter-label">监测区域</span>
+                  <el-select 
+                    v-model="filterConfig.regions" 
+                    multiple 
+                    placeholder="选择区域" 
+                    size="default" 
+                    style="width: 100%"
+                  >
+                    <el-option
+                      v-for="item in regionOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </div>
+                
+                <div class="filter-group">
+                  <span class="filter-label">数据类型</span>
+                  <el-select 
+                    v-model="filterConfig.dataTypes" 
+                    multiple 
+                    placeholder="选择数据类型" 
+                    size="default" 
+                    style="width: 100%"
+                  >
+                    <el-option
+                      v-for="item in dataTypeOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </div>
+              </div>
+              
+              <div class="filter-group">
+                <el-checkbox v-model="filterConfig.deviceStatus">包含设备状态数据</el-checkbox>
+              </div>
+              
+              <div class="filter-actions">
+                <el-button type="primary" @click="applyFilters">应用筛选</el-button>
+                <el-button @click="resetFilters">重置</el-button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 根据分析模式显示不同的组件 -->
+          <template v-if="analysisMode === 'charts'">
+            <!-- 重新排列顺序：人物分析和项目分析放在前面，无人机状态放在后面 -->
+            <div class="analytics-compact-layout">
+              <!-- 人物分析区域 -->
+              <div class="analytics-section">
+                <h3 class="section-title">人物分析</h3>
+                <div class="analytics-card-grid">
+                  <div class="analytics-card">
+                    <h4>人物识别分布</h4>
+                    <DataChartsComponent class="chart-container" chartType="person" />
+                  </div>
+                  <div class="analytics-card">
+                    <h4>人物活动趋势</h4>
+                    <DataChartsComponent class="chart-container" chartType="personActivity" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 项目分析区域 -->
+              <div class="analytics-section">
+                <h3 class="section-title">项目分析</h3>
+                <div class="analytics-card-grid">
+                  <div class="analytics-card">
+                    <h4>任务执行情况</h4>
+                    <DataChartsComponent class="chart-container" chartType="task" />
+                  </div>
+                  <div class="analytics-card">
+                    <h4>风险识别分析</h4>
+                    <DataChartsComponent class="chart-container" chartType="risk" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 无人机状态区域 -->
+              <div class="analytics-section">
+                <h3 class="section-title">设备状态监测</h3>
+                <div class="analytics-card-grid">
+                  <div class="analytics-card">
+                    <h4>电量趋势</h4>
+                    <DataChartsComponent class="chart-container" chartType="battery" />
+                  </div>
+                  <div class="analytics-card">
+                    <h4>信号强度</h4>
+                    <DataChartsComponent class="chart-container" chartType="signal" />
+                  </div>
+                  <div class="analytics-card">
+                    <h4>飞行速度</h4>
+                    <DataChartsComponent class="chart-container" chartType="speed" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+          
+          <template v-else-if="analysisMode === 'drilldown'">
+            <div class="drilldown-controls">
+              <div class="control-item">
+                <span class="control-label">数据类型</span>
+                <el-select v-model="drilldownType" placeholder="选择数据类型" size="small">
+                  <el-option label="人员监测" value="person" />
+                  <el-option label="车辆监测" value="vehicle" />
+                </el-select>
+              </div>
+              
+              <div class="control-item">
+                <span class="control-label">监测区域</span>
+                <el-select v-model="drilldownRegion" placeholder="选择区域" size="small">
+                  <el-option label="中心区域" value="central" />
+                  <el-option label="北部区域" value="north" />
+                  <el-option label="南部区域" value="south" />
+                  <el-option label="东部区域" value="east" />
+                  <el-option label="西部区域" value="west" />
+                </el-select>
+              </div>
+              
+              <el-tooltip content="了解高级分析" placement="top">
+                <el-button size="small" circle @click="showTip('数据钻取允许您从概览数据深入到详细数据，逐层分析信息。点击图表扇区可查看细分数据。')">
+                  <el-icon><QuestionFilled /></el-icon>
+                </el-button>
+              </el-tooltip>
+            </div>
+            
+            <DataDrilldownComponent
+              :dataType="drilldownType"
+              :region="drilldownRegion"
+              @export-data="handleExportDrilldownData"
+              @back="switchAnalysisMode('charts')"
+            />
+          </template>
+          
+          <template v-else-if="analysisMode === 'comparison'">
+            <div class="comparison-controls">
+              <div class="control-item">
+                <span class="control-label">对比类型</span>
+                <el-select v-model="comparisonMode" placeholder="选择对比类型" size="small">
+                  <el-option label="时间对比" value="time" />
+                  <el-option label="区域对比" value="region" />
+                  <el-option label="自定义对比" value="custom" />
+                </el-select>
+              </div>
+              
+              <el-tooltip content="了解数据对比" placement="top">
+                <el-button size="small" circle @click="showTip('数据对比功能允许您比较不同时间段或不同区域的数据，发现趋势变化和异常模式。')">
+                  <el-icon><QuestionFilled /></el-icon>
+                </el-button>
+              </el-tooltip>
+            </div>
+            
+            <DataComparisonComponent :mode="comparisonMode" />
+          </template>
+
+          <template v-else-if="analysisMode === 'ai'">
+            <AnomalyDetectionComponent />
+          </template>
         </section>
         
         <!-- 地图追踪标签页 -->
@@ -381,29 +744,49 @@ const switchTab = (tab: string) => {
   color: #90caf9;
 }
 
-/* 卡片网格 */
+/* 仪表盘网格布局 */
+.overview-dashboard {
+  margin-bottom: 40px;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: 450px;
+  grid-template-rows: auto auto;
   gap: 20px;
 }
 
 .dashboard-card {
   background-color: #132f4c;
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.drone-path-card, .charts-card {
-  grid-column-start: 1;
+.drone-status-card {
+  grid-column: 1;
+  grid-row: span 2;
+  height: 800px;
 }
 
-.video-card, .map-card {
-  grid-column-start: 2;
+.video-card {
+  grid-column: 2;
+  grid-row: 1;
+  height: 450px;
+}
+
+.map-card {
+  grid-column: 2;
+  grid-row: 2;
+  height: 330px;
+}
+
+.charts-card {
+  grid-column: 1 / span 2;
+  grid-row: 3;
+  height: 400px;
 }
 
 .card-title {
@@ -439,24 +822,113 @@ const switchTab = (tab: string) => {
   color: #90caf9;
 }
 
-/* 确保页面底部有足够空间 */
-.dashboard-container {
-  padding-bottom: 60px !important; /* 强制应用底部间距 */
-  margin-bottom: 40px !important; /* 额外添加底部外边距 */
-  min-height: calc(100vh - 120px); /* 确保最小高度可以填充视口 */
+/* 数据分析页面样式 */
+.analytics-header {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 修复可能会导致底部被遮挡的元素 */
-.dashboard-wrapper {
-  position: relative;
-  z-index: 1; /* 确保内容不被其他固定元素遮挡 */
+.analytics-header h2 {
+  font-size: 1.5rem;
+  margin: 0 0 8px 0;
+  color: #ffffff;
 }
 
-/* 处理最后一个卡片的底部边距 */
-.dashboard-card:last-child,
-.analysis-section:last-child,
-.video-grid:last-child {
-  margin-bottom: 60px;
+.analytics-description {
+  font-size: 1rem;
+  color: #90caf9;
+  margin: 0 0 20px 0;
+}
+
+.analytics-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.analytics-component {
+  margin-top: 30px;
+  background-color: #0a1929;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  min-height: 700px;
+}
+
+/* 新增分析布局样式 */
+.analytics-compact-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.analytics-section {
+  background-color: #132f4c;
+  border-radius: 8px;
+  padding: 16px 20px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #e3f2fd;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.analytics-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.analytics-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  padding: 12px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-card h4 {
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  color: #90caf9;
+  font-weight: normal;
+}
+
+.chart-container {
+  flex: 1;
+  min-height: 250px;
+  overflow: hidden;
+}
+
+/* 高级分析相关样式 */
+.drilldown-controls,
+.comparison-controls {
+  background-color: #132F4C;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-label {
+  color: #90CAF9;
+  white-space: nowrap;
 }
 
 /* 响应式设计 */
@@ -474,26 +946,24 @@ const switchTab = (tab: string) => {
     min-height: 400px;
   }
   
-  /* 在小屏幕上增加更多底部空间 */
-  .dashboard-container {
-    padding-bottom: 80px !important;
-    margin-bottom: 60px !important;
+  .analytics-card-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
+  .drilldown-controls,
+  .comparison-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .control-item {
+    width: 100%;
+  }
+  
   .overview-stats {
     grid-template-columns: 1fr;
-  }
-  
-  .map-container-full {
-    flex-direction: column;
-  }
-  
-  .map-side-panel {
-    width: 100%;
-    height: auto;
-    max-height: 300px;
   }
   
   .tab-navigation {
@@ -505,10 +975,9 @@ const switchTab = (tab: string) => {
     min-width: 120px;
   }
   
-  /* 在移动设备上进一步增加底部空间 */
-  .dashboard-container {
-    padding-bottom: 100px !important;
-    margin-bottom: 80px !important;
+  .analytics-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
@@ -535,5 +1004,123 @@ const switchTab = (tab: string) => {
   background-color: #2563eb;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+}
+
+/* 数据筛选面板样式 */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-panel {
+  background-color: #132f4c;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.filter-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filter-panel-header h3 {
+  margin: 0;
+  color: #e3f2fd;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.filter-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-label {
+  color: #90caf9;
+  font-size: 14px;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 992px) {
+  .filter-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-actions {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .action-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* 3D可视化容器 */
+.visualization-container {
+  width: 100%;
+  height: 600px;
+  background-color: #132f4c;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.visualization-controls {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #132f4c;
+  border-radius: 8px;
+}
+
+/* 添加交互式过滤组件样式 */
+.interactive-filtering {
+  margin-top: 20px;
+}
+
+/* 添加自定义仪表盘样式 */
+.custom-dashboard {
+  margin-top: 20px;
+}
+
+/* 异常检测组件样式 */
+.anomaly-detection {
+  margin-top: 20px;
 }
 </style> 

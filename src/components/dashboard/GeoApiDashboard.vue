@@ -1058,18 +1058,18 @@ const handlePoiSearch = async () => {
     } else {
       response = await callAmapAPI('place/text', poiSearchParams);
     }
-    
+      
     // 确保结果赋值正确，强制视图更新
     poiResult.value = { ...response };
     
     // 使用DeepSeek API进行智能分析
-    if (response.status === '1' && response.pois && response.pois.length > 0 && !response.enhanced_info) {
-      ElMessage({
+      if (response.status === '1' && response.pois && response.pois.length > 0 && !response.enhanced_info) {
+        ElMessage({
         message: '正在使用DeepSeek AI生成智能分析...',
-        type: 'info',
-        offset: 80
-      });
-      
+          type: 'info',
+          offset: 80
+        });
+        
       // 激活进度状态
       deepseekProgress.poi.active = true;
       
@@ -1081,17 +1081,17 @@ const handlePoiSearch = async () => {
             deepseekProgress.poi.message = message;
           }
         };
-        
+      
         // 定义完成回调函数
         const onCompletion = (result) => {
           deepseekProgress.poi.completed = true;
           deepseekProgress.poi.active = false;
           
-          ElMessage({
+        ElMessage({
             message: 'DeepSeek AI分析已生成',
             type: 'success',
-            offset: 80
-          });
+          offset: 80
+        });
         };
         
         // 调用DeepSeek API进行POI分析，传入进度和完成回调
@@ -1111,15 +1111,15 @@ const handlePoiSearch = async () => {
         deepseekProgress.poi.failed = true;
         deepseekProgress.poi.active = false;
         deepseekProgress.poi.message = `分析失败: ${error instanceof Error ? error.message : String(error)}`;
-        
+    
         // 失败时使用本地生成
         poiResult.value.enhanced_info = generateAnalysis('poi', response.pois);
         
-        ElMessage({
+      ElMessage({
           message: '使用本地模型生成分析',
           type: 'warning',
-          offset: 80
-        });
+        offset: 80
+      });
       }
     }
     
@@ -1259,12 +1259,12 @@ const handleWeatherSearch = async () => {
       
       // 使用DeepSeek API进行天气分析
       if (response.lives && response.lives.length > 0 && !response.weather_advice) {
-        ElMessage({
+          ElMessage({
           message: '正在使用DeepSeek AI生成天气分析...',
-          type: 'info',
-          offset: 80
-        });
-        
+            type: 'info',
+            offset: 80
+          });
+          
         // 激活进度状态
         deepseekProgress.weather.active = true;
         
@@ -1345,7 +1345,7 @@ const handleWeatherSearch = async () => {
             
             ElMessage({
               message: 'DeepSeek AI天气预报分析已生成',
-              type: 'success',
+            type: 'success',
               offset: 80
             });
           };
@@ -1377,9 +1377,9 @@ const handleWeatherSearch = async () => {
             offset: 80
           });
         }
-      }
-      
-      // 显示城市位置到地图
+        }
+        
+        // 显示城市位置到地图
       if (response.lives) {
         await showCityOnMap(response.lives[0].city, response.lives[0]);
       }
@@ -1679,9 +1679,9 @@ const handleTrafficSearch = async () => {
             deepseekProgress.traffic.completed = true;
             deepseekProgress.traffic.active = false;
             
-            ElMessage({
+        ElMessage({
               message: 'DeepSeek AI交通态势分析已生成',
-              type: 'success',
+          type: 'success',
               offset: 80
             });
           };
@@ -1711,8 +1711,8 @@ const handleTrafficSearch = async () => {
           ElMessage({
             message: '使用本地模型生成交通态势分析',
             type: 'warning',
-            offset: 80
-          });
+          offset: 80
+        });
         }
       }
       

@@ -38,7 +38,7 @@ interface DroneInfo {
 }
 
 // 定义任务类型
-type TaskType = '交通监控' | '火灾检测' | '洪水检测' | '夜间检测' | '人群监控' | '区域巡检' | '定点监控';
+type TaskType = '交通监控' | '火灾检测' | '夜间检测' | '人群监控' | '区域巡检' | '定点监控';
 
 // 定义天气信息接口
 interface WeatherInfo {
@@ -166,7 +166,7 @@ const droneList = ref<DroneInfo[]>([
     payload: '防水摄像机,水位传感器',
     available: true,
     status: 'idle',
-    suitable: ['洪水检测', '区域巡检']
+    suitable: ['夜间检测', '区域巡检']
   }
 ]);
 
@@ -205,7 +205,7 @@ for (let i = 6; i <= 20; i++) {
       name = `水域无人机 W${i}`;
       model = `W${i}-Aqua`;
       payload = '防水摄像机,水位传感器';
-      suitable = ['洪水检测', '区域巡检'];
+      suitable = ['夜间检测', '区域巡检'];
       break;
     default:
       name = `多用途无人机 M${i}`;
@@ -246,16 +246,16 @@ const droneVideoStreams = computed(() => {
     .filter(drone => drone.status === 'active' && missionInfo.value.selectedDrones.includes(drone.id))
     .map(drone => {
       // 根据无人机类型选择适合的视频类型
-      let videoType: 'normal' | 'license-plate' | 'person-detection' | 'wildfire' | 'flood' = 'normal';
+      let videoType: string = 'normal';
       
       if (drone.type === '消防型') {
         videoType = 'wildfire';
       } else if (drone.type === '水域型') {
-        videoType = 'flood';
+        videoType = 'night-street';
       } else if (drone.type === '侦察型') {
-        videoType = 'license-plate';
+        videoType = 'night-vehicle';
       } else if (drone.type === '监控型') {
-        videoType = 'person-detection';
+        videoType = 'long-distance';
       }
       
       return {
@@ -275,11 +275,11 @@ const getVideoImageUrl = (type: string): string => {
   switch (type) {
     case 'wildfire':
       return 'https://ext.same-assets.com/913537297/145035404.jpeg';
-    case 'flood':
+    case 'night-street':
       return 'https://ext.same-assets.com/913537297/145035404.jpeg';
-    case 'license-plate':
+    case 'night-vehicle':
       return 'https://ext.same-assets.com/913537297/1121177740.png';
-    case 'person-detection':
+    case 'long-distance':
       return 'https://ext.same-assets.com/913537297/1124492884.jpeg';
     default:
       return 'https://ext.same-assets.com/913537297/1124492884.jpeg';
@@ -308,8 +308,12 @@ const getVideoTypeTitle = (type: string): string => {
       return '人物识别';
     case 'wildfire':
       return '森林火灾监测';
-    case 'flood':
-      return '洪水监测';
+    case 'night-street':
+      return '夜间街道巡视';
+    case 'night-vehicle':
+      return '夜间车辆检测';
+    case 'long-distance':
+      return '远距离监控';
     default:
       return '标准监控';
   }
@@ -1341,7 +1345,7 @@ onBeforeUnmount(() => {
           <h3>选择任务类型</h3>
           <div class="types-grid">
             <div 
-              v-for="type in ['交通监控', '火灾检测', '洪水检测', '夜间检测', '人群监控', '区域巡检', '定点监控']" 
+              v-for="type in ['交通监控', '火灾检测', '夜间检测', '人群监控', '区域巡检', '定点监控']" 
               :key="type"
               class="mission-type-item"
               :class="{ 'selected': missionInfo.type === type }"
@@ -1350,7 +1354,6 @@ onBeforeUnmount(() => {
               <div class="mission-type-icon">
                 <span v-if="type === '交通监控'">🚗</span>
                 <span v-else-if="type === '火灾检测'">🔥</span>
-                <span v-else-if="type === '洪水检测'">💧</span>
                 <span v-else-if="type === '夜间检测'">🌙</span>
                 <span v-else-if="type === '人群监控'">👥</span>
                 <span v-else-if="type === '区域巡检'">🔍</span>
@@ -1607,15 +1610,43 @@ onBeforeUnmount(() => {
                     </div>
                     
                     <div 
-                      v-if="video.videoType === 'flood'" 
-                      class="effect-overlay flood-effect"
+                      v-if="video.videoType === 'night-street'" 
+                      class="effect-overlay night-street-effect"
                     >
-                      <!-- 模拟洪水检测结果 -->
+                      <!-- 模拟夜间街道巡视结果 -->
                       <div class="detection-box warning-box">
-                        <div class="detection-title">洪水风险检测</div>
+                        <div class="detection-title">夜间街道巡视</div>
                         <div class="detection-result">
-                          <span class="detection-value warning-text">水位上升警告!</span>
-                          <span class="detection-confidence">上升速度: 0.5m/h</span>
+                          <span class="detection-value warning-text">发现异常情况!</span>
+                          <span class="detection-confidence">风险等级: 中</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      v-if="video.videoType === 'night-vehicle'" 
+                      class="effect-overlay night-vehicle-effect"
+                    >
+                      <!-- 模拟夜间车辆检测结果 -->
+                      <div class="detection-box warning-box">
+                        <div class="detection-title">夜间车辆检测</div>
+                        <div class="detection-result">
+                          <span class="detection-value warning-text">发现异常车辆!</span>
+                          <span class="detection-confidence">风险等级: 中</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      v-if="video.videoType === 'long-distance'" 
+                      class="effect-overlay long-distance-effect"
+                    >
+                      <!-- 模拟远距离监控结果 -->
+                      <div class="detection-box warning-box">
+                        <div class="detection-title">远距离监控</div>
+                        <div class="detection-result">
+                          <span class="detection-value warning-text">发现异常情况!</span>
+                          <span class="detection-confidence">风险等级: 低</span>
                         </div>
                       </div>
                     </div>

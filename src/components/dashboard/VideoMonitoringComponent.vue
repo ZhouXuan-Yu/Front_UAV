@@ -13,7 +13,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick, computed, watch } from 'vue'
 import { gsap } from 'gsap';
 
 // 定义监控视频类型
-type VideoType = 'normal' | 'license-plate' | 'person-detection' | 'wildfire' | 'flood';
+type VideoType = 'normal' | 'license-plate' | 'person-detection' | 'wildfire' | 'night-street' | 'night-vehicle' | 'long-distance';
 
 // 定义无人机视频源接口
 interface DroneVideo {
@@ -77,8 +77,8 @@ const droneVideos = ref<DroneVideo[]>([
   {
     id: 'drone-05',
     name: '无人机-E5',
-    videoType: 'flood',
-    location: '沿河地区',
+    videoType: 'night-street',
+    location: '市中心商业区',
     status: 'online',
     alertLevel: 'warning',
     imageUrl: 'https://ext.same-assets.com/913537297/145035404.jpeg'
@@ -86,6 +86,24 @@ const droneVideos = ref<DroneVideo[]>([
   {
     id: 'drone-06',
     name: '无人机-F6',
+    videoType: 'night-vehicle',
+    location: '环城高速',
+    status: 'online',
+    alertLevel: 'warning',
+    imageUrl: 'https://ext.same-assets.com/913537297/3416323236.png'
+  },
+  {
+    id: 'drone-07',
+    name: '无人机-G7',
+    videoType: 'long-distance',
+    location: '城市边界区',
+    status: 'online',
+    alertLevel: 'normal',
+    imageUrl: 'https://ext.same-assets.com/913537297/1124492884.jpeg'
+  },
+  {
+    id: 'drone-08',
+    name: '无人机-H8',
     videoType: 'normal',
     location: '工业园区',
     status: 'offline',
@@ -181,8 +199,12 @@ const getVideoTypeTitle = (type: VideoType): string => {
       return '人物识别';
     case 'wildfire':
       return '森林火灾监测';
-    case 'flood':
-      return '洪水监测';
+    case 'night-street':
+      return '夜间街道巡视';
+    case 'night-vehicle':
+      return '夜间车辆检测';
+    case 'long-distance':
+      return '远距离监控';
     default:
       return '标准监控';
   }
@@ -300,12 +322,30 @@ const generateDetectionResults = (videoType: VideoType): DetectionResult[] => {
         });
       }
       break;
-    case 'flood':
-      // 模拟洪水检测结果
+    case 'night-street':
+      // 模拟夜间街道巡视结果
       results.push({
         type: 'scene',
         confidence: 0.8 + Math.random() * 0.15,
-        label: '水位上升',
+        label: '夜间街道巡视',
+        timestamp: now
+      });
+      break;
+    case 'night-vehicle':
+      // 模拟夜间车辆检测结果
+      results.push({
+        type: 'scene',
+        confidence: 0.8 + Math.random() * 0.15,
+        label: '夜间车辆检测',
+        timestamp: now
+      });
+      break;
+    case 'long-distance':
+      // 模拟远距离监控结果
+      results.push({
+        type: 'scene',
+        confidence: 0.8 + Math.random() * 0.15,
+        label: '远距离监控',
         timestamp: now
       });
       break;
@@ -340,7 +380,11 @@ const updateAllDetectionResults = () => {
       // 根据检测结果判断告警级别
       if (video.videoType === 'wildfire' && video.detectionResults.some(d => d.label === '热点异常' && d.confidence > 0.85)) {
         video.alertLevel = 'critical';
-      } else if (video.videoType === 'flood' && video.detectionResults.some(d => d.label === '水位上升' && d.confidence > 0.85)) {
+      } else if (video.videoType === 'night-street' && video.detectionResults.some(d => d.label === '夜间街道巡视' && d.confidence > 0.85)) {
+        video.alertLevel = 'warning';
+      } else if (video.videoType === 'night-vehicle' && video.detectionResults.some(d => d.label === '夜间车辆检测' && d.confidence > 0.85)) {
+        video.alertLevel = 'warning';
+      } else if (video.videoType === 'long-distance' && video.detectionResults.some(d => d.label === '远距离监控' && d.confidence > 0.85)) {
         video.alertLevel = 'warning';
       } else if (video.videoType === 'person-detection' && video.detectionResults.length > 5) {
         video.alertLevel = 'warning';
@@ -490,10 +534,24 @@ onBeforeUnmount(() => {
         </button>
         <button 
           class="filter-button" 
-          :class="{ active: selectedVideoType === 'flood' }"
-          @click="changeVideoTypeFilter('flood')"
+          :class="{ active: selectedVideoType === 'night-street' }"
+          @click="changeVideoTypeFilter('night-street')"
         >
-          洪水监测
+          夜间街道巡视
+        </button>
+        <button 
+          class="filter-button" 
+          :class="{ active: selectedVideoType === 'night-vehicle' }"
+          @click="changeVideoTypeFilter('night-vehicle')"
+        >
+          夜间车辆检测
+        </button>
+        <button 
+          class="filter-button" 
+          :class="{ active: selectedVideoType === 'long-distance' }"
+          @click="changeVideoTypeFilter('long-distance')"
+        >
+          远距离监控
         </button>
       </div>
     </div>
@@ -620,26 +678,62 @@ onBeforeUnmount(() => {
             </div>
             
             <div 
-              v-if="video.videoType === 'flood'" 
-              class="effect-overlay flood-effect"
+              v-if="video.videoType === 'night-street'" 
+              class="effect-overlay night-street-effect"
             >
-              <!-- 模拟洪水检测结果 -->
+              <!-- 模拟夜间街道巡视结果 -->
               <div class="detection-box warning-box">
-                <div class="detection-title">洪水风险检测</div>
+                <div class="detection-title">夜间街道巡视</div>
                 <div class="detection-result">
                   <span class="detection-value warning-text">
                     {{ video.detectionResults && video.detectionResults.length > 0 ? 
-                      '水位上升警告!' : '水位正常' }}
+                      '发现异常!' : '未发现异常' }}
                   </span>
                   <span class="detection-confidence">
-                    上升速度: {{ Math.random() < 0.7 ? '0.5m/h' : '0.2m/h' }}
+                    风险等级: {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '中' : '低' }}
                   </span>
                 </div>
               </div>
-              
-              <!-- 水位线动画效果 -->
-              <div class="water-level-indicator">
-                <div class="water-level"></div>
+            </div>
+            
+            <div 
+              v-if="video.videoType === 'night-vehicle'" 
+              class="effect-overlay night-vehicle-effect"
+            >
+              <!-- 模拟夜间车辆检测结果 -->
+              <div class="detection-box warning-box">
+                <div class="detection-title">夜间车辆检测</div>
+                <div class="detection-result">
+                  <span class="detection-value warning-text">
+                    {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '发现异常!' : '未发现异常' }}
+                  </span>
+                  <span class="detection-confidence">
+                    风险等级: {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '中' : '低' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div 
+              v-if="video.videoType === 'long-distance'" 
+              class="effect-overlay long-distance-effect"
+            >
+              <!-- 模拟远距离监控结果 -->
+              <div class="detection-box warning-box">
+                <div class="detection-title">远距离监控</div>
+                <div class="detection-result">
+                  <span class="detection-value warning-text">
+                    {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '发现异常!' : '未发现异常' }}
+                  </span>
+                  <span class="detection-confidence">
+                    风险等级: {{ video.detectionResults && video.detectionResults.length > 0 ? 
+                      '中' : '低' }}
+                  </span>
+                </div>
               </div>
             </div>
             
@@ -766,6 +860,7 @@ onBeforeUnmount(() => {
   overflow: auto;
   position: relative;
   z-index: 2;
+  min-height: 400px;
 }
 
 .multiple-view {
@@ -775,6 +870,7 @@ onBeforeUnmount(() => {
 
 .single-view {
   grid-template-columns: 1fr;
+  grid-auto-rows: minmax(450px, 1fr);
 }
 
 .video-container {
@@ -836,6 +932,7 @@ onBeforeUnmount(() => {
 .video-feed {
   width: 100%;
   height: 100%;
+  min-height: 250px;
   position: relative;
   overflow: hidden;
   z-index: 2;
@@ -953,7 +1050,7 @@ onBeforeUnmount(() => {
   }
   
   .video-container {
-    min-height: 250px;
+    min-height: 300px;
   }
   
   .filter-group {
@@ -1072,24 +1169,11 @@ onBeforeUnmount(() => {
 
 /* 水位线动画 */
 .water-level-indicator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30%;
-  overflow: hidden;
-  pointer-events: none;
+  display: none; /* 隐藏不再使用的样式 */
 }
 
 .water-level {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(33, 150, 243, 0.3);
-  transform-origin: bottom;
-  animation: water-rise 10s ease-in-out infinite;
+  display: none; /* 隐藏不再使用的样式 */
 }
 
 @keyframes water-rise {
@@ -1234,5 +1318,41 @@ onBeforeUnmount(() => {
 .result-time {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.5);
+}
+
+/* 夜间街道巡视样式 */
+.night-street-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: brightness(0.8) contrast(1.2);
+  pointer-events: none;
+}
+
+/* 夜间车辆检测样式 */
+.night-vehicle-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 20, 0.15);
+  backdrop-filter: brightness(0.7) contrast(1.3);
+  pointer-events: none;
+}
+
+/* 远距离监控样式 */
+.long-distance-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 30, 50, 0.1);
+  backdrop-filter: blur(1px) brightness(0.9);
+  pointer-events: none;
 }
 </style> 

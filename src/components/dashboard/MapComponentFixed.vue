@@ -9,7 +9,7 @@
  */
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, defineProps, defineExpose, watch, reactive, defineEmits, computed, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, reactive, computed, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 // 确保正确导入 ElMessage
 import { ElMessage, ElLoading } from 'element-plus';
@@ -79,9 +79,6 @@ const infoWindow = ref<any>(null);
 // 定义无人机标记
 const marker = ref<any>(null);
 
-// 添加emit函数
-const emit = defineEmits(['update:droneInfo', 'update:taskAreaPoints', 'update:taskAreaScreenshot']);
-
 // 声明AMap全局变量
 declare global {
   interface Window {
@@ -100,6 +97,15 @@ const taskAreaPoints = ref<Array<[number, number]>>([]);
 const droneTimer = ref<number | null>(null);
 const dronePath = ref<Array<[number, number]>>([]);
 const pathPolyline = ref<any>(null);
+
+// 添加emit函数
+const emit = defineEmits(['update:droneInfo', 'update:taskAreaPoints', 'update:taskAreaScreenshot']);
+
+// 暴露方法给父组件
+defineExpose({
+  updateDronePosition,
+  getCurrentMap
+});
 
 // 完成绘制，返回地理坐标数组
 const finishDrawing = () => {
@@ -520,6 +526,24 @@ const addTaskArea = (points: any[]) => {
 const clearDrawing = () => {
   // 清除绘制点
   drawingPoints.value = [];
+};
+
+// 更新无人机位置
+const updateDronePosition = (position: [number, number], height: number, rotation: number) => {
+  if (!mapInstance.value) return;
+  
+  // 更新无人机位置
+  dronePosition.value = position;
+  droneHeight.value = height;
+  droneRotation.value = rotation;
+  
+  // 更新标记
+  updateDroneMarker();
+};
+
+// 获取当前地图实例
+const getCurrentMap = () => {
+  return mapInstance.value;
 };
 </script>
 

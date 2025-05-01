@@ -1,1 +1,0 @@
-import{_ as e}from"./FeatureView.vue_vue_type_script_setup_true_lang-BIYpHVH6.js";import{d as o,G as r,i as t}from"./index-CJqd1CcK.js";import"./FeatureContent.vue_vue_type_script_setup_true_lang-D7lOH7A-.js";import"./CtaSection-D1vi5cSn.js";const s=o({__name:"VehicleMonitoringView",setup(i){return(n,a)=>(t(),r(e))}});export{s as default};

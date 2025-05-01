@@ -211,48 +211,6 @@ const refreshData = () => {
       <main class="dashboard-content container">
         <!-- 概览标签页 -->
         <section v-if="activeTab === 'overview'" class="tab-content">
-          <div class="overview-stats">
-            <div class="stat-card">
-              <div class="stat-icon stat-icon-blue">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l9 2-9-18-9 18 9-2z"></path></svg>
-              </div>
-              <div class="stat-content">
-                <h3>5</h3>
-                <p>在线无人机</p>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon stat-icon-green">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-              </div>
-              <div class="stat-content">
-                <h3>26</h3>
-                <p>已完成任务</p>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon stat-icon-orange">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              </div>
-              <div class="stat-content">
-                <h3>3</h3>
-                <p>告警事件</p>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon stat-icon-purple">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-              </div>
-              <div class="stat-content">
-                <h3>127</h3>
-                <p>识别目标</p>
-              </div>
-            </div>
-          </div>
-          
           <div class="overview-dashboard">
           <div class="dashboard-grid">
               <!-- 3D路径可视化 - 已移除 -->
@@ -626,9 +584,10 @@ const refreshData = () => {
 
 /* 页面标题 */
 .dashboard-header {
-  padding: 20px 0;
-  background-color: #132f4c;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: #0a192f;
+  margin-top: 15px;
+  padding: 30px 0;
+  color: white;
 }
 
 .dashboard-header h1 {
@@ -647,26 +606,39 @@ const refreshData = () => {
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 5px 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tab-button {
-  padding: 10px 15px;
+  padding: 12px 20px;
   background-color: rgba(255, 255, 255, 0.07);
   border: none;
   border-radius: 5px;
   color: #e3f2fd;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 500;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  min-width: 100px;
+  text-align: center;
 }
 
 .tab-button:hover {
   background-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .tab-button.active {
-  background-color: #3b82f6;
+  background-color: #4fc3f7;
   color: white;
+  box-shadow: 0 3px 15px rgba(79, 195, 247, 0.3);
 }
 
 /* 内容区域 */
@@ -676,72 +648,6 @@ const refreshData = () => {
 
 .tab-content {
   margin-bottom: 40px;
-}
-
-/* 统计卡片区域 */
-.overview-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.stat-card {
-  background-color: #132f4c;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-}
-
-.stat-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  flex-shrink: 0;
-}
-
-.stat-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.stat-icon-blue {
-  background-color: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-}
-
-.stat-icon-green {
-  background-color: rgba(16, 185, 129, 0.2);
-  color: #10b981;
-}
-
-.stat-icon-orange {
-  background-color: rgba(249, 115, 22, 0.2);
-  color: #f97316;
-}
-
-.stat-icon-purple {
-  background-color: rgba(139, 92, 246, 0.2);
-  color: #8b5cf6;
-}
-
-.stat-content h3 {
-  font-size: 1.8rem;
-  margin: 0;
-  line-height: 1;
-  color: white;
-}
-
-.stat-content p {
-  font-size: 0.9rem;
-  margin: 5px 0 0;
-  color: #90caf9;
 }
 
 /* 仪表盘网格布局 */
@@ -860,14 +766,14 @@ const refreshData = () => {
 .analytics-compact-layout {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 30px;
   margin-top: 16px;
 }
 
 .analytics-section {
   background-color: #132f4c;
   border-radius: 8px;
-  padding: 16px 20px 20px;
+  padding: 20px 22px 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -883,14 +789,14 @@ const refreshData = () => {
 .analytics-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
+  gap: 22px;
 }
 
 .analytics-card {
   background-color: rgba(255, 255, 255, 0.03);
   border-radius: 6px;
   padding: 12px;
-  height: 300px;
+  height: 380px;
   display: flex;
   flex-direction: column;
 }
@@ -904,7 +810,7 @@ const refreshData = () => {
 
 .chart-container {
   flex: 1;
-  min-height: 250px;
+  min-height: 320px;
   overflow: hidden;
 }
 
@@ -933,10 +839,6 @@ const refreshData = () => {
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
-  .overview-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
   .dashboard-grid {
     grid-template-columns: 1fr;
     grid-auto-rows: 450px;
@@ -960,10 +862,6 @@ const refreshData = () => {
   
   .control-item {
     width: 100%;
-  }
-  
-  .overview-stats {
-    grid-template-columns: 1fr;
   }
   
   .tab-navigation {

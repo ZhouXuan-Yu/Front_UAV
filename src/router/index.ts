@@ -26,9 +26,21 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/domain/path-planning',
+      name: 'domain-path-planning',
+      component: () => import('../views/domain/PathPlanningPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/person-recognition',
       name: 'person-recognition',
       component: () => import('../views/PersonRecognitionView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/person-recognition',
+      name: 'domain-person-recognition',
+      component: () => import('../views/domain/PersonRecognitionPage.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -38,9 +50,21 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/domain/vehicle-monitoring',
+      name: 'domain-vehicle-monitoring',
+      component: () => import('../views/domain/VehicleMonitoringPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/disaster-detection',
       name: 'disaster-detection',
       component: () => import('../views/DisasterDetectionView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/disaster-detection',
+      name: 'domain-disaster-detection',
+      component: () => import('../views/domain/DisasterDetectionPage.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -74,9 +98,21 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/domain/knowledge-graph',
+      name: 'domain-knowledge-graph',
+      component: () => import('../views/domain/KnowledgeGraphPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/software-security/night-enhanced-recognition',
       name: 'night-enhanced-recognition',
       component: () => import('../views/NightEnhancedRecognitionView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/night-enhanced-recognition',
+      name: 'domain-night-enhanced-recognition',
+      component: () => import('../views/domain/NightEnhancedRecognitionPage.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -86,9 +122,69 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/domain/long-range-identification',
+      name: 'domain-long-range-identification',
+      component: () => import('../views/domain/LongRangeIdentificationPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/software-security/night-guardian',
       name: 'night-guardian',
       component: () => import('../views/NightGuardianView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/night-guardian',
+      name: 'domain-night-guardian',
+      component: () => import('../views/domain/NightGuardianPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/path-planning/app',
+      name: 'path-planning-app',
+      component: () => import('../views/domain/PathPlanningApp.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/person-recognition/app',
+      name: 'person-recognition-app',
+      component: () => import('../views/domain/PersonRecognitionApp.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/knowledge-graph/app',
+      name: 'knowledge-graph-app',
+      component: () => import('../views/domain/KnowledgeGraphApp.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/disaster-detection/app',
+      name: 'disaster-detection-app',
+      component: () => import('../views/domain/DisasterDetectionApp.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/vehicle-monitoring/app',
+      name: 'vehicle-monitoring-app',
+      component: () => import('../views/domain/VehicleMonitoringApp.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/night-enhanced-recognition/app',
+      name: 'night-enhanced-recognition-app',
+      component: () => import('../views/domain/NightEnhancedRecognitionApp.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/long-range-identification/app',
+      name: 'long-range-identification-app',
+      component: () => import('../views/domain/LongRangeIdentificationApp.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/domain/night-guardian/app',
+      name: 'night-guardian-app',
+      component: () => import('../views/domain/NightGuardianApp.vue'),
       meta: { requiresAuth: true }
     },
     {

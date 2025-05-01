@@ -983,7 +983,7 @@ const getHealthColor = (health: number) => {
   }
   50% {
     opacity: 0.6;
-  }
+}
   100% {
     opacity: 1;
   }
@@ -1117,7 +1117,7 @@ const getHealthColor = (health: number) => {
 .page-size-selector span {
   margin-right: 8px;
   font-size: 0.9rem;
-}
+  }
 
 .page-size-selector select {
   background-color: rgba(255, 255, 255, 0.08);
@@ -1129,8 +1129,8 @@ const getHealthColor = (health: number) => {
   cursor: pointer;
   outline: none;
   appearance: menulist-button;
-}
-
+  }
+  
 .page-size-selector select option {
   background-color: #132f4c;
   color: white;

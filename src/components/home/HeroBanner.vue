@@ -13,8 +13,6 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 const currentTime = ref('00:00:00');
 const currentDate = ref('00.00.0000');
-const flightCount = ref(2097423);
-const displayCount = ref(0);
 const videoReady = ref(false);
 const videoLoaded = ref(false);
 const videoError = ref(false);
@@ -45,25 +43,6 @@ const updateTime = () => {
   currentDate.value = `${month}.${day}.${year}`;
 };
 
-// 飞行次数动画效果
-const animateCount = () => {
-  const duration = 2000; // 动画持续时间(毫秒)
-  const steps = 50; // 步骤数
-  const increment = Math.ceil(flightCount.value / steps);
-  const interval = duration / steps;
-
-  let current = 0;
-  const timer = setInterval(() => {
-    current += increment;
-    if (current >= flightCount.value) {
-      displayCount.value = flightCount.value;
-      clearInterval(timer);
-    } else {
-      displayCount.value = current;
-    }
-  }, interval);
-};
-
 const handleVideoReady = () => {
   videoReady.value = true;
   videoLoaded.value = true;
@@ -88,9 +67,6 @@ let timeInterval: number | null = null;
 onMounted(() => {
   updateTime();
   timeInterval = window.setInterval(updateTime, 1000);
-
-  // 组件挂载时启动数字动画
-  animateCount();
 
   const video = document.getElementById('hero-video') as HTMLVideoElement;
   if (video) {
@@ -201,6 +177,7 @@ onUnmounted(() => {
           class="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight text-white hero-text-shadow"
           data-aos="fade-up"
           data-aos-delay="300"
+          style="margin-top: -100px;"
         >
           智能飞行，尽在掌握
         </h1>
@@ -210,65 +187,46 @@ onUnmounted(() => {
           data-aos="fade-up"
           data-aos-delay="400"
         >
-          探索全球最先进的自主无人机系统，为企业和国防应用提供无与伦比的可靠性和性能。
+        探索最先进的低空多模态智能互联平台，融合大模型与深度学习，为低空经济打造智能协同的创新引擎。
         </p>
         
-        <!-- 飞行计数器 -->
+        <!-- 日期时间显示 -->
         <div
-          class="mb-10 text-center"
+          class="mb-10 text-center mt-28"
+          style="position: relative; top: 100px;"
           data-aos="fade-up"
           data-aos-delay="450"
         >
-          <div class="text-lg text-white counter-text-shadow">{{ currentDate }} | {{ currentTime }}</div>
           <div class="flex items-center justify-center">
-            <span class="text-3xl md:text-4xl font-bold text-white counter-text-shadow">{{ displayCount.toLocaleString() }}</span>
-            <span class="ml-3 text-xl text-white counter-text-shadow">次客户飞行记录</span>
+            <span class="text-3xl md:text-4xl font-bold text-white counter-text-shadow">{{ currentDate }}</span>
+            <span class="ml-3 text-3xl md:text-4xl font-bold text-white counter-text-shadow">|</span>
+            <span class="ml-3 text-3xl md:text-4xl font-bold text-white counter-text-shadow">{{ currentTime }}</span>
           </div>
         </div>
         
+        <!-- 滚动指示器 -->
         <div 
-          class="flex flex-col md:flex-row justify-center gap-4"
+          class="absolute bottom-10 left-1/2 transform -translate-x-1/2 cursor-pointer"
+          :class="{ 'animation-bounce': scrollProgress < 0.1 }"
           data-aos="fade-up"
-          data-aos-delay="500"
+          data-aos-delay="600"
+          @click="scrollToNextSection"
         >
-          <router-link
-            to="#"
-            class="inline-block py-3 px-8 bg-blue-600 text-white font-medium text-lg rounded-lg hover:bg-blue-700 transition-colors shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-transform"
+          <svg 
+            class="w-10 h-10 text-white filter drop-shadow-lg" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+            style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));"
           >
-            探索解决方案
-          </router-link>
-          
-          <router-link
-            to="#"
-            class="inline-block py-3 px-8 bg-white text-blue-600 font-medium text-lg rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-colors shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-transform"
-          >
-            观看视频介绍
-          </router-link>
+            <path 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              stroke-width="2" 
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
         </div>
-      </div>
-      
-      <!-- 滚动指示器 -->
-      <div 
-        class="absolute bottom-10 left-1/2 transform -translate-x-1/2 cursor-pointer"
-        :class="{ 'animation-bounce': scrollProgress < 0.1 }"
-        data-aos="fade-up"
-        data-aos-delay="600"
-        @click="scrollToNextSection"
-      >
-        <svg 
-          class="w-10 h-10 text-white filter drop-shadow-lg" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-          style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));"
-        >
-          <path 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            stroke-width="2" 
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
       </div>
     </div>
   </section>

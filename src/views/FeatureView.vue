@@ -100,7 +100,7 @@ const featureData = computed(() => {
     'data-dashboard': {
       title: '智航监控',
       subtitle: '',
-      description: '基于Vue3和TypeScript开发的无人机数据监控平台，集成高德地图API实现地理信息处理，通过Three.js展示3D飞行路径，使用ECharts呈现实时监测数据。系统支持无人机状态监控、飞行路径规划和目标识别分析，为无人机巡检、安全监控和数据采集提供可视化支持。',
+      description: '基于Vue3和TypeScript开发的无人机数据监控平台，集成高德地图API实现地理信息处理，通过Vue 3组合式API打造双模式视图，使用ECharts呈现实时监测数据。系统支持无人机状态监控、飞行路径规划和目标识别分析，为无人机巡检、安全监控和数据采集提供可视化支持。',
       image: 'https://cdn.sanity.io/images/mgxz50fq/~production-v3/de53bd47ac33d82c6b654a6ef9898be75f33d3a3-1194x1200.png',
       features: [
         {
@@ -109,8 +109,8 @@ const featureData = computed(() => {
           icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
         },
         {
-          title: '三维飞行路径',
-          description: '利用Three.js实现的3D飞行路径可视化技术，通过曲线插值算法创建平滑飞行轨迹，结合地形渲染和无人机模型动画。系统能直观展示飞行轨迹和姿态变化，支持轨迹回放和视角调整，帮助操作者更好理解飞行状态和环境关系。',
+          title: '无人机地图追踪',
+          description: '基于Vue 3组合式API打造双模式视图，集成地图组件实现无人机位置可视化与轨迹追踪。通过定时器更新位置、面板组件化设计及条件渲染，配合动态电量和信号强度显示，提供多无人机状态监控与任务管理核心能力，助力运营人员实时掌握无人机状态，提升监控效率与安全性。',
           icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
         },
         {

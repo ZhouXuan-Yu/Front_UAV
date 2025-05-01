@@ -49,31 +49,31 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'dfr', label: '智程导航', route: '/path-planning', dropdown: false },
-  { id: 'utilities', label: '智眸千析', route: '/person-recognition', dropdown: false },
-  { id: 'national-security', label: '智慧知库', route: '/knowledge-graph', dropdown: false },
+  { id: 'dfr', label: '智程导航', route: '/domain/path-planning', dropdown: false },
+  { id: 'utilities', label: '智眸千析', route: '/domain/person-recognition', dropdown: false },
+  { id: 'national-security', label: '智慧知库', route: '/domain/knowledge-graph', dropdown: false },
   { id: 'data-dashboard', label: '智航监控', route: '/data-dashboard', dropdown: false },
   { id: 'more-solutions', label: '夜间识别专项', dropdown: true,
     items: [
     {
       label: '夜间增强识别',
       description: '采用特殊的图像增强算法，对夜间或低光照条件下的视频和图像进行处理，提升图像的清晰度和对比度，从而更准确地识别目标，确保夜间安防监控的有效性。',
-      route: '/software-security/night-enhanced-recognition'
+      route: '/domain/night-enhanced-recognition'
     },
     {
       label: '超远距离识别',
       description: '借助先进的图像处理算法和深度学习技术，对远距离拍摄的图像进行智能分析和识别，突破距离限制，提升安防监控的覆盖范围和精准度。',
-      route: '/software-security/long-range-identification'
+      route: '/domain/long-range-identification'
     },
     {
       label: '夜间保卫者',
       description: '整合多种软件技术，包括智能巡逻算法、目标检测和识别模型以及实时警报系统，专门针对夜间场景优化，提供全面的软件解决方案，守护区域安全。',
-      route: '/software-security/night-guardian'
+      route: '/domain/night-guardian'
     }   //{ label: '场地安全', description: '通过自主无人机巡逻自动化周边安全', route: '/knowledge-graph' },
     ]
   },
-  { id: 'products', label: '灾害预警', route: '/disaster-detection', dropdown: false },
-  { id: 'resources', label: '车辆监控与报警', route: '/vehicle-monitoring', dropdown: false },
+  { id: 'products', label: '灾害预警', route: '/domain/disaster-detection', dropdown: false },
+  { id: 'resources', label: '车辆监控与报警', route: '/domain/vehicle-monitoring', dropdown: false },
 ];
 
 // 处理导航
@@ -387,9 +387,9 @@ onUnmounted(() => {
   width: 100%;
   padding: 18px 23px; /* 添加内边距，让导航栏与页面边缘有距离 */
   position: fixed;
-  top: 0;
+  top: 15px; /* 将导航栏向下移动15px，避免被蒙层遮挡 */
   left: 0;
-  z-index: 1000;
+  z-index: 1100; /* 提高z-index以确保导航栏在最上层 */
 }
 
 .header {

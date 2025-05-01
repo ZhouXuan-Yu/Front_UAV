@@ -10,19 +10,26 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import type { RouteLocationRaw } from 'vue-router';
 
-defineProps<{
+const props = defineProps<{
   title: string;
   subtitle: string;
   description: string;
   image: string;
+  actionRoute?: RouteLocationRaw;
+  actionText?: string;
 }>();
 
 const router = useRouter();
 
-// 跳转到数据大屏详情页面
-const goToDashboardDetail = () => {
-  router.push('/data-dashboard-detail');
+// 跳转到指定路由或默认跳转到数据大屏详情页面
+const navigateToAction = () => {
+  if (props.actionRoute) {
+    router.push(props.actionRoute);
+  } else {
+    router.push('/data-dashboard-detail');
+  }
 };
 </script>
 
@@ -69,8 +76,8 @@ const goToDashboardDetail = () => {
           data-aos="fade-up"
           data-aos-delay="300"
         >
-          <button @click="goToDashboardDetail" class="modern-button">
-            开始使用
+          <button @click="navigateToAction" class="modern-button">
+            {{ actionText || '开始使用' }}
           </button>
         </div>
       </div>

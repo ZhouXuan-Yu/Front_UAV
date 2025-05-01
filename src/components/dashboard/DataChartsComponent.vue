@@ -1182,7 +1182,7 @@ const initRiskChart = () => {
   width: 100%;
   height: 100%;
   position: relative;
-  min-height: 280px;
+  min-height: 350px;
   overflow: hidden;
   background-color: rgba(10, 25, 41, 0.5);
   border-radius: 6px;
@@ -1191,7 +1191,7 @@ const initRiskChart = () => {
 .chart {
   width: 100%;
   height: 100%;
-  min-height: 280px;
+  min-height: 350px;
 }
 
 .chart-loading {
@@ -1253,6 +1253,7 @@ const initRiskChart = () => {
   gap: 20px;
   width: 100%;
   height: 100%;
+  min-height: 700px;
 }
 
 .grid-item {
@@ -1275,7 +1276,7 @@ const initRiskChart = () => {
 @media (max-width: 768px) {
   .charts-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(6, 280px);
+    grid-template-rows: repeat(6, 350px);
   }
 }
 </style> 

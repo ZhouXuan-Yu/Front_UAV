@@ -180,8 +180,9 @@ const generateTimePoints = () => {
   
   for (let i = 9; i >= 0; i--) {
     const time = new Date(now.getTime() - i * 60000); // 每分钟一个点
+    // 使用更简洁的时间格式（仅显示分钟）
     points.push(
-      `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`
+      `${time.getHours()}:${time.getMinutes().toString().padStart(2, '0')}`
     );
   }
   
@@ -337,13 +338,14 @@ onBeforeUnmount(() => {
 // 窗口大小变化处理
 const handleResize = () => {
   // 调整所有活跃的图表
-  if (batteryChart) batteryChart.resize();
-  if (signalChart) signalChart.resize();
-  if (speedChart) speedChart.resize();
-  if (recognitionChart) recognitionChart.resize();
-  if (personActivityChart) personActivityChart.resize();
-  if (riskChart) riskChart.resize();
-  // 调整其他图表...
+  setTimeout(() => {
+    if (batteryChart) batteryChart.resize();
+    if (signalChart) signalChart.resize();
+    if (speedChart) speedChart.resize();
+    if (recognitionChart) recognitionChart.resize();
+    if (personActivityChart) personActivityChart.resize();
+    if (riskChart) riskChart.resize();
+  }, 300); // 延长延迟时间
 };
 
 // 启动数据更新定时器
@@ -418,7 +420,7 @@ const initBatteryChart = () => {
       top: '15%',
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '15%', // 增加底部空间以显示x轴标签
       containLabel: true
     },
     tooltip: {
@@ -443,8 +445,11 @@ const initBatteryChart = () => {
       data: timePoints.value,
       axisLabel: {
         color: '#90caf9',
-        fontSize: 10,
-        rotate: 30
+        fontSize: 9, // 减小字体
+        rotate: 45, // 旋转角度以节省空间
+        interval: 'auto', // 自动调整间隔,避免重叠
+        align: 'right', // 对齐方式
+        hideOverlap: true // 隐藏重叠的标签
       },
       axisLine: {
         lineStyle: {
@@ -544,7 +549,7 @@ const initSignalChart = () => {
       top: '15%',
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '15%', // 增加底部空间以显示x轴标签
       containLabel: true
     },
     tooltip: {
@@ -569,8 +574,11 @@ const initSignalChart = () => {
       data: timePoints.value,
       axisLabel: {
         color: '#90caf9',
-        fontSize: 10,
-        rotate: 30
+        fontSize: 9, // 减小字体
+        rotate: 45, // 旋转角度以节省空间
+        interval: 'auto', // 自动调整间隔
+        align: 'right', // 对齐方式
+        hideOverlap: true // 隐藏重叠的标签
       },
       axisLine: {
         lineStyle: {
@@ -666,7 +674,7 @@ const initSpeedChart = () => {
       top: '15%',
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '15%', // 增加底部空间以显示x轴标签
       containLabel: true
     },
     tooltip: {
@@ -691,8 +699,11 @@ const initSpeedChart = () => {
       data: timePoints.value,
       axisLabel: {
         color: '#90caf9',
-        fontSize: 10,
-        rotate: 30
+        fontSize: 9, // 减小字体
+        rotate: 45, // 旋转角度以节省空间
+        interval: 'auto', // 自动调整间隔
+        align: 'right', // 对齐方式
+        hideOverlap: true // 隐藏重叠的标签
       },
       axisLine: {
         lineStyle: {
@@ -808,13 +819,14 @@ const initPersonActivityChart = () => {
       legend: {
         data: ['活跃人员', '静止人员', '进入区域', '离开区域'],
         textStyle: { color: '#90caf9' },
-        top: '5%'
+        top: 10,
+        itemGap: 15
       },
       grid: {
-        top: '25%',
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
+        top: 50,
+        left: 10,
+        right: 20,
+        bottom: 20,
         containLabel: true
       },
       xAxis: {
@@ -892,38 +904,39 @@ const initRecognitionChart = () => {
     },
     legend: {
         orient: 'horizontal',
-        bottom: '5%',
+        bottom: 0,
+        left: 'center',
         textStyle: { color: '#90caf9' },
         icon: 'circle',
         itemWidth: 10,
         itemHeight: 10,
-        itemGap: 20
+        itemGap: 15
     },
     series: [
       {
           name: '人物识别',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
+          type: 'pie',
+          radius: ['30%', '60%'],
+          center: ['50%', '45%'],
+          avoidLabelOverlap: true,
+          itemStyle: {
             borderColor: '#0a1929',
-          borderWidth: 2
-        },
-        label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
+            borderWidth: 2
+          },
           label: {
-            show: true,
+            show: false
+          },
+          emphasis: {
+            label: {
+              show: true,
               fontSize: '14',
-            fontWeight: 'bold',
-            color: '#ffffff'
-          }
-        },
-        labelLine: {
-          show: false
-        },
+              fontWeight: 'bold',
+              color: '#ffffff'
+            }
+          },
+          labelLine: {
+            show: false
+          },
           data: [
             { value: 42, name: '成年男性', itemStyle: { color: '#42A5F5' } },
             { value: 38, name: '成年女性', itemStyle: { color: '#EC407A' } },
@@ -959,27 +972,32 @@ const initTaskChart = () => {
     },
     legend: {
         orient: 'horizontal',
-        bottom: '5%',
+        bottom: 0,
+        left: 'center',
         textStyle: { color: '#90caf9' },
         icon: 'rect',
         itemWidth: 10,
         itemHeight: 10,
-        itemGap: 20
+        itemGap: 10
       },
       series: [
         {
           name: '任务执行',
           type: 'pie',
-          radius: '70%',
-          label: {
-            show: true,
-            formatter: '{b}: {c}',
-            color: '#e3f2fd',
-            fontSize: 12
+          radius: ['0%', '65%'],
+          center: ['50%', '45%'],
+          roseType: 'radius',
+          itemStyle: {
+            borderRadius: 5
           },
-          labelLine: {
-            lineStyle: {
-              color: '#1e3a5f'
+          label: {
+            show: false
+          },
+          emphasis: {
+            label: {
+              show: true,
+              formatter: '{b}: {c}',
+              color: '#fff'
             }
           },
           data: [
@@ -1018,52 +1036,52 @@ const initRiskChart = () => {
       legend: {
         data: ['低风险', '中风险', '高风险'],
         textStyle: { color: '#90caf9' },
-        top: '5%'
-    },
-    grid: {
-        top: '25%',
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
+        top: 10
+      },
+      grid: {
+        top: 50,
+        left: 10,
+        right: 20,
+        bottom: 20,
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
         data: riskData.value.map(item => item.date),
-      axisLabel: {
+        axisLabel: {
           color: '#90caf9',
           fontSize: 10
-      },
-      axisLine: {
+        },
+        axisLine: {
           lineStyle: { color: '#1e3a5f' }
-      }
-    },
-    yAxis: {
-      type: 'value',
+        }
+      },
+      yAxis: {
+        type: 'value',
         axisLabel: { color: '#90caf9' },
-      splitLine: {
+        splitLine: {
           lineStyle: { color: '#1e3a5f', type: 'dashed' }
-      }
-    },
-    series: [
-      {
+        }
+      },
+      series: [
+        {
           name: '低风险',
-        type: 'bar',
-        stack: 'total',
+          type: 'bar',
+          stack: 'total',
           data: riskData.value.map(item => item.level1),
           itemStyle: { color: '#66BB6A' }
         },
         {
           name: '中风险',
-        type: 'bar',
-        stack: 'total',
+          type: 'bar',
+          stack: 'total',
           data: riskData.value.map(item => item.level2),
           itemStyle: { color: '#FFA726' }
         },
         {
           name: '高风险',
-        type: 'bar',
-        stack: 'total',
+          type: 'bar',
+          stack: 'total',
           data: riskData.value.map(item => item.level3),
           itemStyle: { color: '#EF5350' }
         }
@@ -1252,14 +1270,14 @@ const initRiskChart = () => {
   grid-template-rows: repeat(2, 1fr);
   gap: 20px;
   width: 100%;
-  height: 100%;
-  min-height: 700px;
+  flex: 1;
+  min-height: 600px;
 }
 
 .grid-item {
   background-color: rgba(10, 25, 41, 0.5);
   border-radius: 6px;
-  padding: 15px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1273,10 +1291,17 @@ const initRiskChart = () => {
 }
 
 /* 响应式设计 */
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(300px, auto);
+  }
+}
+
 @media (max-width: 768px) {
   .charts-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(6, 350px);
+    grid-auto-rows: minmax(300px, auto);
   }
 }
 </style> 

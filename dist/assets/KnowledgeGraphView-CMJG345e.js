@@ -1,0 +1,1 @@
+import{_ as e}from"./FeatureView.vue_vue_type_script_setup_true_lang-BKcKxY_r.js";import{d as o,x as r,f as t}from"./index-B4NwbyMr.js";import"./FeatureContent.vue_vue_type_script_setup_true_lang-CgoEQffS.js";import"./CtaSection-C5ARXGt4.js";import"@element-plus/icons-vue";const f=o({__name:"KnowledgeGraphView",setup(a){return(p,m)=>(t(),r(e))}});export{f as default};

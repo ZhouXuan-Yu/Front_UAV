@@ -12,7 +12,7 @@
 import { ref, onMounted, onBeforeUnmount, computed, reactive, watch, PropType } from 'vue';
 import * as echarts from 'echarts';
 import { ElMessage } from 'element-plus';
-import { Refresh, Download, ZoomIn, Search, Calendar, Location, Filter } from '@element-plus/icons-vue';
+import { Refresh, Download, ZoomIn, Search, Calendar, Location, Filter, ArrowDown } from '@element-plus/icons-vue';
 
 // 支持的图表类型
 type ChartType = 'battery' | 'signal' | 'speed' | 'person' | 'personActivity' | 'vehicle' | 'task' | 'risk' | 'heatmap' | 'all';
@@ -172,6 +172,88 @@ const disasterWarnings = ref([
   { type: '远距离监控报警', level: '高风险', location: '湖泊监测点', time: '08:20', details: '监测设备状态异常，需立即检修' },
   { type: '基础设施损坏', level: '低风险', location: '中心区域', time: '09:45', details: '发现小型结构性损伤' },
 ]);
+
+// 添加无人机数据列表
+const droneList = ref([
+  { id: 1, name: '无人机#01', type: '侦察型', battery: 85, signal: 92, speed: 8.4, status: '巡航中' },
+  { id: 2, name: '无人机#02', type: '夜视型', battery: 78, signal: 88, speed: 10.2, status: '巡航中' },
+  { id: 3, name: '无人机#03', type: '高速型', battery: 92, signal: 95, speed: 14.5, status: '待命中' },
+  { id: 4, name: '无人机#04', type: '侦察型', battery: 65, signal: 83, speed: 9.1, status: '巡航中' },
+  { id: 5, name: '无人机#05', type: '夜视型', battery: 72, signal: 90, speed: 7.8, status: '返航中' },
+  { id: 6, name: '无人机#06', type: '高速型', battery: 88, signal: 94, speed: 13.1, status: '巡航中' },
+  { id: 7, name: '无人机#07', type: '侦察型', battery: 79, signal: 87, speed: 8.9, status: '巡航中' },
+  { id: 8, name: '无人机#08', type: '长程型', battery: 81, signal: 91, speed: 10.7, status: '巡航中' },
+  { id: 9, name: '无人机#09', type: '侦察型', battery: 53, signal: 75, speed: 6.5, status: '返航中' },
+  { id: 10, name: '无人机#10', type: '夜视型', battery: 76, signal: 89, speed: 9.8, status: '巡航中' },
+  { id: 11, name: '无人机#11', type: '长程型', battery: 94, signal: 96, speed: 11.2, status: '待命中' },
+  { id: 12, name: '无人机#12', type: '高速型', battery: 82, signal: 93, speed: 12.8, status: '巡航中' },
+  { id: 13, name: '无人机#13', type: '侦察型', battery: 69, signal: 84, speed: 8.2, status: '巡航中' },
+  { id: 14, name: '无人机#14', type: '侦察型', battery: 74, signal: 86, speed: 9.5, status: '巡航中' },
+  { id: 15, name: '无人机#15', type: '夜视型', battery: 86, signal: 92, speed: 10.1, status: '巡航中' },
+  { id: 16, name: '无人机#16', type: '高速型', battery: 91, signal: 94, speed: 13.7, status: '待命中' },
+  { id: 17, name: '无人机#17', type: '长程型', battery: 77, signal: 91, speed: 11.4, status: '巡航中' },
+  { id: 18, name: '无人机#18', type: '侦察型', battery: 68, signal: 82, speed: 8.8, status: '巡航中' },
+  { id: 19, name: '无人机#19', type: '夜视型', battery: 73, signal: 88, speed: 9.3, status: '巡航中' },
+  { id: 20, name: '无人机#20', type: '高速型', battery: 87, signal: 93, speed: 12.5, status: '巡航中' }
+]);
+
+// 选中的无人机ID
+const selectedDroneId = ref(1);
+
+// 当前选中的无人机信息
+const selectedDrone = computed(() => {
+  return droneList.value.find(drone => drone.id === selectedDroneId.value) || droneList.value[0];
+});
+
+// 基于选择的无人机更新图表数据
+const updateDroneData = () => {
+  const drone = selectedDrone.value;
+  
+  // 更新电量数据
+  const newBatteryData = [...batteryData.value];
+  newBatteryData.shift();
+  newBatteryData.push(drone.battery);
+  batteryData.value = newBatteryData;
+  
+  // 更新信号数据
+  const newSignalData = [...signalData.value];
+  newSignalData.shift();
+  newSignalData.push(drone.signal);
+  signalData.value = newSignalData;
+  
+  // 更新速度数据
+  const newSpeedData = [...speedData.value];
+  newSpeedData.shift();
+  newSpeedData.push(drone.speed);
+  speedData.value = newSpeedData;
+  
+  // 更新图表
+  if (batteryChart) {
+    batteryChart.setOption({
+      xAxis: { data: timePoints.value },
+      series: [{ data: batteryData.value }]
+    });
+  }
+  
+  if (signalChart) {
+    signalChart.setOption({
+      xAxis: { data: timePoints.value },
+      series: [{ data: signalData.value }]
+    });
+  }
+  
+  if (speedChart) {
+    speedChart.setOption({
+      xAxis: { data: timePoints.value },
+      series: [{ data: speedData.value }]
+    });
+  }
+};
+
+// 监听无人机选择变化
+watch(selectedDroneId, (newValue) => {
+  updateDroneData();
+});
 
 // 生成时间点序列
 const generateTimePoints = () => {
@@ -365,15 +447,23 @@ const updateChartData = () => {
   // 生成新的时间点
   generateTimePoints();
   
-  // 模拟新数据生成
-  const newBatteryValue = batteryData.value[batteryData.value.length - 1] - Math.random() * 1.5;
-  const newSignalValue = Math.max(70, Math.min(100, signalData.value[signalData.value.length - 1] + (Math.random() * 6 - 3)));
-  const newSpeedValue = Math.max(5, Math.min(20, speedData.value[speedData.value.length - 1] + (Math.random() * 4 - 2)));
+  // 使用选中无人机的数据
+  const drone = selectedDrone.value;
+  
+  // 模拟新数据生成：在当前值的基础上小幅波动
+  const newBatteryValue = Math.max(50, Math.min(100, drone.battery + (Math.random() * 2 - 1)));
+  const newSignalValue = Math.max(70, Math.min(100, drone.signal + (Math.random() * 4 - 2)));
+  const newSpeedValue = Math.max(5, Math.min(20, drone.speed + (Math.random() * 2 - 1)));
   
   // 应用滤波平滑数据
   const filteredBatteryValue = applyDataFilter(batteryData.value, newBatteryValue);
   const filteredSignalValue = applyDataFilter(signalData.value, newSignalValue);
   const filteredSpeedValue = applyDataFilter(speedData.value, newSpeedValue);
+  
+  // 更新无人机数据
+  drone.battery = parseFloat(filteredBatteryValue.toFixed(1));
+  drone.signal = parseFloat(filteredSignalValue.toFixed(1));
+  drone.speed = parseFloat(filteredSpeedValue.toFixed(1));
   
   // 更新数据数组，移除最早的数据点
   batteryData.value.shift();
@@ -1100,18 +1190,84 @@ const initRiskChart = () => {
     <template v-if="props.chartType !== 'all'">
       <!-- 电量趋势图 -->
       <div v-if="shouldShowChart('battery')" class="chart-container">
+        <div class="chart-header">
+          <h3>电量趋势</h3>
+          <div class="drone-selector">
+            <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
+              <el-option
+                v-for="drone in droneList"
+                :key="drone.id"
+                :label="drone.name"
+                :value="drone.id">
+                <div class="drone-option">
+                  <span>{{ drone.name }}</span>
+                  <span class="drone-type">{{ drone.type }}</span>
+                  <span :class="['drone-status', 
+                    drone.status === '巡航中' ? 'status-active' : 
+                    drone.status === '返航中' ? 'status-returning' : 'status-standby']">
+                    {{ drone.status }}
+                  </span>
+                </div>
+              </el-option>
+            </el-select>
+          </div>
+        </div>
         <div id="battery-chart" class="chart"></div>
         <div v-if="chartsLoading.battery" class="chart-loading">加载中...</div>
       </div>
       
       <!-- 信号强度图 -->
       <div v-if="shouldShowChart('signal')" class="chart-container">
+        <div class="chart-header">
+          <h3>信号强度</h3>
+          <div class="drone-selector">
+            <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
+              <el-option
+                v-for="drone in droneList"
+                :key="drone.id"
+                :label="drone.name"
+                :value="drone.id">
+                <div class="drone-option">
+                  <span>{{ drone.name }}</span>
+                  <span class="drone-type">{{ drone.type }}</span>
+                  <span :class="['drone-status', 
+                    drone.status === '巡航中' ? 'status-active' : 
+                    drone.status === '返航中' ? 'status-returning' : 'status-standby']">
+                    {{ drone.status }}
+                  </span>
+                </div>
+              </el-option>
+            </el-select>
+          </div>
+        </div>
         <div id="signal-chart" class="chart"></div>
         <div v-if="chartsLoading.signal" class="chart-loading">加载中...</div>
       </div>
       
       <!-- 飞行速度图 -->
       <div v-if="shouldShowChart('speed')" class="chart-container">
+        <div class="chart-header">
+          <h3>飞行速度</h3>
+          <div class="drone-selector">
+            <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
+              <el-option
+                v-for="drone in droneList"
+                :key="drone.id"
+                :label="drone.name"
+                :value="drone.id">
+                <div class="drone-option">
+                  <span>{{ drone.name }}</span>
+                  <span class="drone-type">{{ drone.type }}</span>
+                  <span :class="['drone-status', 
+                    drone.status === '巡航中' ? 'status-active' : 
+                    drone.status === '返航中' ? 'status-returning' : 'status-standby']">
+                    {{ drone.status }}
+                  </span>
+                </div>
+              </el-option>
+            </el-select>
+          </div>
+        </div>
         <div id="speed-chart" class="chart"></div>
         <div v-if="chartsLoading.speed" class="chart-loading">加载中...</div>
       </div>
@@ -1126,13 +1282,13 @@ const initRiskChart = () => {
       <div v-if="shouldShowChart('personActivity')" class="chart-container">
         <div id="person-activity-chart" class="chart"></div>
         <div v-if="chartsLoading.personActivity" class="chart-loading">加载中...</div>
-          </div>
+      </div>
       
       <!-- 任务执行图 -->
       <div v-if="shouldShowChart('task')" class="chart-container">
         <div id="task-chart" class="chart"></div>
         <div v-if="chartsLoading.task" class="chart-loading">加载中...</div>
-        </div>
+      </div>
       
       <!-- 风险分析图 -->
       <div v-if="shouldShowChart('risk')" class="chart-container">
@@ -1149,8 +1305,8 @@ const initRiskChart = () => {
         <div class="filter-button" @click="showFilterPanel = !showFilterPanel">
           <el-icon><Filter /></el-icon>
           筛选
-          </div>
         </div>
+      </div>
       
       <!-- 筛选面板 -->
       <div v-if="showFilterPanel" class="filter-panel">
@@ -1160,25 +1316,88 @@ const initRiskChart = () => {
       <!-- 图表网格 -->
       <div class="charts-grid">
         <div class="grid-item">
-          <h3>电量趋势</h3>
-          <div id="battery-chart" class="chart"></div>
+          <div class="chart-header">
+            <h3>电量趋势</h3>
+            <div class="drone-selector">
+              <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
+                <el-option
+                  v-for="drone in droneList"
+                  :key="drone.id"
+                  :label="drone.name"
+                  :value="drone.id">
+                  <div class="drone-option">
+                    <span>{{ drone.name }}</span>
+                    <span class="drone-type">{{ drone.type }}</span>
+                    <span :class="['drone-status', 
+                      drone.status === '巡航中' ? 'status-active' : 
+                      drone.status === '返航中' ? 'status-returning' : 'status-standby']">
+                      {{ drone.status }}
+                    </span>
+                  </div>
+                </el-option>
+              </el-select>
+            </div>
           </div>
+          <div id="battery-chart" class="chart"></div>
+        </div>
         <div class="grid-item">
-          <h3>信号强度</h3>
+          <div class="chart-header">
+            <h3>信号强度</h3>
+            <div class="drone-selector">
+              <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
+                <el-option
+                  v-for="drone in droneList"
+                  :key="drone.id"
+                  :label="drone.name"
+                  :value="drone.id">
+                  <div class="drone-option">
+                    <span>{{ drone.name }}</span>
+                    <span class="drone-type">{{ drone.type }}</span>
+                    <span :class="['drone-status', 
+                      drone.status === '巡航中' ? 'status-active' : 
+                      drone.status === '返航中' ? 'status-returning' : 'status-standby']">
+                      {{ drone.status }}
+                    </span>
+                  </div>
+                </el-option>
+              </el-select>
+            </div>
+          </div>
           <div id="signal-chart" class="chart"></div>
         </div>
         <div class="grid-item">
-          <h3>飞行速度</h3>
+          <div class="chart-header">
+            <h3>飞行速度</h3>
+            <div class="drone-selector">
+              <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
+                <el-option
+                  v-for="drone in droneList"
+                  :key="drone.id"
+                  :label="drone.name"
+                  :value="drone.id">
+                  <div class="drone-option">
+                    <span>{{ drone.name }}</span>
+                    <span class="drone-type">{{ drone.type }}</span>
+                    <span :class="['drone-status', 
+                      drone.status === '巡航中' ? 'status-active' : 
+                      drone.status === '返航中' ? 'status-returning' : 'status-standby']">
+                      {{ drone.status }}
+                    </span>
+                  </div>
+                </el-option>
+              </el-select>
+            </div>
+          </div>
           <div id="speed-chart" class="chart"></div>
         </div>
         <div class="grid-item">
           <h3>人物识别</h3>
           <div id="recognition-chart" class="chart"></div>
-      </div>
+        </div>
         <div class="grid-item">
           <h3>风险分析</h3>
           <div id="risk-chart" class="chart"></div>
-    </div>
+        </div>
         <div class="grid-item">
           <h3>任务执行</h3>
           <div id="task-chart" class="chart"></div>
@@ -1290,6 +1509,59 @@ const initRiskChart = () => {
   margin-bottom: 10px;
 }
 
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.chart-header h3 {
+  font-size: 1rem;
+  color: #e3f2fd;
+  margin: 0;
+}
+
+.drone-selector {
+  width: 150px;
+}
+
+.drone-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.drone-type {
+  font-size: 0.8rem;
+  color: #90caf9;
+  padding: 2px 6px;
+  background-color: rgba(33, 150, 243, 0.2);
+  border-radius: 4px;
+}
+
+.drone-status {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.status-active {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #81c784;
+}
+
+.status-returning {
+  background-color: rgba(255, 152, 0, 0.2);
+  color: #ffb74d;
+}
+
+.status-standby {
+  background-color: rgba(158, 158, 158, 0.2);
+  color: #bdbdbd;
+}
+
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .charts-grid {
@@ -1302,6 +1574,16 @@ const initRiskChart = () => {
   .charts-grid {
     grid-template-columns: 1fr;
     grid-auto-rows: minmax(300px, auto);
+  }
+  
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .drone-selector {
+    width: 100%;
   }
 }
 </style> 

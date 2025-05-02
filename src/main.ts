@@ -50,10 +50,10 @@ app.use(ElementPlus);
 import('@element-plus/icons-vue')
   .then((module) => {
     const ElementPlusIconsVue = module;
-    // 注册所有图标
-    for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+// 注册所有图标
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
       app.component(key, component);
-    }
+}
   })
   .catch(error => {
     console.error('Failed to load Element Plus icons:', error);

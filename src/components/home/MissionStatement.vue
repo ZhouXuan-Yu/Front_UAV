@@ -9,13 +9,33 @@
  */
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 // 导入视频资源
-import videoSrc from '@/assets/videos/file.mp4';
+import videoSrc from '@/assets/videos/home2.mp4';
+
+// 动态调整高度
+const adjustHeight = () => {
+  const section = document.querySelector('.mission-statement-section') as HTMLElement;
+  if (section) {
+    // 设置为视口高度
+    section.style.height = `${window.innerHeight}px`;
+  }
+};
+
+// 组件挂载时设置高度并添加窗口大小变化监听
+onMounted(() => {
+  adjustHeight();
+  window.addEventListener('resize', adjustHeight);
+});
+
+// 组件卸载时移除监听
+onUnmounted(() => {
+  window.removeEventListener('resize', adjustHeight);
+});
 </script>
 
 <template>
-  <section class="relative py-36 overflow-hidden">
+  <section class="mission-statement-section relative overflow-hidden">
     <!-- Video Background -->
     <div class="absolute inset-0 z-0">
       <video
@@ -27,10 +47,9 @@ import videoSrc from '@/assets/videos/file.mp4';
       >
         <source :src="videoSrc" type="video/mp4" />
       </video>
-      <!-- 已移除蒙图overlay -->
     </div>
     
-    <div class="container-narrow relative z-10">
+    <div class="container-narrow relative z-10 flex flex-col justify-center h-full">
       <h2
         class="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-12 text-white"
         data-aos="fade-up"
@@ -49,12 +68,12 @@ import videoSrc from '@/assets/videos/file.mp4';
 </template>
 
 <style scoped>
-section {
-  min-height: 700px;
+.mission-statement-section {
+  height: 100vh; /* 默认占满整个视口高度 */
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f7fafc;
+  background-color: #000; /* 更改为黑色背景，与视频更加搭配 */
 }
 
 .container-narrow {
@@ -62,5 +81,21 @@ section {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+}
+
+/* 为移动设备添加额外的调整 */
+@media (max-width: 768px) {
+  .mission-statement-section {
+    padding: 2rem 0;
+  }
+  
+  h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  p {
+    font-size: 1.25rem;
+  }
 }
 </style>

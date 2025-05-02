@@ -1,15 +1,15 @@
 /**
  * 文件名: VideoProductShowcase.vue
- * 描述: 产品视频展示组件
+ * 描述: 产品展示组件
  * 在项目中的作用: 
- * - 通过视频形式展示产品亮点和功能
+ * - 通过视频或图片形式展示产品亮点和功能
  * - 提供交互式的产品演示体验
  * - 增强用户对产品的理解和兴趣
  * - 作为首页重要的产品宣传区域
  */
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useEventListener } from '@vueuse/core';
 
 // 接收外部传入的产品数据
@@ -17,25 +17,36 @@ const props = defineProps({
   product: {
     type: Object,
     default: () => ({
-  title: 'Skydio X10:',
+      title: 'Skydio X10:',
       subtitle: "You've never seen like this before",
       description: 'A world-class drone program starts with Skydio X10. Loaded with the best sensors in its class, guided by the most advanced AI in the sky, and built to gather the data you need, wherever and whenever you need it.',
       videoSrc: new URL('@/assets/videos/file.mp4', import.meta.url).href,
       ctaText: 'See X10 in action',
       ctaLink: '/monitor-screen'
     })
+  },
+  flipped: {
+    type: Boolean,
+    default: false
   }
 });
 
 const videoElement = ref<HTMLVideoElement | null>(null);
 
+// 判断是否使用图片展示
+const isImage = computed(() => {
+  return !!props.product.imageSrc && !props.product.videoSrc;
+});
+
 // 确保视频正确加载
 onMounted(() => {
-  videoElement.value = document.getElementById(`product-video-${props.product.title}`) as HTMLVideoElement;
-  if (videoElement.value) {
-    videoElement.value.play().catch(error => {
-      console.error('视频自动播放失败:', error);
-    });
+  if (!isImage.value) {
+    videoElement.value = document.getElementById(`product-video-${props.product.title}`) as HTMLVideoElement;
+    if (videoElement.value) {
+      videoElement.value.play().catch(error => {
+        console.error('视频自动播放失败:', error);
+      });
+    }
   }
 });
 </script>
@@ -43,19 +54,33 @@ onMounted(() => {
 <template>
   <section class="video-showcase">
     <div class="container mx-auto px-4 py-10 md:py-16">
-      <div class="flex flex-col lg:flex-row items-start">
-        <!-- 产品描述 - 左侧 -->
-        <div class="lg:w-[35%] mb-8 lg:mb-0 product-content lg:pr-8">
+      <div class="flex flex-col lg:flex-row items-start" :class="{'lg:flex-row-reverse': flipped}">
+        <!-- 产品描述 -->
+        <div class="lg:w-[35%] mb-8 lg:mb-0 product-content" :class="flipped ? 'lg:pl-8' : 'lg:pr-8'">
           <h2 class="text-5xl lg:text-6xl font-bold mb-3">{{ props.product.title }}</h2>
           <h3 class="text-3xl lg:text-4xl font-medium mb-5">{{ props.product.subtitle }}</h3>
           <p class="mb-8 text-xl leading-relaxed">{{ props.product.description }}</p>
+          
+          <!-- 如果有CTA按钮 -->
+          <a v-if="props.product.ctaText && props.product.ctaLink" 
+             :href="props.product.ctaLink" 
+             class="cta-button">
+            {{ props.product.ctaText }}
+          </a>
         </div>
         
-        <!-- 视频/图片展示 - 右侧 -->
-        <div class="lg:w-[65%] video-container">
-          <div class="media-card ml-auto">
+        <!-- 视频/图片展示 -->
+        <div class="lg:w-[65%] media-container">
+          <div class="media-card" :class="flipped ? 'mr-auto' : 'ml-auto'">
             <div class="relative rounded-lg overflow-hidden shadow-lg">
-              <video 
+              <!-- 图片展示 -->
+              <img v-if="isImage" 
+                   :src="props.product.imageSrc" 
+                   :alt="props.product.title"
+                   class="w-full h-full object-cover" />
+              
+              <!-- 视频展示 -->
+              <video v-else
                 :id="`product-video-${props.product.title}`"
                 class="w-full h-full object-cover"
                 autoplay
@@ -130,6 +155,8 @@ onMounted(() => {
   transition: all 0.2s ease;
   font-size: 1.125rem;
   letter-spacing: 0.01em;
+  display: inline-block;
+  text-decoration: none;
 }
 
 .cta-button:hover {
@@ -142,7 +169,8 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.media-card video {
+.media-card video,
+.media-card img {
   aspect-ratio: 16/9;
   width: 100%;
   max-height: 750px;
@@ -179,7 +207,8 @@ onMounted(() => {
     margin: 0 auto;
 }
 
-  .media-card video {
+  .media-card video,
+  .media-card img {
     max-height: 450px;
   }
   

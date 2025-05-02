@@ -108,6 +108,8 @@
                   v-if="poiResult.enhanced_info"
                   :poiData="poiResult.pois"
                   :enhancedInfo="poiResult.enhanced_info"
+                  ref="poiAnalysisComponent"
+                  class="poi-analysis-section"
                 />
               </div>
               
@@ -1172,6 +1174,18 @@ const handlePoiSearch = async () => {
           }
         }
       }
+      
+      // 添加一个延迟，确保数据分析组件已经渲染
+      nextTick(() => {
+        setTimeout(() => {
+          // 如果POI分析组件已加载，触发其图表重新渲染
+          if (poiResult.value.pois && poiResult.value.pois.length > 0) {
+            // 触发事件通知图表组件重新绘制
+            handlePanelResize();
+            window.dispatchEvent(new CustomEvent('dashboard-panel-resize'));
+          }
+        }, 500);
+      });
     } else {
       ElMessage.error(`搜索失败: ${response.info || '未知错误'}`);
     }
@@ -3832,5 +3846,12 @@ onMounted(() => {
   line-height: 1.5;
   margin: 0;
   font-size: 1rem;
+}
+
+.poi-analysis-section {
+  margin-top: 20px;
+  padding: 5px;
+  background-color: #f9f9fb;
+  border-radius: 8px;
 }
 </style>

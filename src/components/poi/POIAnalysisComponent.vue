@@ -7,44 +7,41 @@
 <template>
   <div class="poi-analysis-container">
     <!-- 智能分析结果 -->
-    <el-card v-if="enhancedInfo" class="enhanced-analysis-card">
 
-      <div class="enhanced-analysis-content">{{ enhancedInfo }}</div>
 
-      <!-- 数据可视化图表 -->
-      <div v-if="poiData && poiData.length > 0" class="charts-container">
-        <div class="charts-header">
-          <el-icon><Histogram /></el-icon>
-          <span>数据可视化分析</span>
+    <!-- 数据可视化图表 -->
+    <div v-if="poiData && poiData.length > 0" class="charts-container">
+      <div class="charts-header">
+        <el-icon><Histogram /></el-icon>
+        <span>数据可视化分析</span>
+      </div>
+      
+      <div class="charts-grid">
+        <!-- 地点分布饼图 -->
+        <div class="chart-item">
+          <div class="chart-title">区域分布</div>
+          <div ref="poiDistChart" class="chart-container"></div>
         </div>
         
-        <div class="charts-grid">
-          <!-- 地点分布饼图 -->
-          <div class="chart-item">
-            <div class="chart-title">区域分布</div>
-            <div ref="poiDistChart" class="chart-container"></div>
-          </div>
-          
-          <!-- 评分分布柱状图 -->
-          <div class="chart-item">
-            <div class="chart-title">评分分布</div>
-            <div ref="poiRatingChart" class="chart-container"></div>
-          </div>
-          
-          <!-- 人流量曲线图 -->
-          <div class="chart-item">
-            <div class="chart-title">预估人流量趋势</div>
-            <div ref="poiCrowdChart" class="chart-container"></div>
-          </div>
-          
-          <!-- 场所类型分布图 -->
-          <div class="chart-item">
-            <div class="chart-title">场所类型分布</div>
-            <div ref="poiTypeChart" class="chart-container"></div>
-          </div>
+        <!-- 评分分布柱状图 -->
+        <div class="chart-item">
+          <div class="chart-title">评分分布</div>
+          <div ref="poiRatingChart" class="chart-container"></div>
+        </div>
+        
+        <!-- 人流量曲线图 -->
+        <div class="chart-item">
+          <div class="chart-title">预估人流量趋势</div>
+          <div ref="poiCrowdChart" class="chart-container"></div>
+        </div>
+        
+        <!-- 场所类型分布图 -->
+        <div class="chart-item">
+          <div class="chart-title">场所类型分布</div>
+          <div ref="poiTypeChart" class="chart-container"></div>
         </div>
       </div>
-    </el-card>
+    </div>
   </div>
 </template>
 
@@ -152,6 +149,11 @@ const renderPoiDistChart = () => {
     legend: {
       orient: 'horizontal',
       bottom: 10,
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: {
+        fontSize: 12
+      },
       data: Object.keys(areaDistribution)
     },
     series: [
@@ -159,20 +161,20 @@ const renderPoiDistChart = () => {
         name: '区域分布',
         type: 'pie',
         radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
+        center: ['50%', '45%'],
+        avoidLabelOverlap: true,
         itemStyle: {
-          borderRadius: 10,
+          borderRadius: 6,
           borderColor: '#fff',
           borderWidth: 2
         },
         label: {
-          show: false,
-          position: 'center'
+          show: false
         },
         emphasis: {
           label: {
             show: true,
-            fontSize: '14',
+            fontSize: 14,
             fontWeight: 'bold'
           }
         },
@@ -200,7 +202,8 @@ const renderPoiRatingChart = () => {
   // 基于POI类型生成更合理的评分分布
   let mainType = '';
   if (props.poiData && props.poiData.length > 0) {
-    mainType = props.poiData[0].type.split(';')[0];
+    const poi = props.poiData[0] as any;
+    mainType = poi.type ? poi.type.split(';')[0] : '';
   }
   
   // 评分分布数据
@@ -242,21 +245,33 @@ const renderPoiRatingChart = () => {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
-      top: '40px',
+      bottom: '15%',
+      top: '50px',
       containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: distributions.map(item => item.rating)
+      data: distributions.map(item => item.rating),
+      axisLabel: {
+        fontSize: 11,
+        rotate: 30,
+        interval: 0
+      }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          color: '#ddd'
+        }
+      }
     },
     series: [
       {
         name: '评分分布',
         type: 'bar',
+        barWidth: '50%',
         data: distributions.map(item => item.count),
         itemStyle: {
           color: function(params: any) {
@@ -268,7 +283,8 @@ const renderPoiRatingChart = () => {
         label: {
           show: true,
           position: 'top',
-          formatter: '{c}人'
+          formatter: '{c}人',
+          fontSize: 12
         }
       }
     ]
@@ -312,58 +328,56 @@ const renderPoiCrowdChart = () => {
   const hours = Array.from({length: 24}, (_, i) => `${i}:00`);
   
   // 获取POI信息用于分析
-  const mainPoi = props.poiData[0];
-  const mainType = mainPoi.type.split(';')[0];
+  let mainPoi: any = {};
+  let mainType = '';
+  if (props.poiData && props.poiData.length > 0) {
+    mainPoi = props.poiData[0] as any;
+    mainType = mainPoi.type ? mainPoi.type.split(';')[0] : '未知类型';
+  }
   
-  // 使用分析函数
-  const crowdAnalysis = analyzePoiCrowdTrend(mainType);
+  // 生成不同的人流量曲线
+  let crowdData = [];
   
-  // 生成人流量数据
-  let crowdData: number[] = [];
   if (mainType.includes('餐厅') || mainType.includes('美食')) {
-    // 餐厅人流
+    // 餐厅人流高峰在午餐和晚餐时间
     crowdData = hours.map((_, i) => {
-      if (i >= 11 && i <= 13) return Math.floor(Math.random() * 600) + 1400; // 午餐高峰
-      if (i >= 17 && i <= 20) return Math.floor(Math.random() * 700) + 1600; // 晚餐高峰
-      if (i >= 6 && i <= 22) return Math.floor(Math.random() * 800) + 600; // 营业时间
-      return Math.floor(Math.random() * 150) + 50; // 夜间
+      if (i >= 11 && i <= 13) return Math.floor(Math.random() * 100) + 300; // 午餐高峰
+      if (i >= 17 && i <= 20) return Math.floor(Math.random() * 150) + 350; // 晚餐高峰
+      if (i >= 7 && i <= 22) return Math.floor(Math.random() * 100) + 100; // 营业时间
+      return Math.floor(Math.random() * 30); // 夜间
     });
   } else if (mainType.includes('商场') || mainType.includes('购物')) {
-    // 商场人流
+    // 商场人流在下午和晚上较高
     crowdData = hours.map((_, i) => {
-      if (i >= 15 && i <= 20) return Math.floor(Math.random() * 1500) + 3500; // 下午晚上高峰
-      if (i >= 10 && i <= 22) return Math.floor(Math.random() * 1200) + 2000; // 营业时间
-      return Math.floor(Math.random() * 300) + 200; // 夜间
+      if (i >= 15 && i <= 20) return Math.floor(Math.random() * 200) + 500; // 下午晚上高峰
+      if (i >= 10 && i <= 22) return Math.floor(Math.random() * 150) + 300; // 营业时间
+      return Math.floor(Math.random() * 50); // 夜间
     });
   } else if (mainType.includes('景点') || mainType.includes('旅游')) {
-    // 景点人流
+    // 景点人流在白天较高
     crowdData = hours.map((_, i) => {
-      if (i >= 10 && i <= 16) return Math.floor(Math.random() * 2000) + 5000; // 白天高峰
-      if (i >= 8 && i <= 18) return Math.floor(Math.random() * 1500) + 3000; // 开放时间
-      return Math.floor(Math.random() * 500) + 300; // 夜间
+      if (i >= 10 && i <= 16) return Math.floor(Math.random() * 250) + 650; // 白天高峰
+      if (i >= 8 && i <= 18) return Math.floor(Math.random() * 200) + 350; // 开放时间
+      return Math.floor(Math.random() * 80); // 夜间
     });
   } else {
-    // 其他类型
+    // 其他类型的通用人流趋势
     crowdData = hours.map((_, i) => {
-      if (i >= 9 && i <= 11) return Math.floor(Math.random() * 1000) + 2000; // 上午高峰
-      if (i >= 14 && i <= 17) return Math.floor(Math.random() * 1000) + 2500; // 下午高峰
-      if (i >= 7 && i <= 20) return Math.floor(Math.random() * 800) + 1200; // 日间
-      return Math.floor(Math.random() * 300) + 200; // 夜间
+      if (i >= 9 && i <= 11 || i >= 14 && i <= 17) return Math.floor(Math.random() * 150) + 350; // 工作时间高峰
+      if (i >= 7 && i <= 21) return Math.floor(Math.random() * 100) + 150; // 白天
+      return Math.floor(Math.random() * 50); // 夜间
     });
   }
   
-  // 计算最大人流量
+  // 计算最大人流量，用于后续分析
   const maxFlow = Math.max(...crowdData);
-  
-  // 获取当前时段
-  const currentHour = new Date().getHours();
-  const currentHourIndex = hours.findIndex(h => parseInt(h) === currentHour);
-  const currentCrowdLevel = crowdData[currentHourIndex];
+  const avgFlow = Math.floor(crowdData.reduce((sum, val) => sum + val, 0) / crowdData.length);
+  const crowdingThreshold = Math.floor(maxFlow * 0.7); // 70%容量为拥挤阈值
   
   // 设置曲线图配置
   const option = {
     title: {
-      text: `${mainPoi.name} - 人流量预测趋势（人数）`,
+      text: `${mainPoi.name || '场所'} - 人流量预测趋势`,
       left: 'center',
       top: 0,
       textStyle: {
@@ -375,13 +389,22 @@ const renderPoiCrowdChart = () => {
       formatter: function(params: any) {
         const time = params[0].name;
         const value = params[0].value;
-        return `${time}<br/>预计人流量: ${value.toLocaleString()}人`;
+        // 计算拥挤度百分比
+        const percentage = Math.floor((value / maxFlow) * 100);
+        let crowdLevel = '极少';
+        if (percentage > 90) crowdLevel = '极度拥挤';
+        else if (percentage > 80) crowdLevel = '非常拥挤';
+        else if (percentage > 65) crowdLevel = '拥挤';
+        else if (percentage > 50) crowdLevel = '较多';
+        else if (percentage > 35) crowdLevel = '一般';
+        else if (percentage > 20) crowdLevel = '较少';
+        return `${time}<br/>人流量: ${value}人<br/>拥挤程度: ${crowdLevel} (${percentage}%)`;
       }
     },
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '8%',
       top: '50px',
       containLabel: true
     },
@@ -389,23 +412,16 @@ const renderPoiCrowdChart = () => {
       type: 'category',
       boundaryGap: false,
       data: hours,
-      axisLine: {
-        lineStyle: {
-          color: '#666'
-        }
-      },
       axisLabel: {
-        formatter: '{value}',
-        color: '#666'
+        interval: 'auto',
+        fontSize: 11,
+        hideOverlap: true
       }
     },
     yAxis: {
       type: 'value',
       axisLabel: {
-        formatter: function(value: number) {
-          return value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value;
-        },
-        color: '#666'
+        formatter: '{value}人'
       },
       splitLine: {
         lineStyle: {
@@ -416,44 +432,32 @@ const renderPoiCrowdChart = () => {
     },
     series: [
       {
-        name: '预测人流量',
+        name: '人流量',
         type: 'line',
         smooth: true,
         data: crowdData,
-        markArea: {
-          itemStyle: {
-            color: 'rgba(255, 173, 177, 0.2)'
-          },
-          data: [
-            // 标记高峰区域
-            crowdAnalysis.peakHours.map(peak => {
-              const [start, end] = peak.split('-');
-              return [
-                { xAxis: `${start.split(':')[0]}:00` },
-                { xAxis: `${end.split(':')[0]}:00` }
-              ];
-            })
-          ].flat()
-        },
         areaStyle: {
           opacity: 0.3,
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#1E88E5' },
-            { offset: 1, color: 'rgba(30, 136, 229, 0.1)' }
+            { offset: 0, color: '#1976d2' },
+            { offset: 1, color: 'rgba(25, 118, 210, 0.1)' }
           ])
         },
         lineStyle: {
           width: 3,
-          color: '#1E88E5'
+          color: '#1976d2'
         },
-        itemStyle: {
-          color: '#1E88E5'
-        },
-        markPoint: {
+        markLine: {
           data: [
-            { type: 'max', name: '高峰', itemStyle: { color: '#ff4d4f' } },
-            { type: 'min', name: '低谷', itemStyle: { color: '#52c41a' } },
-            { name: '当前', coord: [currentHourIndex, currentCrowdLevel], itemStyle: { color: '#faad14' } }
+            { type: 'average', name: '平均值' },
+            {
+              name: '拥挤阈值',
+              yAxis: crowdingThreshold,
+              lineStyle: {
+                color: '#f56c6c',
+                type: 'dashed'
+              }
+            }
           ]
         }
       }
@@ -493,27 +497,32 @@ const renderPoiTypeChart = () => {
     legend: {
       orient: 'horizontal',
       bottom: 10,
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: {
+        fontSize: 12
+      },
       data: Object.keys(typeDistribution)
     },
     series: [
       {
         name: '类型分布',
         type: 'pie',
-        radius: '70%',
-        avoidLabelOverlap: false,
+        radius: '65%',
+        center: ['50%', '45%'],
+        avoidLabelOverlap: true,
         itemStyle: {
-          borderRadius: 10,
+          borderRadius: 6,
           borderColor: '#fff',
           borderWidth: 2
         },
         label: {
-          show: true,
-          formatter: '{b}: {d}%'
+          show: false
         },
         emphasis: {
           label: {
             show: true,
-            fontSize: '14',
+            fontSize: 14,
             fontWeight: 'bold'
           }
         },
@@ -534,25 +543,70 @@ const handleChartResize = () => {
   if (poiTypeChartInstance) poiTypeChartInstance.resize();
 };
 
-// 生命周期钩子
-onMounted(() => {
-  window.addEventListener('resize', handleChartResize);
-  renderPoiCharts();
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleChartResize);
-  // 销毁图表实例
+// 初始化所有图表
+const initCharts = () => {
+  // 尝试移除旧的图表实例
   if (poiDistChartInstance) poiDistChartInstance.dispose();
   if (poiRatingChartInstance) poiRatingChartInstance.dispose();
   if (poiCrowdChartInstance) poiCrowdChartInstance.dispose();
   if (poiTypeChartInstance) poiTypeChartInstance.dispose();
+
+  // 重置实例
+  poiDistChartInstance = null;
+  poiRatingChartInstance = null;
+  poiCrowdChartInstance = null;
+  poiTypeChartInstance = null;
+
+  // 重新渲染图表
+  renderPoiCharts();
+};
+
+// 组件挂载时初始化图表并添加窗口大小变化监听
+onMounted(() => {
+  nextTick(() => {
+    renderPoiCharts();
+  });
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleChartResize);
+  
+  // 监听面板大小变化的自定义事件
+  window.addEventListener('dashboard-panel-resize', handleChartResize);
+});
+
+// 组件卸载时清理图表实例和事件监听
+onBeforeUnmount(() => {
+  // 清理图表实例
+  if (poiDistChartInstance) poiDistChartInstance.dispose();
+  if (poiRatingChartInstance) poiRatingChartInstance.dispose();
+  if (poiCrowdChartInstance) poiCrowdChartInstance.dispose();
+  if (poiTypeChartInstance) poiTypeChartInstance.dispose();
+  
+  // 移除事件监听
+  window.removeEventListener('resize', handleChartResize);
+  window.removeEventListener('dashboard-panel-resize', handleChartResize);
+});
+
+// 对外暴露的方法
+const clear = () => {
+  if (poiDistChartInstance) poiDistChartInstance.clear();
+  if (poiRatingChartInstance) poiRatingChartInstance.clear();
+  if (poiCrowdChartInstance) poiCrowdChartInstance.clear();
+  if (poiTypeChartInstance) poiTypeChartInstance.clear();
+};
+
+// 对外暴露的方法
+defineExpose({
+  renderPoiCharts,
+  clear,
+  initCharts
 });
 </script>
 
 <style scoped>
 .poi-analysis-container {
-  margin-top: 15px;
+  margin-top: 20px;
+  width: 100%;
 }
 
 .enhanced-analysis-card {
@@ -562,62 +616,51 @@ onBeforeUnmount(() => {
 .enhanced-analysis-header {
   display: flex;
   align-items: center;
-  font-size: 16px;
+  gap: 8px;
+  color: #1976d2;
   font-weight: 500;
 }
 
-.enhanced-analysis-header .el-icon {
-  margin-right: 8px;
-  font-size: 18px;
-  color: #1976d2;
-}
-
-.enhanced-analysis-content {
-  padding: 10px;
-  line-height: 1.6;
-  white-space: pre-line;
-}
-
 .charts-container {
-  margin-top: 15px;
+  margin-top: 20px;
+  width: 100%;
 }
 
 .charts-header {
   display: flex;
   align-items: center;
-  font-size: 16px;
+  gap: 8px;
   margin-bottom: 15px;
-  padding: 0 10px;
-}
-
-.charts-header .el-icon {
-  margin-right: 8px;
-  color: #1976d2;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
 }
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-gap: 20px;
-  padding: 0 10px;
+  grid-gap: 24px;
+  width: 100%;
 }
 
 .chart-item {
-  border: 1px solid #eee;
+  border: 1px solid #e4e7ed;
   border-radius: 8px;
-  padding: 10px;
-  background-color: #f9f9f9;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .chart-title {
   font-size: 14px;
-  margin-bottom: 10px;
-  color: #666;
   font-weight: 500;
+  margin-bottom: 12px;
+  color: #606266;
+  text-align: center;
 }
 
 .chart-container {
-  height: 250px;
+  height: 300px;
   width: 100%;
 }
 

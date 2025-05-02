@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
 import emailjs from '@emailjs/browser';
+import { ElMessage } from 'element-plus';
+import feedbackImage from '@/assets/images/feedback.png';
 
 // 定义表单数据
 const form = reactive({
@@ -650,7 +652,7 @@ const submitForm = async () => {
             <div class="rounded-lg overflow-hidden shadow-lg h-64 bg-gray-300">
               <!-- 地图占位符 -->
               <img
-                src="https://cdn.sanity.io/images/mgxz50fq/~production-v3/b05a19afaed85c6b8145dc929d1df8aed06ee414-1158x585.png?w=3000&fit=max&auto=format"
+                :src="feedbackImage"
                 alt="地图"
                 class="w-full h-full object-cover"
               >

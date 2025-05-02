@@ -421,12 +421,12 @@ onBeforeUnmount(() => {
 const handleResize = () => {
   // 调整所有活跃的图表
   setTimeout(() => {
-    if (batteryChart) batteryChart.resize();
-    if (signalChart) signalChart.resize();
-    if (speedChart) speedChart.resize();
-    if (recognitionChart) recognitionChart.resize();
-    if (personActivityChart) personActivityChart.resize();
-    if (riskChart) riskChart.resize();
+  if (batteryChart) batteryChart.resize();
+  if (signalChart) signalChart.resize();
+  if (speedChart) speedChart.resize();
+  if (recognitionChart) recognitionChart.resize();
+  if (personActivityChart) personActivityChart.resize();
+  if (riskChart) riskChart.resize();
   }, 300); // 延长延迟时间
 };
 
@@ -1005,28 +1005,28 @@ const initRecognitionChart = () => {
     series: [
       {
           name: '人物识别',
-          type: 'pie',
+        type: 'pie',
           radius: ['30%', '60%'],
           center: ['50%', '45%'],
           avoidLabelOverlap: true,
-          itemStyle: {
+        itemStyle: {
             borderColor: '#0a1929',
-            borderWidth: 2
-          },
+          borderWidth: 2
+        },
+        label: {
+            show: false
+        },
+        emphasis: {
           label: {
-            show: false
-          },
-          emphasis: {
-            label: {
-              show: true,
+            show: true,
               fontSize: '14',
-              fontWeight: 'bold',
-              color: '#ffffff'
-            }
-          },
-          labelLine: {
-            show: false
-          },
+            fontWeight: 'bold',
+            color: '#ffffff'
+          }
+        },
+        labelLine: {
+          show: false
+        },
           data: [
             { value: 42, name: '成年男性', itemStyle: { color: '#42A5F5' } },
             { value: 38, name: '成年女性', itemStyle: { color: '#EC407A' } },
@@ -1084,9 +1084,9 @@ const initTaskChart = () => {
             show: false
           },
           emphasis: {
-            label: {
-              show: true,
-              formatter: '{b}: {c}',
+          label: {
+            show: true,
+            formatter: '{b}: {c}',
               color: '#fff'
             }
           },
@@ -1127,51 +1127,51 @@ const initRiskChart = () => {
         data: ['低风险', '中风险', '高风险'],
         textStyle: { color: '#90caf9' },
         top: 10
-      },
-      grid: {
+    },
+    grid: {
         top: 50,
         left: 10,
         right: 20,
         bottom: 20,
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
         data: riskData.value.map(item => item.date),
-        axisLabel: {
+      axisLabel: {
           color: '#90caf9',
           fontSize: 10
-        },
-        axisLine: {
+      },
+      axisLine: {
           lineStyle: { color: '#1e3a5f' }
-        }
-      },
-      yAxis: {
-        type: 'value',
+      }
+    },
+    yAxis: {
+      type: 'value',
         axisLabel: { color: '#90caf9' },
-        splitLine: {
+      splitLine: {
           lineStyle: { color: '#1e3a5f', type: 'dashed' }
-        }
-      },
-      series: [
-        {
+      }
+    },
+    series: [
+      {
           name: '低风险',
-          type: 'bar',
-          stack: 'total',
+        type: 'bar',
+        stack: 'total',
           data: riskData.value.map(item => item.level1),
           itemStyle: { color: '#66BB6A' }
         },
         {
           name: '中风险',
-          type: 'bar',
-          stack: 'total',
+        type: 'bar',
+        stack: 'total',
           data: riskData.value.map(item => item.level2),
           itemStyle: { color: '#FFA726' }
         },
         {
           name: '高风险',
-          type: 'bar',
-          stack: 'total',
+        type: 'bar',
+        stack: 'total',
           data: riskData.value.map(item => item.level3),
           itemStyle: { color: '#EF5350' }
         }
@@ -1282,13 +1282,13 @@ const initRiskChart = () => {
       <div v-if="shouldShowChart('personActivity')" class="chart-container">
         <div id="person-activity-chart" class="chart"></div>
         <div v-if="chartsLoading.personActivity" class="chart-loading">加载中...</div>
-      </div>
+          </div>
       
       <!-- 任务执行图 -->
       <div v-if="shouldShowChart('task')" class="chart-container">
         <div id="task-chart" class="chart"></div>
         <div v-if="chartsLoading.task" class="chart-loading">加载中...</div>
-      </div>
+        </div>
       
       <!-- 风险分析图 -->
       <div v-if="shouldShowChart('risk')" class="chart-container">
@@ -1305,8 +1305,8 @@ const initRiskChart = () => {
         <div class="filter-button" @click="showFilterPanel = !showFilterPanel">
           <el-icon><Filter /></el-icon>
           筛选
+          </div>
         </div>
-      </div>
       
       <!-- 筛选面板 -->
       <div v-if="showFilterPanel" class="filter-panel">
@@ -1317,7 +1317,7 @@ const initRiskChart = () => {
       <div class="charts-grid">
         <div class="grid-item">
           <div class="chart-header">
-            <h3>电量趋势</h3>
+          <h3>电量趋势</h3>
             <div class="drone-selector">
               <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
                 <el-option
@@ -1339,10 +1339,10 @@ const initRiskChart = () => {
             </div>
           </div>
           <div id="battery-chart" class="chart"></div>
-        </div>
+          </div>
         <div class="grid-item">
           <div class="chart-header">
-            <h3>信号强度</h3>
+          <h3>信号强度</h3>
             <div class="drone-selector">
               <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
                 <el-option
@@ -1367,7 +1367,7 @@ const initRiskChart = () => {
         </div>
         <div class="grid-item">
           <div class="chart-header">
-            <h3>飞行速度</h3>
+          <h3>飞行速度</h3>
             <div class="drone-selector">
               <el-select v-model="selectedDroneId" placeholder="选择无人机" size="small">
                 <el-option
@@ -1393,11 +1393,11 @@ const initRiskChart = () => {
         <div class="grid-item">
           <h3>人物识别</h3>
           <div id="recognition-chart" class="chart"></div>
-        </div>
+      </div>
         <div class="grid-item">
           <h3>风险分析</h3>
           <div id="risk-chart" class="chart"></div>
-        </div>
+    </div>
         <div class="grid-item">
           <h3>任务执行</h3>
           <div id="task-chart" class="chart"></div>

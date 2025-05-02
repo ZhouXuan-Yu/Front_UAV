@@ -1,0 +1,1 @@
+import{_ as e}from"./FeatureView.vue_vue_type_script_setup_true_lang-Dyhv5N-f.js";import{d as o,x as t,f as r}from"./index-DX20QISl.js";import"./FeatureContent.vue_vue_type_script_setup_true_lang-CHweCjnn.js";import"./CtaSection-CwbmgmfF.js";import"@element-plus/icons-vue";const f=o({__name:"LicensePlateRecognitionView",setup(n){return(a,i)=>(r(),t(e))}});export{f as default};

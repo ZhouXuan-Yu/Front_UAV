@@ -8,12 +8,7 @@
   <div class="poi-analysis-container">
     <!-- 智能分析结果 -->
     <el-card v-if="enhancedInfo" class="enhanced-analysis-card">
-      <template #header>
-        <div class="enhanced-analysis-header">
-          <el-icon><DataAnalysis /></el-icon>
-          <span>DeepSeek 智能场所分析</span>
-        </div>
-      </template>
+
       <div class="enhanced-analysis-content">{{ enhancedInfo }}</div>
 
       <!-- 数据可视化图表 -->

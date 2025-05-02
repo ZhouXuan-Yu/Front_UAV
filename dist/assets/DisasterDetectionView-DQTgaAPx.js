@@ -1,0 +1,1 @@
+import{_ as e}from"./FeatureView.vue_vue_type_script_setup_true_lang-Dyhv5N-f.js";import{d as t,x as o,f as r}from"./index-DX20QISl.js";import"./FeatureContent.vue_vue_type_script_setup_true_lang-CHweCjnn.js";import"./CtaSection-CwbmgmfF.js";import"@element-plus/icons-vue";const f=t({__name:"DisasterDetectionView",setup(a){return(s,i)=>(r(),o(e))}});export{f as default};

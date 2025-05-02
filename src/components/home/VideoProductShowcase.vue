@@ -17,7 +17,7 @@ const props = defineProps({
   product: {
     type: Object,
     default: () => ({
-      title: 'Skydio X10:',
+  title: 'Skydio X10:',
       subtitle: "You've never seen like this before",
       description: 'A world-class drone program starts with Skydio X10. Loaded with the best sensors in its class, guided by the most advanced AI in the sky, and built to gather the data you need, wherever and whenever you need it.',
       videoSrc: new URL('@/assets/videos/file.mp4', import.meta.url).href,
@@ -41,11 +41,11 @@ const isImage = computed(() => {
 // 确保视频正确加载
 onMounted(() => {
   if (!isImage.value) {
-    videoElement.value = document.getElementById(`product-video-${props.product.title}`) as HTMLVideoElement;
-    if (videoElement.value) {
-      videoElement.value.play().catch(error => {
-        console.error('视频自动播放失败:', error);
-      });
+  videoElement.value = document.getElementById(`product-video-${props.product.title}`) as HTMLVideoElement;
+  if (videoElement.value) {
+    videoElement.value.play().catch(error => {
+      console.error('视频自动播放失败:', error);
+    });
     }
   }
 });

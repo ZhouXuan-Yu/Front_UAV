@@ -32,7 +32,6 @@ const productOne = {
   subtitle: "融合可见光与热成像数据，结合深度学习算法，实现复杂环境下的小目标精准探测",
   description: '针对低空经济中的智能感知需求，我们创新性地融合可见光与热成像数据，采用深度学习模型进行小目标检测与识别。该平台不仅提升了低空场景的感知能力，还为低空经济活动提供了更可靠的监测手段，广泛应用于夜间安保巡检、复杂地形测绘等低空经济活动。',
   imageSrc: new URL('@/assets/images/homepageRemote.jpg', import.meta.url).href,
-  ctaText: '了解更多',
   ctaLink: '/products/sensing'
 };
 

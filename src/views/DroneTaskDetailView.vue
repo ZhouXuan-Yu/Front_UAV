@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import MapComponent from '@/components/dashboard/MapComponent.vue';
+import { useRouter } from 'vue-router';
+import MapComponent from '@/components/dashboard/MapComponentFixed.vue';
 import { clearAllMapPoints } from '../patches/fix-map-component';
+
+// 创建路由实例
+const router = useRouter();
 
 // 任务信息
 const taskInfo = ref({
   id: 'DRN-2023-0542',
+  name: '东部湿地公园巡检',
   type: '区域巡检',
   startTime: '2023-11-08 14:30',
   endTime: '2023-11-08 17:30',
+  area: '湿地保护区东区',
+  status: 'running',
   droneId: 'Drone-X10',
+  droneName: 'SkyGuard X10',
+  droneBattery: 78,
+  droneSignal: 87,
+  droneAltitude: 120,
+  droneSpeed: 15,
   batteryLevel: '78% (约2小时15分)',
   signalStrength: '87% (良好)'
 });
@@ -57,12 +69,41 @@ const dronePosition = ref({ lng: 116.397428, lat: 39.90923 });
 const mapInstance = ref(null);
 
 // 切换地图类型
-const mapTypes = ['标准地图', '卫星模式', '3D图像', '热力图'];
+const mapTypes = [
+  { value: 'standard', label: '标准地图' },
+  { value: 'satellite', label: '卫星模式' },
+  { value: '3d', label: '3D图像' },
+  { value: 'heatmap', label: '热力图' }
+];
 const activeMapType = ref('标准地图');
+const currentMapType = ref('standard');
 
 const switchMapType = (type: string) => {
   activeMapType.value = type;
+  currentMapType.value = type;
   console.log('切换地图类型:', type);
+};
+
+// 获取任务状态文本
+const getStatusText = (status: string): string => {
+  switch (status) {
+    case 'waiting':
+      return '等待中';
+    case 'running':
+      return '执行中';
+    case 'completed':
+      return '已完成';
+    case 'failed':
+      return '失败';
+    default:
+      return '未知';
+  }
+};
+
+// 更新任务区域点
+const updateTaskArea = (points: any) => {
+  console.log('更新任务区域点:', points);
+  // 这里添加更新区域的逻辑
 };
 
 // 页面初始化时清理地图
@@ -153,7 +194,7 @@ onMounted(() => {
     <!-- 任务信息侧边栏 -->
     <div class="task-sidebar">
       <div class="header">
-        <div class="back-button" @click="$router.push('/dashboard')">
+        <div class="back-button" @click="router.push('/dashboard')">
           <i class="el-icon-arrow-left"></i>
           返回
         </div>

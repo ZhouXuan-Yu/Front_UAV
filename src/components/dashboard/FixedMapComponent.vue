@@ -164,27 +164,27 @@ const addDroneInfoWindow = () => {
   try {
     // 创建信息窗口内容
     const content = `
-      <div class="drone-info-window">
+      <div class="drone-info-window" style="color: #333;">
         <div class="drone-info-header">
-          <strong>${droneInfo.id}</strong>
-          <span class="drone-status">${droneInfo.status}</span>
+          <strong style="color: #000;">${droneInfo.id}</strong>
+          <span class="drone-status" style="color: #000;">${droneInfo.status}</span>
         </div>
         <div class="drone-info-body">
           <div class="info-row">
-            <span class="info-label">电量:</span>
-            <span class="info-value">${droneInfo.battery}%</span>
+            <span class="info-label" style="color: #333;">电量:</span>
+            <span class="info-value" style="color: #000;">${droneInfo.battery}%</span>
           </div>
           <div class="info-row">
-            <span class="info-label">高度:</span>
-            <span class="info-value">${droneInfo.altitude}m</span>
+            <span class="info-label" style="color: #333;">高度:</span>
+            <span class="info-value" style="color: #000;">${droneInfo.altitude}m</span>
           </div>
           <div class="info-row">
-            <span class="info-label">速度:</span>
-            <span class="info-value">${droneInfo.speed}km/h</span>
+            <span class="info-label" style="color: #333;">速度:</span>
+            <span class="info-value" style="color: #000;">${droneInfo.speed}km/h</span>
           </div>
           <div class="info-row">
-            <span class="info-label">信号:</span>
-            <span class="info-value">${droneInfo.signal}%</span>
+            <span class="info-label" style="color: #333;">信号:</span>
+            <span class="info-value" style="color: #000;">${droneInfo.signal}%</span>
           </div>
         </div>
       </div>

@@ -52,7 +52,7 @@
       </div>
       
       <div class="filter-controls" v-if="activeFilters.length > 0">
-        <button class="clear-filters-btn" @click="clearAllFilters">清除所有筛选条件</button>
+        <button class="clear-filters-btn" @click="resetAllFilters">清除所有筛选条件</button>
         <button class="ai-recommend-btn" v-if="deepSeekEnabled" @click="requestAiVisualizationRecommend">
           <i class="el-icon-magic-stick"></i> AI推荐可视化
         </button>
@@ -170,7 +170,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount, watch, nextTick, PropType, computed } from 'vue';
 import * as echarts from 'echarts';
-import { useVisualizationStore, DataPoint, FilterCondition } from '../../store/visualization';
+import { useVisualizationStore, DataPoint } from '../../store/visualization';
 import { DeepSeekVisualizationService, VisualizationRecommendation } from '../../services/DeepSeekVisualizationService';
 
 // 数据项接口
@@ -200,6 +200,14 @@ interface FilterCondition {
   value: any;
   displayValue: string;
   chartId: string;
+}
+
+// 导入的FilterCondition接口类型
+interface StoreFilterCondition {
+  id: string;
+  field: string;
+  operator: 'equal' | 'contains' | 'between';
+  value: any;
 }
 
 // 图表数据类型接口
@@ -1007,18 +1015,22 @@ export default defineComponent({
     
     // 处理筛选条件变化
     const handleFilterChange = (filterId: string, newValue: any) => {
-      // ... 保留原有代码 ...
+      // 找到要修改的筛选条件
+      const filterIndex = filters.value.findIndex(f => f.id === filterId);
+      if (filterIndex === -1) return;
+      
+      const currentFilter = filters.value[filterIndex];
       
       // 同步到状态管理
-      const condition: FilterCondition = {
+      const condition: StoreFilterCondition = {
         id: `filter-${Date.now()}`,
-        field: filter.dimension,
-        operator: filter.operator === 'equals' ? 'equal' : 
-                  filter.operator === 'in' ? 'contains' : 'between',
+        field: currentFilter.dimension,
+        operator: currentFilter.operator === 'equals' ? 'equal' : 
+                  currentFilter.operator === 'in' ? 'contains' : 'between',
         value: newValue
       };
       
-      visualizationStore.addFilter(condition);
+      visualizationStore.addFilter(condition as any);
       
       // 更新所有图表
       updateAllCharts();
@@ -1029,7 +1041,7 @@ export default defineComponent({
     
     // 清除所有筛选条件
     const clearAllFilters = () => {
-      // ... 保留原有代码 ...
+      resetAllFilters();
       
       // 从状态管理中清除
       visualizationStore.clearFilters();
@@ -1086,7 +1098,7 @@ export default defineComponent({
     
     // 在图表中高亮数据点
     const highlightDataPointInCharts = (point: DataPoint) => {
-      chartInstances.forEach((instance, chartId) => {
+      Object.entries(chartInstances.value).forEach(([chartId, instance]) => {
         if (!instance) return;
         
         const chart = props.chartConfigs.find(c => c.id === chartId);
@@ -1188,6 +1200,7 @@ export default defineComponent({
       totalRecords,
       removeFilter,
       resetAllFilters,
+      clearAllFilters,
       exportFilteredData,
       emitFilteredData,
       isChartFiltered,

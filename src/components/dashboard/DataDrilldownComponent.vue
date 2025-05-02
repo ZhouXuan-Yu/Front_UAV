@@ -595,7 +595,7 @@ onUnmounted(() => {
                   size="small" 
                   @click="drillDown(item.name)"
                   :icon="ZoomIn"
-                  :disabled="currentLevel.value !== 'overview'"
+                  :disabled="currentLevel !== 'overview'"
                 >
                   钻取
                 </el-button>

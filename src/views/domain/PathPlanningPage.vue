@@ -6,7 +6,7 @@ const pageData = {
   title: '智程导航',
   subtitle: 'LLM驱动，融合高德地图，智能解析并实时规划最优出行路径',
   description: '集成高德地图，利用本地大模型解析用户自然语言输入，精准识别起点、终点及出行需求，融合多种算法策略实时规划最优路线，提供详细导航指引与路况预警，高效满足用户出行规划需求。',
-  image: 'https://media.istockphoto.com/id/1389490813/video/aerial-time-lapse-hyperlapse-sunrise-over-big-city-morning-cityscape-drone-flight-over.jpg?s=640x640&k=20&c=iMWoT6ZIoXW36ciFCkG3nE9akQCyMnzizpt_lGvr2vM=',
+  image: new URL('@/assets/function/plan.png', import.meta.url).href,
   features: [
     {
       title: '多策略路线规划',

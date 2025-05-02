@@ -6,7 +6,7 @@ const pageData = {
   title: '智眸千析',
   subtitle: '多模态融合，LLM对话，精准识人与智能交互。',
   description: '基于深度学习技术的人物特征识别与分析系统，能够自动从图像中识别和提取人物的多维特征信息。系统支持性别、年龄、服装颜色等多项特征的精确识别，并通过自然语言交互界面呈现分析结果，为安防监控、人员管理等领域提供智能化解决方案。',
-  image: 'https://ext.same-assets.com/913537297/1124492884.jpeg',
+  image: new URL('@/assets/function/person.png', import.meta.url).href,
   features: [
     {
       title: '多模型特征融合',

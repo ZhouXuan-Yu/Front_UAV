@@ -4,7 +4,14 @@ import { useWindowSize } from '@vueuse/core';
 import { useRouter } from 'vue-router';
 
 // 导入图片资源
-const imagePath = new URL('@/assets/images/image.png', import.meta.url).href;
+const imagePath1 = new URL('@/assets/app/remote.jpg', import.meta.url).href;
+const imagePath2 = new URL('@/assets/app/image.jpg', import.meta.url).href;
+const imagePath3 = new URL('@/assets/app/homepageKnowledge2.jpg', import.meta.url).href;
+const imagePath4 = new URL('@/assets/app/plan.jpg', import.meta.url).href;
+const imagePath5 = new URL('@/assets/app/fire.jpg', import.meta.url).href;
+const imagePath6 = new URL('@/assets/app/night.jpg', import.meta.url).href;
+const imagePath7 = new URL('@/assets/app/remote1.jpg', import.meta.url).href;
+const imagePath8 = new URL('@/assets/app/car.jpg', import.meta.url).href;
 
 interface ActionCard {
   id: string;
@@ -25,7 +32,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'multimodal',
     title: '多模态融合感知，驱动低空经济智能监测升级',
     description: '融合可见光与热成像数据，结合深度学习模型实现复杂环境下小目标检测与识别，为低空经济活动提供全天候智能监测，提升安全性与效率，完美契合国家低空经济智能化发展政策。',
-    image: imagePath,
+    image: imagePath1,
     source: '空融智链',
     logo: '🛸',
     hasVideo: false,
@@ -37,7 +44,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'deeplearning',
     title: '深度学习赋能的精准识别，拓展低空经济应用场景',
     description: '利用多模型特征融合及深度学习算法，精准识别图像中的关键目标，为安防监控、人员管理等场景提供高效智能解决方案，拓展低空经济应用范围，符合国家对无人机技术智能化发展方向。',
-    image: imagePath,
+    image: imagePath2,
     source: '智眸千析',
     logo: '🧠',
     hasVideo: false,
@@ -49,7 +56,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'decision',
     title: '低空智能决策支持，助力低空经济智慧运营',
     description: '借助知识图谱与语义理解技术，整合低空经济专业知识，实现智能问答与决策支持，为无人机任务规划与低空经济运营管理提供精准建议，推动低空经济向智能化方向发展。',
-    image: imagePath,
+    image: imagePath3,
     source: '智慧知库',
     logo: '📊',
     hasVideo: false,
@@ -61,7 +68,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'collaboration',
     title: '低空智能体协同作业，构建低空经济产业生态',
     description: '实现无人机与其他智能体在低空环境中的协同作业，形成低空智能体生态系统，优化配送路线，提升整体物流效率，为低空经济产业发展注入新动力。',
-    image: imagePath,
+    image: imagePath4,
     source: '智航监控',
     logo: '🚁',
     hasVideo: true,
@@ -73,7 +80,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'disaster',
     title: '智能灾害预警，守护低空经济安全防线',
     description: '基于无人机航拍图像和深度学习模型，快速精准定位火灾、洪水等自然灾害区域，提升灾害响应速度，减少低空经济活动中的风险，保障人民生命财产安全，符合国家加强低空经济应急管理要求。',
-    image: imagePath,
+    image: imagePath5,
     source: '灾害预警系统',
     logo: '🔥',
     hasVideo: true,
@@ -85,7 +92,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'lowlight',
     title: '暗光增强与夜间行为识别',
     description: '通过深度学习分类算法，精准识别夜间场景中的人类行为，结合自适应增强算法和噪声抑制技术，提高夜间监控质量，当检测到危险行为时自动触发报警系统，提升夜间安全监管能力。',
-    image: imagePath,
+    image: imagePath6,
     source: '暗光增强系统',
     logo: '🌙',
     hasVideo: false,
@@ -97,7 +104,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'thermal',
     title: '热感探测与超远距离识别',
     description: '集成可见光和热成像双模态数据，专注于小目标检测与识别，通过多模态特征融合和跨模态匹配算法，实现恶劣环境和夜间条件下的高精度目标识别，有效解决传统方法对微小目标检测不足的问题。',
-    image: imagePath,
+    image: imagePath7,
     source: '热感探测系统',
     logo: '🔍',
     hasVideo: false,
@@ -109,7 +116,7 @@ const actionCards = ref<ActionCard[]>([
     id: 'license',
     title: '车牌监控与智能报警系统',
     description: '基于深度学习的车辆与车牌检测识别系统，采用级联检测架构和角点定位技术，实现车型识别、车牌定位和字符识别全流程，支持多种车牌类型识别，适应不同角度、光照条件下的车牌捕获与解析。',
-    image: imagePath,
+    image: imagePath8,
     source: '车牌监控系统',
     logo: '🚗',
     hasVideo: true,

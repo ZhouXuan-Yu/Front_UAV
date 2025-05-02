@@ -6,7 +6,7 @@ const pageData = {
   title: '夜间守护者系统',
   subtitle: '全方位夜间安全监控与保护解决方案',
   description: '夜间守护者系统是我们专为夜间安全监控设计的综合解决方案，集成了夜视技术、热成像和AI智能分析，提供无与伦比的夜间安全保障能力。',
-  image: 'https://ext.same-assets.com/913537297/1124492884.jpeg',
+  image: new URL('@/assets/function/guard.png', import.meta.url).href,
   features: [
     {
       title: '自动巡逻监控',

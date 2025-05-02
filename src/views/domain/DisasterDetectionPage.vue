@@ -6,7 +6,7 @@ const pageData = {
   title: '灾害预警',
   subtitle: '语义分割与异常模式监测，精准预警灾害风险。',
   description: '基于无人机航拍图像的森林火灾与洪水检测系统，实现对自然灾害的早期识别和监测。系统采用深度学习模型分析航拍图像，快速定位可能的灾害区域，为应急决策提供数据支持。',
-  image: 'https://ext.same-assets.com/913537297/3416323236.png',
+  image: new URL('@/assets/function/fire.png', import.meta.url).href,
   features: [
     {
       title: '火灾语义分割',

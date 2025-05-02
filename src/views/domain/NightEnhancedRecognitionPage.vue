@@ -5,22 +5,22 @@ import BaseFunctionPage from './BaseFunctionPage.vue';
 const pageData = {
   title: '夜间增强识别技术',
   subtitle: '先进的夜间光线增强与图像识别系统',
-  description: '我们的夜间增强识别技术结合了先进的光学成像和人工智能算法，使无人机能够在低光环境下进行高精度的目标识别和跟踪。',
-  image: 'https://ext.same-assets.com/913537297/3416323236.png',
+  description: '融合低光图像增强与目标检测技术，解决夜间、弱光环境下的视觉感知挑战。系统对低质量图像进行增强处理，同时进行目标识别和跟踪，适用于夜间交通监控、安保巡检等场景。',
+  image: new URL('@/assets/function/NighttimeEnhancement.png', import.meta.url).href,
   features: [
     {
-      title: '低光环境成像',
-      description: '在极低光照条件下捕获高质量图像，实现夜间监控和检测的清晰视觉。',
+      title: '自适应增强算法',
+      description: '针对不同程度的低光环境，动态调整图像亮度、对比度和细节，提升图像可视性同时保持自然效果。',
       icon: 'https://ext.same-assets.com/794583279/2838098675.svg'
     },
     {
-      title: '红外热成像集成',
-      description: '结合红外热成像技术，提供全天候、全天时的监控能力，不受光照条件限制。',
+      title: '噪声抑制与细节重建',
+      description: '结合降噪网络和细节增强网络，在提高亮度的同时抑制噪声放大，保持图像边缘和纹理细节。',
       icon: 'https://ext.same-assets.com/794583279/2018733539.svg'
     },
     {
-      title: 'AI增强处理',
-      description: '使用深度学习算法对夜间获取的图像进行实时增强和分析，提高识别精度。',
+      title: '低光目标检测',
+      description: '特别优化的目标检测算法，针对低光条件下目标特征不明显的问题，提高检测灵敏度和准确性。',
       icon: 'https://ext.same-assets.com/794583279/2067545548.svg'
     }
   ],

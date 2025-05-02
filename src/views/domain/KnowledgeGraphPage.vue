@@ -6,7 +6,7 @@ const pageData = {
   title: '智慧知库',
   subtitle: '融合LLM与知识图谱，联网检索赋能智能问答',
   description: '提供知识图谱驱动的智能问答系统，将结构化和非结构化知识统一管理，支持复杂语义查询和推理。用户可通过自然语言与系统交互，支持联网搜索，获取领域专业知识和智能决策支持。',
-  image: 'https://cdn.sanity.io/images/mgxz50fq/~production-v3/e3baeb17f1556c50a0ea5ca5a75d5e998426ff73-2559x1706.png',
+  image: new URL('@/assets/function/knowledge.png', import.meta.url).href,
   features: [
     {
       title: '知识图谱构建',

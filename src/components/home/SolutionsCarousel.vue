@@ -16,7 +16,7 @@ const solutions = ref<Solution[]>([
     title: '多模态融合感知',
     subtitle: '我们守护你，智能监测更守护你',
     description: '融合可见光与热成像数据，在复杂环境下实现小目标快速检测与识别。为低空经济活动提供全天候监测，确保安全与效率。',
-    image: '@/assets/images/data-dashboard-image.svg',
+    image: new URL('@/assets/images/homepageMultimodalPPT.jpg', import.meta.url).href,
     link: '/data-dashboard'
   },
   {
@@ -24,7 +24,7 @@ const solutions = ref<Solution[]>([
     title: '深度学习赋能',
     subtitle: '你看见所有，智眸千析看见细节',
     description: '利用多模型特征融合及深度学习算法，精准识别图像中的关键目标，为安防监控提供智能分析，实现高效精确的特征提取。',
-    image: '@/assets/images/person-recognition-image.svg',
+    image: new URL('@/assets/images/homepageImagePPT.jpeg', import.meta.url).href,
     link: '/person-recognition'
   },
   {
@@ -32,7 +32,7 @@ const solutions = ref<Solution[]>([
     title: '低空智能决策',
     subtitle: '你思考决策，智慧知库思考更快',
     description: '借助知识图谱与语义理解技术，整合低空经济专业知识，实现智能问答与高效决策支持，让每个行动都有智能辅助。',
-    image: '@/assets/images/smart-navigation-image.svg',
+    image: new URL('@/assets/images/homepageKnowledgePPT.jpg', import.meta.url).href,
     link: '/knowledge-graph'
   },
   {
@@ -40,7 +40,7 @@ const solutions = ref<Solution[]>([
     title: '多策略路径规划',
     subtitle: '你选择路径，智程导航选择最优解',
     description: '结合多种算法策略，实现无人机在复杂环境下的智能路径规划，提高低空飞行安全性与效率，让每次飞行都精准可靠。',
-    image: '@/assets/images/smart-navigation-image.svg',
+    image: new URL('@/assets/images/homepagePathlearningPPT.jpeg', import.meta.url).href,
     link: '/path-planning'
   },
   {
@@ -48,7 +48,7 @@ const solutions = ref<Solution[]>([
     title: '智能灾害预警',
     subtitle: '你保护世界，灾害预警保护你',
     description: '基于无人机航拍图像和深度学习模型，快速精准地检测火灾、洪水等自然灾害，为低空经济活动构筑坚实的安全防线。',
-    image: 'https://ext.same-assets.com/913537297/145035404.jpeg',
+    image: new URL('@/assets/images/homehagefire.jpg', import.meta.url).href,
     link: '/disaster-detection'
   }
 ]);
@@ -537,7 +537,7 @@ onUnmounted(() => {
               'transition-down': isScrollingDown
             }"
             :style="{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${solution.image})`,
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${solution.image})`,
             }"
           >
             <div class="slide-content" :class="{ 'active': index === currentIndex }">
@@ -786,6 +786,7 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
   margin-top: 1rem; /* 增加顶部间距 */
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* 添加文字阴影 */
 }
 
 .slide-title {
@@ -797,6 +798,7 @@ onUnmounted(() => {
   color: #3b82f6; /* Skydio blue */
   text-transform: uppercase;
   letter-spacing: 1px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); /* 添加文字阴影 */
 }
 
 .slide-headline {
@@ -807,6 +809,7 @@ onUnmounted(() => {
   margin-bottom: 2rem;
   color: white;
   max-width: 800px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 添加文字阴影 */
 }
 
 .slide-subtitle {
@@ -816,7 +819,7 @@ onUnmounted(() => {
 }
 
 .slide-description {
-  background-color: rgba(0, 0, 0, 0.2); /* 更透明的背景 */
+  background-color: rgba(0, 0, 0, 0.6); /* 更深的背景 */
   padding: 1.75rem;
   border-radius: 12px;
   margin-bottom: 2.5rem;
@@ -827,6 +830,7 @@ onUnmounted(() => {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* 添加阴影提高可读性 */
 }
 
 .slide-action {
